@@ -1,0 +1,51 @@
+.LiquidityList {
+  display: flex;
+  flex-direction: column;
+  max-width: 640px;
+  width: 100%;
+}
+
+.LiquidityList-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.LiquidityList-title {
+  margin: 0;
+}
+
+.LiquidityList-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.LiquidityList-create-pair {
+  margin-right: 8px;
+  background-color: transparent;
+  color: #1e52ac;
+  padding: 8px 16px;
+  border: 1px solid #1e52ac;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.LiquidityList-add-liquidity {
+  background-color: #1e52ac;
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid #1e52ac;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.LiquidityList-content {
+  border: 1px solid #888888;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+
+.LiquidityList-nullstate {
+  color: #888888;
+  font-size: 16px;
+}

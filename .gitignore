@@ -1,0 +1,7 @@
+venv/
+.mypy_cache/
+__pycache__/
+contracts/__pycache__/
+settings.json
+*.teal
+.DS_Store

@@ -1,0 +1,5 @@
+export ALGOD_ENDPOINT="https://testnet-algorand.api.purestake.io/ps2"
+export ALGOD_TOKEN="LGG679KlpG3kSNMWRpbr48XhlCUknSEC7gO0d1I5"
+export INDEXER_ENDPOINT="https://testnet-algorand.api.purestake.io/idx2"
+export INDEXER_TOKEN="$ALGOD_TOKEN"
+export DEVELOPER_ACCOUNT_PRIVATE_KEY="pulp junior nation knee pistol ring crazy page valley faculty soft pig differ wise laptop enter bridge blush toe giant shoot effort topple about notable"

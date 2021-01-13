@@ -2,7 +2,8 @@
 
 from pyteal import compileTeal, Seq, App, Assert, Txn, Gtxn, TxnType, Btoi, Bytes, Int, Return, If, Cond, And, Or, Not, Global, Mode, OnComplete, Concat, AssetHolding, AssetParam
 
-
+# Validator contract application ID
+validator_application_id = Int(123)
 # 45 parts out of 10000 from each swap goes to liquidity providers
 swap_fee = Int(45)
 # 5 parts out of 10000 from each swap goes to the developers
@@ -30,8 +31,6 @@ TRANSACTION_TYPE_ADD_LIQUIDITY_DEPOSIT = Bytes("a")
 TRANSACTION_TYPE_WITHDRAW_LIQUIDITY = Bytes("w")
 TRANSACTION_TYPE_REFUND = Bytes("r")
 TRANSACTION_TYPE_WITHDRAW_PROTOCOL_FEES = Bytes("p")
-
-validator_application_id = Int(123)  # TODO: update
 
 
 def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmpl_validator_application_id=validator_application_id):
@@ -124,7 +123,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_swap_deposit = Seq([
         Assert(And(
-            Global.group_size() == Int(3),  # two transactions in this group
+            Global.group_size() == Int(3),  # three transactions in this group
             Gtxn[0].application_id() == tmpl_validator_application_id,
             Txn.group_index() == Int(1),  # this ApplicationCall is the second one
             # the additional account is an escrow with token1
@@ -205,30 +204,12 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_add_liquidity_deposit = Seq([
         Assert(And(
-            Global.group_size() == Int(3),  # three transactions in this group
-            Txn.group_index() == Int(0),  # this ApplicationCall is the first one
-            Txn.on_completion() == OnComplete.NoOp,  # no additional actions needed
-            Txn.accounts.length() == Int(2),  # has two additional account attached
             get_token1.hasValue(),  # the first additional account is an escrow with token1
             get_token2.hasValue(),  # the first additional account is an escrow with token2
-            Txn.application_args.length() == Int(2),  # has two application arguments
-            # NOTE: no way to check length of foreign assets array as far as I could find (- Haardik)
-            # the second transaction is of type AssetTransfer
-            Gtxn[1].type_enum() == TxnType.AssetTransfer,
-            # asset sender is zero address
-            Gtxn[1].sender() == Global.zero_address(),
             # the transfer asset is TOKEN1
-            Gtxn[1].xfer_asset() == get_token1.value(),
-            # asset receiver is the escrow account
-            Gtxn[1].asset_receiver() == Txn.accounts[1],
-            # the third transaction is of type AssetTransfer
-            Gtxn[2].type_enum() == TxnType.AssetTransfer,
-            # asset sender is zero address
-            Gtxn[2].sender() == Global.zero_address(),
+            Gtxn[2].xfer_asset() == get_token1.value(),
             # the transfer asset is TOKEN2
-            Gtxn[2].xfer_asset() == get_token2.value(),
-            # asset receiver is the escrow account
-            Gtxn[2].asset_receiver() == Txn.accounts[1],
+            Gtxn[3].xfer_asset() == get_token2.value(),
         )),
         # set user unused token1 += token1_deposit - token1_used
         If(Gtxn[1].asset_amount() > Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value(),
@@ -256,24 +237,12 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_withdraw_liquidity = Seq([
         Assert(And(
-            Global.group_size() == Int(2),  # two transactions in this group
-            Txn.group_index() == Int(0),  # this ApplicationCall is the first one
-            Txn.on_completion() == OnComplete.NoOp,  # no additional actions attached
-            # this applicationCall has two additional accounts attached
-            Txn.accounts.length() == Int(2),
             # this ApplicationCall's first additional account is an escrow and has key of token 1
             get_token1.hasValue(),
             get_token2.hasValue(),  # has key of token 2 as well
-            # the second transaction in the group is of type AssetTransfer
-            Gtxn[1].type_enum() == TxnType.AssetTransfer,
-            # the AssetTransfer is a transaction from the sender of this ApplicationCall
-            Gtxn[1].sender() == Global.zero_address(),
+
             # the AssetTransfer is for liquidity token
-            Gtxn[1].xfer_asset() == get_liquidity_token.value(),
-            # asset sender is zero address
-            Gtxn[1].asset_sender() == Global.zero_address(),
-            # asset receiver is the escrow account
-            Gtxn[1].asset_receiver() == Txn.accounts[1],
+            Gtxn[2].xfer_asset() == get_liquidity_token.value(),
         )),
         # set user unused token1 += token1_available
         set_user_unused_token1(Txn.accounts[1], get_user_unused_token1(Txn.accounts[1]).value() + get_total_token1_balance.value(
@@ -292,24 +261,10 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_refund = Seq([
         Assert(And(
-            Global.group_size() == Int(2),  # two transactions in this group
-            Txn.group_index() == Int(0),  # this ApplicationCall is the first one
-            # this ApplicationCall doesn't have any additional actions attached to it
-            Txn.on_completion() == OnComplete.NoOp,
-            # this ApplicationCall has one additional account associated with it
-            Txn.accounts.length() == Int(1),
             # this ApplicationCall's additional account is an escrow account with token1
             get_token1.hasValue(),
             # this ApplicationCall's additional account is an escrow account with token2
             get_token2.hasValue(),
-            # the second transaction in this group is an AssetTransfer
-            Gtxn[1].type_enum() == TxnType.AssetTransfer,
-            # this AssetTransfer is a withdrawal from the additional associated account
-            Gtxn[1].sender() == Txn.accounts[1],
-            # this AssetTransfer is not a clawback transaction
-            Gtxn[1].asset_sender() == Global.zero_address(),
-            # this AssetTransfer is not an opt-out transaction
-            Gtxn[1].asset_close_to() == Global.zero_address(),
         )),
         Cond([
             # this AssetTransfer is for an available amount of TOKEN1
@@ -335,40 +290,25 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_withdraw_protocol_fees = Seq([
         Assert(And(
-            Global.group_size() == Int(3),  # three transactions in this group
-            Txn.group_index() == Int(0),  # this ApplicationCall is the first one
-            # this ApplicationCall was made by the creator of this application
-            Txn.sender() == App.globalGet(KEY_CREATOR),
-            # this ApplicationCall doesn't have any additional actions attached to it
-            Txn.on_completion() == OnComplete.NoOp,
-            # this ApplicationCall has one additional account associated with it
-            Txn.accounts.length() == Int(1),
+
+
             # this ApplicationCall's additional account is an escrow account with token1
             get_token1.hasValue(),
             # this ApplicationCall's additional account is an escrow account with token2
             get_token2.hasValue(),
-            # the second transaction in this group is a TOKEN1 AssetTransfer
-            Gtxn[1].type_enum() == TxnType.AssetTransfer,
-            # this TOKEN1 AssetTransfer is a withdrawal from the additional associated account
-            Gtxn[1].sender() == Txn.accounts[1],
+
             # this TOKEN1 AssetTransfer is for TOKEN1
             Gtxn[1].xfer_asset() == get_token1.value(),
             # this TOKEN1 AssetTransfer is for an available amount of TOKEN1
             Gtxn[1].asset_amount() <= get_protocol_unused_token1(
                 Txn.accounts[1]).value(),
-            # this TOKEN1 AssetTransfer is not a clawback transaction
-            Gtxn[1].asset_sender() == Global.zero_address(),
-            # the third transaction in this group is a TOKEN2 AssetTransfer
-            Gtxn[2].type_enum() == TxnType.AssetTransfer,
-            # this TOKEN2 AssetTransfer is a withdrawal from the additional associated account
-            Gtxn[2].sender() == Txn.accounts[1],
+
             # this TOKEN2 AssetTransfer is for TOKEN2
             Gtxn[2].xfer_asset() == get_token2.value(),
             # this TOKEN2 AssetTransfer is for an available amount of TOKEN2
             Gtxn[2].asset_amount() <= get_protocol_unused_token2(
                 Txn.accounts[1]).value(),
             # this TOKEN2 AssetTransfer is not a clawback transaction
-            Gtxn[2].asset_sender() == Global.zero_address()
         )),
         set_protocol_unused_token1(Txn.accounts[1], get_protocol_unused_token1(
             Txn.accounts[1]).value() - Gtxn[1].asset_amount()),

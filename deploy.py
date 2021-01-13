@@ -7,18 +7,23 @@ from algosdk import encoding, account, mnemonic, error
 from pyteal import compileTeal, Mode
 
 from contracts import manager
+from contracts import validator
 from contracts import escrow
 
 ALGOD_ENDPOINT = os.environ['ALGOD_ENDPOINT']
 ALGOD_TOKEN = os.environ['ALGOD_TOKEN']
 INDEXER_ENDPOINT = os.environ['INDEXER_ENDPOINT']
 INDEXER_TOKEN = os.environ['INDEXER_TOKEN']
-DEVELOPER_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(os.environ['DEVELOPER_ACCOUNT_PRIVATE_KEY'])
-DEVELOPER_ACCOUNT_ADDRESS = account.address_from_private_key(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+DEVELOPER_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(
+    os.environ['DEVELOPER_ACCOUNT_PRIVATE_KEY'])
+DEVELOPER_ACCOUNT_ADDRESS = account.address_from_private_key(
+    DEVELOPER_ACCOUNT_PRIVATE_KEY)
 ZERO_ADDRESS = encoding.encode_address(bytes(32))
 
-algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ENDPOINT, headers={"x-api-key": ALGOD_TOKEN})
-indexer_client = indexer.IndexerClient(INDEXER_TOKEN, INDEXER_ENDPOINT, headers={"x-api-key": INDEXER_TOKEN})
+algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ENDPOINT, headers={
+                                 "x-api-key": ALGOD_TOKEN})
+indexer_client = indexer.IndexerClient(
+    INDEXER_TOKEN, INDEXER_ENDPOINT, headers={"x-api-key": INDEXER_TOKEN})
 
 
 def wait_for_transaction(transaction_id):
@@ -52,55 +57,81 @@ def wait_for_transaction(transaction_id):
 
 if __name__ == "__main__":
     print("Compiling exchange manager application...")
-    manager_approve_teal_code = compileTeal(manager.approval_program(), Mode.Application)
+    manager_approve_teal_code = compileTeal(
+        manager.approval_program(), Mode.Application)
     compile_response = algod_client.compile(manager_approve_teal_code)
     manager_approve_code = base64.b64decode(compile_response['result'])
-    print(f"Exchange manager approve program currently uses {len(manager_approve_code)} of 1000 bytes")
-    manager_clear_teal_code = compileTeal(manager.clear_program(), Mode.Application)
+    print(
+        f"Exchange manager approve program currently uses {len(manager_approve_code)} of 1000 bytes")
+    manager_clear_teal_code = compileTeal(
+        manager.clear_program(), Mode.Application)
     compile_response = algod_client.compile(manager_clear_teal_code)
     manager_clear_code = base64.b64decode(compile_response['result'])
-    print(f"Exchange manager clear program currently uses {len(manager_clear_code)} of 1000 bytes")
+    print(
+        f"Exchange manager clear program currently uses {len(manager_clear_code)} of 1000 bytes")
 
-    print("Deploying exchange manager application...")
-    create_application_transaction = transaction.ApplicationCreateTxn(
-        sender=DEVELOPER_ACCOUNT_ADDRESS,
-        sp=algod_client.suggested_params(),
-        on_complete=transaction.OnComplete.NoOpOC,
-        approval_program=manager_approve_code,
-        clear_program=manager_clear_code,
-        global_schema=transaction.StateSchema(num_uints=0, num_byte_slices=1),
-        local_schema=transaction.StateSchema(num_uints=7, num_byte_slices=1),
-    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
-    transaction_id = algod_client.send_transaction(create_application_transaction)
-    exchange_application_id = wait_for_transaction(transaction_id)['created-application-index']
-    print(f"Exchange manager deployed with application ID {exchange_application_id} (transaction: {transaction_id})")
+    print("Compiling exchange validator application...")
+    validator_approve_teal_code = compileTeal(
+        validator.approval_program(), Mode.Application)
+    compile_response = algod_client.compile(validator_approve_teal_code)
+    validator_approve_code = base64.b64decode(compile_response['result'])
+    print(
+        f"Exchange validator approve program currently uses {len(validator_approve_code)} of 1000 bytes")
+    validator_clear_teal_code = compileTeal(
+        validator.clear_program(), Mode.Application)
+    compile_response = algod_client.compile(validator_clear_teal_code)
+    validator_clear_code = base64.b64decode(compile_response['result'])
+    print(
+        f"Exchange validator clear program currently uses {len(validator_clear_code)} of 1000 bytes")
 
-    # deploy escrow
-    escrow_teal_code = compileTeal(escrow.logicsig(), Mode.Application)
-    compile_response = algod_client.compile(escrow_teal_code)
-    ESCROW_ADDRESS = compile_response['hash']
-    print("ESCROW_ADDRESS:", ESCROW_ADDRESS)
-    print(f"Escrow logicsig currently uses {len(base64.b64decode(compile_response['result']))} of 1000 bytes")
+    # print("Deploying exchange manager application...")
+    # create_application_transaction = transaction.ApplicationCreateTxn(
+    #     sender=DEVELOPER_ACCOUNT_ADDRESS,
+    #     sp=algod_client.suggested_params(),
+    #     on_complete=transaction.OnComplete.NoOpOC,
+    #     approval_program=manager_approve_code,
+    #     clear_program=manager_clear_code,
+    #     global_schema=transaction.StateSchema(num_uints=0, num_byte_slices=1),
+    #     local_schema=transaction.StateSchema(num_uints=7, num_byte_slices=1),
+    # ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+    # transaction_id = algod_client.send_transaction(
+    #     create_application_transaction)
+    # exchange_application_id = wait_for_transaction(
+    #     transaction_id)['created-application-index']
+    # print(
+    #     f"Exchange manager deployed with application ID {exchange_application_id} (transaction: {transaction_id})")
 
-    token1_name, token2_name = "USDt", "USDC"  # TODO
-    create_asset_transaction = transaction.AssetConfigTxn(
-        sender=DEVELOPER_ACCOUNT_ADDRESS,
-        sp=algod_client.suggested_params(),
-        strict_empty_address_check=False,
-        total=1000,
-        default_frozen=False,
-        unit_name=f'ALGOSWAP',
-        asset_name=f'AlgoSwap {token1_name}-{token2_name} Liquidity',
-        manager=DEVELOPER_ACCOUNT_ADDRESS,  # TODO: change this to zero address (note that that change will break something in sig validation)
-        reserve=ESCROW_ADDRESS,
-        freeze=DEVELOPER_ACCOUNT_ADDRESS,  # TODO: change this to zero address (note that that change will break something in sig validation)
-        clawback=DEVELOPER_ACCOUNT_ADDRESS,  # TODO: change this to zero address (note that that change will break something in sig validation)
-        url="https://git.io/JU232",
-        metadata_hash=b"12345678901234567890123456789012",
-        decimals=8,
-    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
-    print(create_asset_transaction.dictify())
-    transaction_id = algod_client.send_transaction(create_asset_transaction)
-    print(wait_for_transaction(transaction_id))
-    liquidity_asset_id = wait_for_transaction(transaction_id)
-    print(f"Asset \"AlgoSwap {token1_name}-{token2_name} Liquidity\" deployed with asset ID {liquidity_asset_id} (transaction: {transaction_id})")
+    # # deploy escrow
+    # escrow_teal_code = compileTeal(escrow.logicsig(), Mode.Application)
+    # compile_response = algod_client.compile(escrow_teal_code)
+    # ESCROW_ADDRESS = compile_response['hash']
+    # print("ESCROW_ADDRESS:", ESCROW_ADDRESS)
+    # print(
+    #     f"Escrow logicsig currently uses {len(base64.b64decode(compile_response['result']))} of 1000 bytes")
+
+    # token1_name, token2_name = "USDt", "USDC"  # TODO
+    # create_asset_transaction = transaction.AssetConfigTxn(
+    #     sender=DEVELOPER_ACCOUNT_ADDRESS,
+    #     sp=algod_client.suggested_params(),
+    #     strict_empty_address_check=False,
+    #     total=1000,
+    #     default_frozen=False,
+    #     unit_name=f'ALGOSWAP',
+    #     asset_name=f'AlgoSwap {token1_name}-{token2_name} Liquidity',
+    #     # TODO: change this to zero address (note that that change will break something in sig validation)
+    #     manager=DEVELOPER_ACCOUNT_ADDRESS,
+    #     reserve=ESCROW_ADDRESS,
+    #     # TODO: change this to zero address (note that that change will break something in sig validation)
+    #     freeze=DEVELOPER_ACCOUNT_ADDRESS,
+    #     # TODO: change this to zero address (note that that change will break something in sig validation)
+    #     clawback=DEVELOPER_ACCOUNT_ADDRESS,
+    #     url="https://git.io/JU232",
+    #     metadata_hash=b"12345678901234567890123456789012",
+    #     decimals=8,
+    # ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+    # print(create_asset_transaction.dictify())
+    # transaction_id = algod_client.send_transaction(create_asset_transaction)
+    # print(wait_for_transaction(transaction_id))
+    # liquidity_asset_id = wait_for_transaction(transaction_id)
+    # print(
+    #     f"Asset \"AlgoSwap {token1_name}-{token2_name} Liquidity\" deployed with asset ID {liquidity_asset_id} (transaction: {transaction_id})")

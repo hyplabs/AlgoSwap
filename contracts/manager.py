@@ -14,7 +14,6 @@ protocol_fee = Int(5)
 # TODO: ensure other fields are not present in field validation for manager contract
 # TODO: consider moving some validation to the escrow
 
-KEY_CREATOR = Bytes("C")
 KEY_TOTAL_TOKEN1_BALANCE = Bytes("B1")
 KEY_TOTAL_TOKEN2_BALANCE = Bytes("B2")
 KEY_PROTOCOL_UNUSED_TOKEN1 = Bytes("P1")
@@ -86,10 +85,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
     def set_user_unused_liquidity(addr, amount): return App.localPut(
         Int(0), Concat(KEY_USER_UNUSED_LIQUIDITY, addr), amount)
 
-    on_create = Seq([
-        App.globalPut(KEY_CREATOR, Txn.sender()),
-        Int(1),
-    ])
+    on_create = Int(1)
 
     # allow closeout if the user has no remaining balances owed to them
     on_closeout = And(
@@ -123,13 +119,10 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_swap_deposit = Seq([
         Assert(And(
-            Global.group_size() == Int(3),  # three transactions in this group
+            # First transaction was to the Validator
             Gtxn[0].application_id() == tmpl_validator_application_id,
-            Txn.group_index() == Int(1),  # this ApplicationCall is the second one
             # the additional account is an escrow with token1
             get_token1.hasValue(),
-            # the additional account is an escrow with token2
-            get_token2.hasValue(),
             Gtxn[1].xfer_asset() == get_token1.value(),
         )),
         # add swap fee amount to liquidity pool
@@ -159,23 +152,12 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_swap_deposit_2 = Seq([
         Assert(And(
-            Global.group_size() == Int(2),  # two transactions in this group
-            Txn.group_index() == Int(0),  # this ApplicationCall is the first one
-            Txn.on_completion() == OnComplete.NoOp,  # no additional actions needed
-            Txn.accounts.length() == Int(1),  # has one additional account attached
+            # First transaction was to the Validator
+            Gtxn[0].application_id() == tmpl_validator_application_id,
             # the additional account is an escrow with token1
             get_token1.hasValue(),
-            # the additional account is an escrow with token2
-            get_token2.hasValue(),
-            Txn.application_args.length() == Int(2),  # has two application arguments
-            # the second transaction is of type AssetTransfer
-            Gtxn[1].type_enum() == TxnType.AssetTransfer,
-            # asset sender is zero address
-            Gtxn[1].sender() == Global.zero_address(),
             # transfer asset is Token2
             Gtxn[1].xfer_asset() == get_token2.value(),
-            # asset receiver is the escrow account
-            Gtxn[1].asset_receiver() == Txn.accounts[1],
         )),
         # add swap fee amount to liquidity pool
         set_total_token2_balance(get_total_token2_balance.value(
@@ -204,8 +186,9 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_add_liquidity_deposit = Seq([
         Assert(And(
+            # First transaction was to the Validator
+            Gtxn[0].application_id() == tmpl_validator_application_id,
             get_token1.hasValue(),  # the first additional account is an escrow with token1
-            get_token2.hasValue(),  # the first additional account is an escrow with token2
             # the transfer asset is TOKEN1
             Gtxn[2].xfer_asset() == get_token1.value(),
             # the transfer asset is TOKEN2
@@ -237,10 +220,10 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_withdraw_liquidity = Seq([
         Assert(And(
+            # First transaction was to the Validator
+            Gtxn[0].application_id() == tmpl_validator_application_id,
             # this ApplicationCall's first additional account is an escrow and has key of token 1
             get_token1.hasValue(),
-            get_token2.hasValue(),  # has key of token 2 as well
-
             # the AssetTransfer is for liquidity token
             Gtxn[2].xfer_asset() == get_liquidity_token.value(),
         )),
@@ -261,10 +244,10 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_refund = Seq([
         Assert(And(
+            # First transaction was to the Validator
+            Gtxn[0].application_id() == tmpl_validator_application_id,
             # this ApplicationCall's additional account is an escrow account with token1
             get_token1.hasValue(),
-            # this ApplicationCall's additional account is an escrow account with token2
-            get_token2.hasValue(),
         )),
         Cond([
             # this AssetTransfer is for an available amount of TOKEN1
@@ -290,12 +273,10 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_withdraw_protocol_fees = Seq([
         Assert(And(
-
-
+            # First transaction was to the Validator
+            Gtxn[0].application_id() == tmpl_validator_application_id,
             # this ApplicationCall's additional account is an escrow account with token1
             get_token1.hasValue(),
-            # this ApplicationCall's additional account is an escrow account with token2
-            get_token2.hasValue(),
 
             # this TOKEN1 AssetTransfer is for TOKEN1
             Gtxn[1].xfer_asset() == get_token1.value(),

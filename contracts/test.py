@@ -10,7 +10,7 @@ z = ScratchSlot()
 
 def test():
     program = Seq([
-        z.load(),
+        z.store(),
     ])
     return program
 

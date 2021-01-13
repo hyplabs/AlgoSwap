@@ -18,6 +18,7 @@ TRANSACTION_TYPE_REFUND = Bytes("r")
 TRANSACTION_TYPE_WITHDRAW_PROTOCOL_FEES = Bytes("p")
 
 
+
 def approval_program():
 
     # On application create, put the creator key in global storage
@@ -70,6 +71,10 @@ def approval_program():
                 Gtxn[2].sender() == Global.zero_address(),
                 # Asset receiver is attached account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
+                # Is not a close transaction
+                Gtxn[2].close_remainder_to() == Global.zero_address(),
+                # Is not a close asset transaction
+                Gtxn[2].asset_close_to() == Global.zero_address(),
             )
         ),
         Int(1)
@@ -113,6 +118,10 @@ def approval_program():
                 Gtxn[2].sender() == Global.zero_address(),
                 # Asset receiver is attached account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
+                # Is not a close transaction
+                Gtxn[2].close_remainder_to() == Global.zero_address(),
+                # Is not a close asset transaction
+                Gtxn[2].asset_close_to() == Global.zero_address(),
             )
         ),
         Int(1)
@@ -159,15 +168,23 @@ def approval_program():
                 Gtxn[2].sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
+                # Is not a close transaction
+                Gtxn[2].close_remainder_to() == Global.zero_address(),
+                # Is not a close asset transaction
+                Gtxn[2].asset_close_to() == Global.zero_address(),
 
                 # Fourth txn to Escrow
 
                 # Is of type AssetTransfer
-                Gtxn[2].type_enum() == TxnType.AssetTransfer,
+                Gtxn[3].type_enum() == TxnType.AssetTransfer,
                 # Asset sender is zero address
-                Gtxn[2].sender() == Global.zero_address(),
+                Gtxn[3].sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
-                Gtxn[2].asset_receiver() == Txn.accounts[1],
+                Gtxn[3].asset_receiver() == Txn.accounts[1],
+                # Is not a close transaction
+                Gtxn[3].close_remainder_to() == Global.zero_address(),
+                # Is not a close asset transaction
+                Gtxn[3].asset_close_to() == Global.zero_address(),
             )
         ),
         Int(1)
@@ -214,6 +231,10 @@ def approval_program():
                 Gtxn[2].sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
+                # Is not a close transaction
+                Gtxn[2].close_remainder_to() == Global.zero_address(),
+                # Is not a close asset transaction
+                Gtxn[2].asset_close_to() == Global.zero_address(),
             )
         ),
         Int(1),
@@ -268,7 +289,7 @@ def approval_program():
                 # sender is escrow
                 Gtxn[2].sender() == Txn.accounts[1],
                 # is not a clawback transaction
-                Gtxn[2].asset_sender() == Global.zero_address()
+                Gtxn[2].asset_sender() == Global.zero_address(),
             )
         ),
         Int(1)

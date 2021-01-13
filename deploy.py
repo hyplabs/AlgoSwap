@@ -32,27 +32,6 @@ def wait_for_transaction(transaction_id):
     result = indexer_client.search_transactions(txid=transaction_id)
     assert len(result['transactions']) == 1, result
     return result['transactions'][0]
-    # {
-    #     'application-transaction': {'accounts': [], 'application-args': [], 'application-id': 0, 'approval-program': 'AiAFAAIBAwQmEAFzAWEBdwFyAXABQwJVMQJVMgJVTAJMVAJCMQJUMQJUMgJCMgJQMQJQMjEYIhJAADgxGSMSQAA6MRkkEkAASjYaACgSQACKNhoAKRJAAIY2GgAqEkAAgjYaACsSQAB+NhoAJwQSQADwACcFMQBnJEIBeiInBmIiEiInB2IiEhAiJwhiIhIQQgFjMRsiEkAACDEbJRJAABcAIicJNhoAF2YiJwoiZiInCCJmJEIAICInCTYaAGYiJws2GgFmIicMNhoCZiInCiJmIicNImYkQgEbJEIBFyRCARMkQgEPMgQjEjEWIhIQMRkiEhAxHSQSEDQAEDMBECEEEhAzAQA2HAASEDMBEzIDEhAzARUyAxIQQAABADMBETQBEjMBEiInBmIOEEAAEzMBETQCEjMBEiInB2IOEEAAEAAkJwYiJwZiMwESCWZCAAwkJwciJwdiMwESCWYkQgCUMgQlEjEWIhIQMQAnBWQSEDEZIhIQMR0kEhA0ABAzARAhBBIQMwEANhwAEhAzARE0ARIQMwESJCcOYg4QMwETMgMSEDMBFTIDEhAzAhAhBBIQMwIANhwAEhAzAhE0AhIQMwISJCcPYg4QMwITMgMSEDMCFTIDEhBAAAEAJCcOJCcOYjMBEglmJCcPJCcPYjMCEglmJA==', 'clear-state-program': 'AiABASI=', 'foreign-apps': [], 'foreign-assets': [], 'global-state-schema': {'num-byte-slice': 1, 'num-uint': 0}, 'local-state-schema': {'num-byte-slice': 1, 'num-uint': 5}, 'on-completion': 'noop'},
-    #     'close-rewards': 0,
-    #     'closing-amount': 0,
-    #     'confirmed-round': 9439716,
-    #     'created-application-index': 12284334,
-    #     'fee': 1000,
-    #     'first-valid': 9439714,
-    #     'genesis-hash': 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    #     'genesis-id': 'testnet-v1.0',
-    #     'global-state-delta': [{'key': 'Qw==', 'value': {'action': 1, 'bytes': 'ItRhv40mcIYSmNgwLCxKOdWj7Fea+LuqZygf2OW7lJ4=', 'uint': 0}}],
-    #     'id': 'OXUCAGHYIHEBOBGT6LQV77QDYBJU4YWSLJEXJEBWQ6RNDC4HAJHQ',
-    #     'intra-round-offset': 0,
-    #     'last-valid': 9440714,
-    #     'receiver-rewards': 0,
-    #     'round-time': 1600932628,
-    #     'sender': 'ELKGDP4NEZYIMEUY3AYCYLCKHHK2H3CXTL4LXKTHFAP5RZN3SSPMW7CLVQ',
-    #     'sender-rewards': 0,
-    #     'signature': {'sig': 'wnwF16tQd5zgbuVVWf3Ih43Xa8ljfhp/lT/BIH5tJVEOHQSokxXvkDPqKLj83sPp97sUeGhzaFnWj0Wb0oACAA=='},
-    #     'tx-type': 'appl'
-    # }
 
 
 if __name__ == "__main__":
@@ -61,28 +40,63 @@ if __name__ == "__main__":
         manager.approval_program(), Mode.Application)
     compile_response = algod_client.compile(manager_approve_teal_code)
     manager_approve_code = base64.b64decode(compile_response['result'])
-    print(
-        f"Exchange manager approve program currently uses {len(manager_approve_code)} of 1000 bytes")
+    MANAGER_APPROVE_BYTECODE_LEN = len(manager_approve_code)
+    MANAGER_APPROVE_ADDRESS = compile_response['hash']
+
     manager_clear_teal_code = compileTeal(
         manager.clear_program(), Mode.Application)
     compile_response = algod_client.compile(manager_clear_teal_code)
     manager_clear_code = base64.b64decode(compile_response['result'])
+    MANAGER_CLEAR_BYTECODE_LEN = len(manager_clear_code)
+    MANAGER_CLEAR_ADDRESS = compile_response['hash']
     print(
-        f"Exchange manager clear program currently uses {len(manager_clear_code)} of 1000 bytes")
+        f"Exchange Manager | Approval: {MANAGER_APPROVE_BYTECODE_LEN}/1000 bytes ({MANAGER_APPROVE_ADDRESS}) | Clear: {MANAGER_CLEAR_BYTECODE_LEN}/1000 bytes ({MANAGER_CLEAR_ADDRESS})")
+
+    with open('manager_approval.teal', 'w') as f:
+        f.write(manager_approve_teal_code)
+    
+    with open('manager_clear.teal', 'w') as f:
+        f.write(manager_clear_teal_code)
+
+    print()
 
     print("Compiling exchange validator application...")
     validator_approve_teal_code = compileTeal(
         validator.approval_program(), Mode.Application)
     compile_response = algod_client.compile(validator_approve_teal_code)
     validator_approve_code = base64.b64decode(compile_response['result'])
-    print(
-        f"Exchange validator approve program currently uses {len(validator_approve_code)} of 1000 bytes")
+    VALIDATOR_APPROVE_BYTECODE_LEN = len(validator_approve_code)
+    VALIDATOR_APPROVE_ADDRESS = compile_response['hash']
+
     validator_clear_teal_code = compileTeal(
         validator.clear_program(), Mode.Application)
     compile_response = algod_client.compile(validator_clear_teal_code)
     validator_clear_code = base64.b64decode(compile_response['result'])
+    VALIDATOR_CLEAR_BYTECODE_LEN = len(validator_clear_code)
+    VALIDATOR_CLEAR_ADDRESS = compile_response['hash']
     print(
-        f"Exchange validator clear program currently uses {len(validator_clear_code)} of 1000 bytes")
+        f"Exchange Validator | Approval: {VALIDATOR_APPROVE_BYTECODE_LEN}/1000 bytes ({VALIDATOR_APPROVE_ADDRESS}) | Clear: {VALIDATOR_CLEAR_BYTECODE_LEN}/1000 bytes ({VALIDATOR_CLEAR_ADDRESS})")
+
+    with open('validator_approval.teal', 'w') as f:
+        f.write(validator_approve_teal_code)
+    
+    with open('validator_clear.teal', 'w') as f:
+        f.write(validator_clear_teal_code)
+
+    print()
+
+    print("Compiling exchange escrow logicsig...")
+    escrow_logicsig_code = compileTeal(escrow.logicsig(), Mode.Application)
+    compile_response = algod_client.compile(escrow_logicsig_code)
+    escrow_compiled_code = base64.b64decode(compile_response['result'])
+    ESCROW_BYTECODE_LEN = len(escrow_compiled_code)
+    ESCROW_ADDRESS = compile_response['hash']
+    print(
+        f"Exchange Escrow | {ESCROW_BYTECODE_LEN}/1000 bytes ({ESCROW_ADDRESS})")
+
+    with open('escrow.teal', 'w') as f:
+        f.write(escrow_logicsig_code)
+    
 
     # print("Deploying exchange manager application...")
     # create_application_transaction = transaction.ApplicationCreateTxn(

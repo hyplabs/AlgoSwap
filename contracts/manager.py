@@ -2,17 +2,11 @@
 
 from pyteal import compileTeal, Seq, App, Assert, Txn, Gtxn, TxnType, Btoi, Bytes, Int, Return, If, Cond, And, Or, Not, Global, Mode, OnComplete, Concat, AssetHolding, AssetParam
 
-# Validator contract application ID
-validator_application_id = Int(123)
 # 45 parts out of 10000 from each swap goes to liquidity providers
 swap_fee = Int(45)
 # 5 parts out of 10000 from each swap goes to the developers
 protocol_fee = Int(5)
 
-# TODO: validate escrow contracts are valid from the smart contract - verify hash of the escrow program is the escrow address
-# Checking the escrow account: https://github.com/algorand/stateful-teal-auction-demo/blob/master/src/sovauc_approve.teal#L500
-# TODO: ensure other fields are not present in field validation for manager contract
-# TODO: consider moving some validation to the escrow
 
 KEY_TOTAL_TOKEN1_BALANCE = Bytes("B1")
 KEY_TOTAL_TOKEN2_BALANCE = Bytes("B2")
@@ -32,58 +26,40 @@ TRANSACTION_TYPE_REFUND = Bytes("r")
 TRANSACTION_TYPE_WITHDRAW_PROTOCOL_FEES = Bytes("p")
 
 
-def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmpl_validator_application_id=validator_application_id):
-    get_liquidity_token = App.localGetEx(
-        Int(1), Global.current_application_id(), KEY_LIQUIDITY_TOKEN)
+def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
+    get_liquidity_token = App.localGetEx(Int(1), Global.current_application_id(), KEY_LIQUIDITY_TOKEN)
 
-    get_token1 = App.localGetEx(
-        Int(1), Global.current_application_id(), KEY_TOKEN1)
+    get_token1 = App.localGetEx(Int(1), Global.current_application_id(), KEY_TOKEN1)
 
-    get_token2 = App.localGetEx(
-        Int(1), Global.current_application_id(), KEY_TOKEN2)
+    get_token2 = App.localGetEx(Int(1), Global.current_application_id(), KEY_TOKEN2)
 
-    get_total_token1_balance = App.localGetEx(
-        Int(1), Global.current_application_id(), KEY_TOTAL_TOKEN1_BALANCE)
+    get_total_token1_balance = App.localGetEx(Int(1), Global.current_application_id(), KEY_TOTAL_TOKEN1_BALANCE)
 
-    get_total_token2_balance = App.localGetEx(
-        Int(1), Global.current_application_id(), KEY_TOTAL_TOKEN2_BALANCE)
+    get_total_token2_balance = App.localGetEx(Int(1), Global.current_application_id(), KEY_TOTAL_TOKEN2_BALANCE)
 
-    def set_total_token1_balance(b): return App.localPut(
-        Int(1), KEY_TOTAL_TOKEN1_BALANCE, b)
+    def set_total_token1_balance(b): return App.localPut(Int(1), KEY_TOTAL_TOKEN1_BALANCE, b)
 
-    def set_total_token2_balance(b): return App.localPut(
-        Int(1), KEY_TOTAL_TOKEN2_BALANCE, b)
+    def set_total_token2_balance(b): return App.localPut(Int(1), KEY_TOTAL_TOKEN2_BALANCE, b)
 
-    def get_protocol_unused_token1(addr): return App.localGetEx(
-        Int(1), Global.current_application_id(), Concat(KEY_PROTOCOL_UNUSED_TOKEN1, addr))
+    def get_protocol_unused_token1(addr): return App.localGetEx(Int(1), Global.current_application_id(), Concat(KEY_PROTOCOL_UNUSED_TOKEN1, addr))
 
-    def get_protocol_unused_token2(addr): return App.localGetEx(
-        Int(1), Global.current_application_id(), Concat(KEY_PROTOCOL_UNUSED_TOKEN2, addr))
+    def get_protocol_unused_token2(addr): return App.localGetEx(Int(1), Global.current_application_id(), Concat(KEY_PROTOCOL_UNUSED_TOKEN2, addr))
 
-    def set_protocol_unused_token1(addr, amount): return App.localPut(
-        Int(1), Concat(KEY_PROTOCOL_UNUSED_TOKEN1, addr), amount)
+    def set_protocol_unused_token1(addr, amount): return App.localPut(Int(1), Concat(KEY_PROTOCOL_UNUSED_TOKEN1, addr), amount)
 
-    def set_protocol_unused_token2(addr, amount): return App.localPut(
-        Int(1), Concat(KEY_PROTOCOL_UNUSED_TOKEN2, addr), amount)
+    def set_protocol_unused_token2(addr, amount): return App.localPut(Int(1), Concat(KEY_PROTOCOL_UNUSED_TOKEN2, addr), amount)
 
-    def get_user_unused_token1(addr): return App.localGetEx(
-        Int(0), Global.current_application_id(), Concat(KEY_USER_UNUSED_TOKEN1, addr))
+    def get_user_unused_token1(addr): return App.localGetEx(Int(0), Global.current_application_id(), Concat(KEY_USER_UNUSED_TOKEN1, addr))
 
-    def get_user_unused_token2(addr): return App.localGetEx(
-        Int(0), Global.current_application_id(), Concat(KEY_USER_UNUSED_TOKEN2, addr))
+    def get_user_unused_token2(addr): return App.localGetEx(Int(0), Global.current_application_id(), Concat(KEY_USER_UNUSED_TOKEN2, addr))
 
-    def set_user_unused_token1(addr, amount): return App.localPut(
-        Int(0), Concat(KEY_USER_UNUSED_TOKEN1, addr), amount)
+    def set_user_unused_token1(addr, amount): return App.localPut(Int(0), Concat(KEY_USER_UNUSED_TOKEN1, addr), amount)
 
-    def set_user_unused_token2(addr, amount): return App.localPut(
-        Int(0), Concat(KEY_USER_UNUSED_TOKEN2, addr), amount)
+    def set_user_unused_token2(addr, amount): return App.localPut(Int(0), Concat(KEY_USER_UNUSED_TOKEN2, addr), amount)
 
-    def get_user_unused_liquidity(addr): return App.localGetEx(
-        Int(0), Global.current_application_id(), Concat
-        (KEY_USER_UNUSED_LIQUIDITY, addr))
+    def get_user_unused_liquidity(addr): return App.localGetEx(Int(0), Global.current_application_id(), Concat(KEY_USER_UNUSED_LIQUIDITY, addr))
 
-    def set_user_unused_liquidity(addr, amount): return App.localPut(
-        Int(0), Concat(KEY_USER_UNUSED_LIQUIDITY, addr), amount)
+    def set_user_unused_liquidity(addr, amount): return App.localPut(Int(0), Concat(KEY_USER_UNUSED_LIQUIDITY, addr), amount)
 
     on_create = Int(1)
 
@@ -94,33 +70,38 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
         App.localGet(Int(0), KEY_USER_UNUSED_LIQUIDITY) == Int(0),
     )
 
-    on_opt_in = Cond([Txn.application_args.length() == Int(0), Seq([
-        # initialize sender's local state as a user
-        App.localPut(Int(0), KEY_LIQUIDITY_TOKEN,
-                     Btoi(Txn.application_args[0])),
-        App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(0)),
-        App.localPut(Int(0), KEY_USER_UNUSED_LIQUIDITY, Int(0)),
-        Int(1),
-    ])], [Txn.application_args.length() == Int(3), Seq([
-        # initialize sender's local state as an escrow
-        App.localPut(Int(0), KEY_LIQUIDITY_TOKEN, Txn.application_args[0]),
-        App.localPut(Int(0), KEY_TOKEN1, Txn.application_args[1]),
-        App.localPut(Int(0), KEY_TOKEN2, Txn.application_args[2]),
-        App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(0)),
-        App.localPut(Int(0), KEY_TOTAL_TOKEN2_BALANCE, Int(0)),
-        Int(1),
-    ])])
+    on_opt_in = Cond(
+        # User
+        [Txn.application_args.length() == Int(0),
+            Seq([
+                # initialize sender's local state as a user
+                App.localPut(Int(0), KEY_LIQUIDITY_TOKEN,
+                            Btoi(Txn.application_args[0])),
+                App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(0)),
+                App.localPut(Int(0), KEY_USER_UNUSED_LIQUIDITY, Int(0)),
+                Int(1),
+            ])
+        ],
+        # Escrow
+        [Txn.application_args.length() == Int(3),
+        Seq([
+            # initialize sender's local state as an escrow
+            App.localPut(Int(0), KEY_LIQUIDITY_TOKEN, Txn.application_args[0]),
+            App.localPut(Int(0), KEY_TOKEN1, Txn.application_args[1]),
+            App.localPut(Int(0), KEY_TOKEN2, Txn.application_args[2]),
+            App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(0)),
+            App.localPut(Int(0), KEY_TOTAL_TOKEN2_BALANCE, Int(0)),
+            Int(1),
+        ])]
+    )
 
-    def swap_token_input_minus_fees(asset_amount):
-        return asset_amount * (Int(1) - tmpl_protocol_fee - tmpl_swap_fee)
+    def swap_token_input_minus_fees(asset_amount): return asset_amount * (Int(1) - tmpl_protocol_fee - tmpl_swap_fee)
 
     def swap_token2_output(token1_input_minus_fees):
         return get_total_token2_balance.value() - (get_total_token1_balance.value() * get_total_token2_balance.value()) / (get_total_token1_balance.value() + token1_input_minus_fees)
 
     on_swap_deposit = Seq([
         Assert(And(
-            # First transaction was to the Validator
-            Gtxn[0].application_id() == tmpl_validator_application_id,
             # the additional account is an escrow with token1
             get_token1.hasValue(),
             Gtxn[1].xfer_asset() == get_token1.value(),
@@ -152,8 +133,6 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_swap_deposit_2 = Seq([
         Assert(And(
-            # First transaction was to the Validator
-            Gtxn[0].application_id() == tmpl_validator_application_id,
             # the additional account is an escrow with token1
             get_token1.hasValue(),
             # transfer asset is Token2
@@ -186,8 +165,6 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_add_liquidity_deposit = Seq([
         Assert(And(
-            # First transaction was to the Validator
-            Gtxn[0].application_id() == tmpl_validator_application_id,
             get_token1.hasValue(),  # the first additional account is an escrow with token1
             # the transfer asset is TOKEN1
             Gtxn[2].xfer_asset() == get_token1.value(),
@@ -220,8 +197,6 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_withdraw_liquidity = Seq([
         Assert(And(
-            # First transaction was to the Validator
-            Gtxn[0].application_id() == tmpl_validator_application_id,
             # this ApplicationCall's first additional account is an escrow and has key of token 1
             get_token1.hasValue(),
             # the AssetTransfer is for liquidity token
@@ -243,12 +218,10 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
     ])
 
     on_refund = Seq([
-        Assert(And(
-            # First transaction was to the Validator
-            Gtxn[0].application_id() == tmpl_validator_application_id,
+        Assert(
             # this ApplicationCall's additional account is an escrow account with token1
             get_token1.hasValue(),
-        )),
+        ),
         Cond([
             # this AssetTransfer is for an available amount of TOKEN1
             And(Gtxn[1].xfer_asset() == get_token1.value(), Gtxn[1].asset_amount(
@@ -273,8 +246,6 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
 
     on_withdraw_protocol_fees = Seq([
         Assert(And(
-            # First transaction was to the Validator
-            Gtxn[0].application_id() == tmpl_validator_application_id,
             # this ApplicationCall's additional account is an escrow account with token1
             get_token1.hasValue(),
 
@@ -289,7 +260,6 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee, tmp
             # this TOKEN2 AssetTransfer is for an available amount of TOKEN2
             Gtxn[2].asset_amount() <= get_protocol_unused_token2(
                 Txn.accounts[1]).value(),
-            # this TOKEN2 AssetTransfer is not a clawback transaction
         )),
         set_protocol_unused_token1(Txn.accounts[1], get_protocol_unused_token1(
             Txn.accounts[1]).value() - Gtxn[1].asset_amount()),

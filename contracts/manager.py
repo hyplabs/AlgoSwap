@@ -104,26 +104,41 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         Assert(And(
             # the additional account is an escrow with token1
             get_token1.hasValue(),
+            # transfer asset is TOKEN1
             Gtxn[1].xfer_asset() == get_token1.value(),
         )),
         # add swap fee amount to liquidity pool
         set_total_token1_balance(
-            get_total_token1_balance.value() + (Gtxn[1].asset_amount() * tmpl_swap_fee)),
+            get_total_token1_balance.value() + (Gtxn[1].asset_amount() * tmpl_swap_fee)
+        ),
         # add protocol fee to protocol fee account
-        set_protocol_unused_token1(Txn.accounts[1],
-                                   get_protocol_unused_token1(Txn.accounts[1]).value() + (Gtxn[1].asset_amount() * tmpl_protocol_fee)),
+        set_protocol_unused_token1(
+            Txn.accounts[1],
+            get_protocol_unused_token1(Txn.accounts[1]).value() + (Gtxn[1].asset_amount() * tmpl_protocol_fee)
+        ),
         # assert token 2 output >= min_token2_received_from_algoswap
-        Assert(swap_token2_output(swap_token_input_minus_fees(
-            Gtxn[1].asset_amount())) >= Btoi(Txn.application_args[1])),
+        Assert(
+            swap_token2_output(
+                swap_token_input_minus_fees(Gtxn[1].asset_amount())) >= Btoi(Txn.application_args[1]
+            )
+        ),
         # set user unused token 2 += token2_output
-        set_user_unused_token2(Txn.accounts[1], get_user_unused_token2(Txn.accounts[1]).value(
-        ) + swap_token2_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
+        set_user_unused_token2(
+            Txn.accounts[1],
+            get_user_unused_token2(
+                Txn.accounts[1]).value() + swap_token2_output(swap_token_input_minus_fees(Gtxn[1].asset_amount())
+            )
+        ),
         # update total token1 balance
-        set_total_token1_balance(get_total_token1_balance.value(
-        ) + swap_token_input_minus_fees(Gtxn[1].asset_amount())),
+        set_total_token1_balance(
+            get_total_token1_balance.value() + swap_token_input_minus_fees(Gtxn[1].asset_amount())
+        ),
         # update total token2 balance
-        set_total_token2_balance(get_total_token2_balance.value(
-        ) - swap_token2_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
+        set_total_token2_balance(
+            get_total_token2_balance.value() - swap_token2_output(
+                swap_token_input_minus_fees(Gtxn[1].asset_amount())
+            )
+        ),
         # successful approval
         Int(1)
     ])
@@ -139,29 +154,34 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             Gtxn[1].xfer_asset() == get_token2.value(),
         )),
         # add swap fee amount to liquidity pool
-        set_total_token2_balance(get_total_token2_balance.value(
-        ) + (Gtxn[1].asset_amount() * tmpl_swap_fee)),
+        set_total_token2_balance(
+            get_total_token2_balance.value() + (Gtxn[1].asset_amount() * tmpl_swap_fee)
+        ),
         # add protocol fee to protocol fees account
-        set_protocol_unused_token2(Txn.accounts[1], get_protocol_unused_token2(Txn.accounts[1]).value(
-        ) + (Gtxn[1].asset_amount() * tmpl_protocol_fee)),
+        set_protocol_unused_token2(
+            Txn.accounts[1],
+            get_protocol_unused_token2(Txn.accounts[1]).value() + (Gtxn[1].asset_amount() * tmpl_protocol_fee)
+        ),
         # assert token 1 output >= min_token1_received_from_algoswap
-        Assert(swap_token1_output(swap_token_input_minus_fees(
-            Gtxn[1].asset_amount())) >= Btoi(Txn.application_args[1])),
+        Assert(
+            swap_token1_output(
+                swap_token_input_minus_fees(Gtxn[1].asset_amount()
+            )) >= Btoi(Txn.application_args[1])
+        ),
         # set user unused token1 += token1_output
-        set_user_unused_token1(Txn.accounts[1], get_user_unused_token1(Txn.accounts[1]).value(
-        ) + swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
+        set_user_unused_token1(
+            Txn.accounts[1],
+            get_user_unused_token1(Txn.accounts[1]).value() + swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))
+        ),
         # update total token2 balance
-        set_total_token2_balance(get_total_token2_balance.value(
-        ) + swap_token_input_minus_fees(Gtxn[1].asset_amount())),
+        set_total_token2_balance(get_total_token2_balance.value() + swap_token_input_minus_fees(Gtxn[1].asset_amount())),
         # update total token1 balance
-        set_total_token1_balance(get_total_token1_balance.value(
-        ) - swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
+        set_total_token1_balance(get_total_token1_balance.value() - swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
         # successful approval
         Int(1),
     ])
 
-    def total_liquidity(total_supply, reserve_balance):
-        return total_supply - reserve_balance
+    def total_liquidity(total_supply, reserve_balance): return total_supply - reserve_balance
 
     on_add_liquidity_deposit = Seq([
         Assert(And(
@@ -174,20 +194,28 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         # set user unused token1 += token1_deposit - token1_used
         If(Gtxn[1].asset_amount() > Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value(),
            # token1_deposit > matched_token
-           set_user_unused_token1(Txn.accounts[1], get_user_unused_token1(Txn.accounts[1]).value() + Gtxn[1].asset_amount(
-           ) - (Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value()))),
+            set_user_unused_token1(
+               Txn.accounts[1], 
+               get_user_unused_token1(Txn.accounts[1]).value() + Gtxn[1].asset_amount() - 
+               (Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value())
+            )
+        ),
         # set user unused token2 += token2_deposit - token2_used
         If(Gtxn[2].asset_amount() > Gtxn[1].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value(),
            # token2_deposit > matched_token
-           set_user_unused_token2(Txn.accounts[1], get_user_unused_token2(Txn.accounts[1]).value() + Gtxn[2].asset_amount(
-           ) - (Gtxn[2].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value()))),
+           set_user_unused_token2(
+               Txn.accounts[1],
+               get_user_unused_token2(Txn.accounts[1]).value() + Gtxn[2].asset_amount() - 
+               (Gtxn[2].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value())
+            )
+        ),
         # set user unused liquidity += total_liquidity * token1_deposit / TOTAL_TOKEN1_BALANCE
-        set_user_unused_liquidity(Txn.accounts[1], get_user_unused_liquidity(
-            Txn.accounts[1]).value() + AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value()),
+        set_user_unused_liquidity(
+            Txn.accounts[1],
+            get_user_unused_liquidity(Txn.accounts[1]).value() + AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value()),
         # set TOTAL_TOKEN1_BALANCE += token1_used
         If(Gtxn[1].asset_amount() > Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value(),
-           set_total_token1_balance(get_total_token1_balance.value() + Gtxn[2].asset_amount(
-           ) * get_total_token1_balance.value() / get_total_token2_balance.value()),
+           set_total_token1_balance(get_total_token1_balance.value() + Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value()),
            set_total_token1_balance(get_total_token1_balance.value() + Gtxn[1].asset_amount())),
         # set TOTAL_TOKEN2_BALANCE += token2_used
         If(Gtxn[2].asset_amount() > Gtxn[1].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value(),
@@ -203,17 +231,17 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             Gtxn[2].xfer_asset() == get_liquidity_token.value(),
         )),
         # set user unused token1 += token1_available
-        set_user_unused_token1(Txn.accounts[1], get_user_unused_token1(Txn.accounts[1]).value() + get_total_token1_balance.value(
-        ) * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
+        set_user_unused_token1(
+            Txn.accounts[1],
+            get_user_unused_token1(Txn.accounts[1]).value() + get_total_token1_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
         # set user unused token2 += token2_available
-        set_user_unused_token2(Txn.accounts[1], get_user_unused_token2(Txn.accounts[1]).value() + get_total_token2_balance.value(
-        ) * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
+        set_user_unused_token2(
+            Txn.accounts[1],
+            get_user_unused_token2(Txn.accounts[1]).value() + get_total_token2_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
         # set TOTAL_TOKEN1_BALANCE -= token1_available
-        set_total_token1_balance(get_total_token1_balance.value() - get_total_token1_balance.value(
-        ) * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
+        set_total_token1_balance(get_total_token1_balance.value() - get_total_token1_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
         # set TOTAL_TOKEN2_BALANCE -= token2_available
-        set_total_token2_balance(get_total_token2_balance.value() - get_total_token2_balance.value(
-        ) * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
+        set_total_token2_balance(get_total_token2_balance.value() - get_total_token2_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
         Int(1)
     ])
 
@@ -224,22 +252,25 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         ),
         Cond([
             # this AssetTransfer is for an available amount of TOKEN1
-            And(Gtxn[1].xfer_asset() == get_token1.value(), Gtxn[1].asset_amount(
-            ) <= get_user_unused_token1(Txn.accounts[1]).value()),
-            set_user_unused_token1(Txn.accounts[1], get_user_unused_token1(
-                Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
+            And(
+                Gtxn[1].xfer_asset() == get_token1.value(),
+                Gtxn[1].asset_amount() <= get_user_unused_token1(Txn.accounts[1]).value()
+            ),
+            set_user_unused_token1(Txn.accounts[1], get_user_unused_token1(Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
         ], [
             # this AssetTransfer is for an available amount of TOKEN2
-            And(Gtxn[1].xfer_asset() == get_token2.value(), Gtxn[1].asset_amount(
-            ) <= get_user_unused_token2(Txn.accounts[1]).value()),
-            set_user_unused_token2(Txn.accounts[1], get_user_unused_token2(
-                Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
+            And(
+                Gtxn[1].xfer_asset() == get_token2.value(),
+                Gtxn[1].asset_amount() <= get_user_unused_token2(Txn.accounts[1]).value()
+            ),
+            set_user_unused_token2(Txn.accounts[1], get_user_unused_token2(Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
         ], [
             # this AssetTransfer is for an available amount of LIQUIDITY_TOKEN
-            And(Gtxn[1].xfer_asset() == get_liquidity_token.value(
-            ), Gtxn[1].asset_amount() <= get_user_unused_liquidity(Txn.accounts[1]).value()),
-            set_user_unused_liquidity(Txn.accounts[1], get_user_unused_liquidity(
-                Txn.accounts[1]).value() - Gtxn[1].asset_amount())
+            And(
+                Gtxn[1].xfer_asset() == get_liquidity_token.value(),
+                Gtxn[1].asset_amount() <= get_user_unused_liquidity(Txn.accounts[1]).value()
+            ),
+            set_user_unused_liquidity(Txn.accounts[1], get_user_unused_liquidity(Txn.accounts[1]).value() - Gtxn[1].asset_amount())
         ]),
         Int(1),
     ])
@@ -261,10 +292,8 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             Gtxn[2].asset_amount() <= get_protocol_unused_token2(
                 Txn.accounts[1]).value(),
         )),
-        set_protocol_unused_token1(Txn.accounts[1], get_protocol_unused_token1(
-            Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
-        set_protocol_unused_token2(Txn.accounts[1], get_protocol_unused_token2(
-            Txn.accounts[1]).value() - Gtxn[2].asset_amount()),
+        set_protocol_unused_token1(Txn.accounts[1], get_protocol_unused_token1(Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
+        set_protocol_unused_token2(Txn.accounts[1], get_protocol_unused_token2(Txn.accounts[1]).value() - Gtxn[2].asset_amount()),
         Int(1),
     ])
 

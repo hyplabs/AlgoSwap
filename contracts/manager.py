@@ -268,6 +268,9 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         Int(1)
     ])
 
+    scratchvar_token1_available = ScratchVar(TealType.uint64)
+    scratchvar_token2_available = ScratchVar(TealType.uint64)
+
     on_withdraw_liquidity = Seq([
         Assert(And(
             # this ApplicationCall's first additional account is an escrow and has key of token 1
@@ -275,18 +278,34 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             # the AssetTransfer is for liquidity token
             Gtxn[2].xfer_asset() == get_liquidity_token.value(),
         )),
-        # set user unused token1 += token1_available
+
+        # total_liquidity = Total Supply (LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))) - Balance (RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))))
+        # user_liquidity = Asset Amount (Txn)
+
+        # token1_available = TOTAL_TOKEN1_BALANCE * user_liquidity / total_liquidity
+        scratchvar_token1_available.store(get_total_token1_balance.value() * Gtxn[2].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
+
+        # USER_UNUSED_TOKEN1 = USER_UNUSED_TOKEN1 + token1_available
         set_user_unused_token1(
             Txn.accounts[1],
-            get_user_unused_token1(Txn.accounts[1]).value() + get_total_token1_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
-        # set user unused token2 += token2_available
+            get_user_unused_token1(Txn.accounts[1]).value() + scratchvar_token1_available.load()
+        ),
+        # token2_available = TOTAL_TOKEN2_BALANCE * user_liquidity / total_liquidity
+        scratchvar_token2_available.store(get_total_token2_balance.value() * Gtxn[2].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
+
+        # USER_UNUSED_TOKEN2 = USER_UNUSED_TOKEN2 + token2_available
         set_user_unused_token2(
             Txn.accounts[1],
-            get_user_unused_token2(Txn.accounts[1]).value() + get_total_token2_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
-        # set TOTAL_TOKEN1_BALANCE -= token1_available
-        set_total_token1_balance(get_total_token1_balance.value() - get_total_token1_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
-        # set TOTAL_TOKEN2_BALANCE -= token2_available
-        set_total_token2_balance(get_total_token2_balance.value() - get_total_token2_balance.value() * Gtxn[1].asset_amount() / (AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value())),
+            get_user_unused_token2(Txn.accounts[1]).value() + scratchvar_token2_available.load()
+        ),
+        # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE - token1_available
+        set_total_token1_balance(
+            get_total_token1_balance.value() - scratchvar_token1_available.load()
+        ),
+        # TOTAL_TOKEN2_BALANCE = TOTAL_TOKEN2_BALANCE - token2_available
+        set_total_token2_balance(
+            get_total_token2_balance.value() - scratchvar_token2_available.load()
+        ),
         Int(1)
     ])
 
@@ -298,24 +317,39 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         Cond([
             # this AssetTransfer is for an available amount of TOKEN1
             And(
-                Gtxn[1].xfer_asset() == get_token1.value(),
-                Gtxn[1].asset_amount() <= get_user_unused_token1(Txn.accounts[1]).value()
+                Gtxn[2].xfer_asset() == get_token1.value(),
+                Gtxn[2].asset_amount() <= get_user_unused_token1(Txn.accounts[1]).value()
             ),
-            set_user_unused_token1(Txn.accounts[1], get_user_unused_token1(Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
+            # unused_token1 = Gtxn[2].asset_amount()
+            # USER_UNUSED_TOKEN1 = USER_UNUSED_TOKEN1 - unused_token1
+            set_user_unused_token1(
+                Txn.accounts[1],
+                get_user_unused_token1(Txn.accounts[1]).value() - Gtxn[2].asset_amount()
+            ),
         ], [
             # this AssetTransfer is for an available amount of TOKEN2
             And(
-                Gtxn[1].xfer_asset() == get_token2.value(),
-                Gtxn[1].asset_amount() <= get_user_unused_token2(Txn.accounts[1]).value()
+                Gtxn[2].xfer_asset() == get_token2.value(),
+                Gtxn[2].asset_amount() <= get_user_unused_token2(Txn.accounts[1]).value()
             ),
-            set_user_unused_token2(Txn.accounts[1], get_user_unused_token2(Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
+            # unused_token2 = Gtxn[2].asset_amount()
+            # USER_UNUSED_TOKEN2 = USER_UNUSED_TOKEN2 - unused_token2
+            set_user_unused_token2(
+                Txn.accounts[1],
+                get_user_unused_token2(Txn.accounts[1]).value() - Gtxn[2].asset_amount()
+            ),
         ], [
             # this AssetTransfer is for an available amount of LIQUIDITY_TOKEN
             And(
-                Gtxn[1].xfer_asset() == get_liquidity_token.value(),
-                Gtxn[1].asset_amount() <= get_user_unused_liquidity(Txn.accounts[1]).value()
+                Gtxn[2].xfer_asset() == get_liquidity_token.value(),
+                Gtxn[2].asset_amount() <= get_user_unused_liquidity(Txn.accounts[1]).value()
             ),
-            set_user_unused_liquidity(Txn.accounts[1], get_user_unused_liquidity(Txn.accounts[1]).value() - Gtxn[1].asset_amount())
+            # unused_liquidity = Gtxn[2].asset_amount()
+            # USER_UNUSED_LIQUIDITY = USER_UNUSED_LIQUIDITY - unused_liquidity
+            set_user_unused_liquidity(
+                Txn.accounts[1], 
+                get_user_unused_liquidity(Txn.accounts[1]).value() - Gtxn[2].asset_amount()
+            )
         ]),
         Int(1),
     ])

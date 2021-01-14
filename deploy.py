@@ -147,15 +147,15 @@ def deploy_exchange_manager(manager_approve_code, manager_clear_code):
 
 if __name__ == "__main__":
 
-    # validator_approve_code, validator_clear_code = compile_exchange_validator()
+    validator_approve_code, validator_clear_code = compile_exchange_validator()
 
-    # manager_approve_code, manager_clear_code = compile_exchange_manager()
+    manager_approve_code, manager_clear_code = compile_exchange_manager()
 
-    # deploy_exchange_validator(validator_approve_code, validator_clear_code)
+    deploy_exchange_validator(validator_approve_code, validator_clear_code)
 
-    # deploy_exchange_manager(manager_approve_code, manager_clear_code)
+    deploy_exchange_manager(manager_approve_code, manager_clear_code)
 
-    # input("Please update the Escrow contract with the required Validator and Manager App ID's")
+    input("Please update the Escrow contract with the required Validator and Manager App ID's")
 
     escrow_logicsig, escrow_address = compile_exchange_escrow()
 
@@ -166,7 +166,7 @@ if __name__ == "__main__":
         sender=DEVELOPER_ACCOUNT_ADDRESS,
         sp=algod_client.suggested_params(),
         strict_empty_address_check=False,
-        total=1000,
+        total=10000000000000000000,
         default_frozen=False,
         unit_name=f"AS-Pair",
         asset_name=f"AlgoSwap {TOKEN1_NAME}-{TOKEN2_NAME} Liquidity Token",

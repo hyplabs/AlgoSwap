@@ -20,7 +20,24 @@ TRANSACTION_TYPE_WITHDRAW_PROTOCOL_FEES = Bytes("p")
 
 
 def approval_program():
+    """
+    This smart contract implements the Validator part of the AlgoSwap DEX.
+    It asserts the existence of all required transaction fields in every
+    transaction part of every possible atomic transaction group that AlgoSwap
+    supports (Swap Token 1 for Token 2, Swap Token 2 for Token 1, Add Liquidity,
+    Withdraw Liquidity, Withdraw Protocol Fees, and Refund).
 
+    Any atomic transaction group MUST have a transaction to the validator
+    smart contract as the first transaction of the group to proceed.
+
+    Commands:
+        s1  Swap Token 1 for Token 2 in a liquidity pair
+        s2  Swap Token 2 for Token 1 in a liquidity pair
+        a   Add liquidity to a liquidity pool
+        w   Withdraw liquidity from a liquidity pool
+        r   Get a refund of unused tokens
+        p   Withdraw protocol fees (Developer only)
+    """
     # On application create, put the creator key in global storage
     on_create = Seq([
         App.globalPut(KEY_CREATOR, Txn.sender()),

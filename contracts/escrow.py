@@ -5,6 +5,13 @@ manager_application_id = Int(123)  # TODO: update
 
 
 def logicsig(tmpl_validator_application_id=validator_application_id, tmpl_manager_application_id=manager_application_id):
+    """
+    This smart contract implements the Escrow part of the AlgoSwap DEX.
+    It is a logicsig smart contract for a specific liquidity pair (Token 1/Token 2)
+    where Token 1 and Token 2 are distinct Algorand Standard Assets (ASAs).
+    All withdrawals from this smart contract account require approval from the
+    Validator and Manager contracts first within the same atomic transaction group.
+    """
     program = And(
         Global.group_size() == Int(3),  # 3 transactions in this group
         # first one is an ApplicationCall

@@ -27,6 +27,25 @@ TRANSACTION_TYPE_WITHDRAW_PROTOCOL_FEES = Bytes("p")
 
 
 def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
+    """
+    This smart contract implements the Manager part of the AlgoSwap DEX.
+    It maintains the global and local storage for users and escrow contracts
+    that are opted into the AlgoSwap protocol for every possible atomic
+    transaction group that AlgoSwap supports (Swap Token 1 for Token 2,
+    Swap Token 2 for Token 1, Add Liquidity, Withdraw Liquidity, Withdraw 
+    Protocol Fees, and Refund).
+
+    Any atomic transaction group MUST have a transaction to the manager
+    smart contract as the second transaction of the group to proceed.
+
+    Commands:
+        s1  Swap Token 1 for Token 2 in a liquidity pair
+        s2  Swap Token 2 for Token 1 in a liquidity pair
+        a   Add liquidity to a liquidity pool
+        w   Withdraw liquidity from a liquidity pool
+        r   Get a refund of unused tokens
+        p   Withdraw protocol fees (Developer only)
+    """
     get_liquidity_token = App.localGetEx(Int(1), Global.current_application_id(), KEY_LIQUIDITY_TOKEN)
 
     get_token1 = App.localGetEx(Int(1), Global.current_application_id(), KEY_TOKEN1)

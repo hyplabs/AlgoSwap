@@ -359,20 +359,28 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             # this ApplicationCall's additional account is an escrow account with token1
             get_token1.hasValue(),
 
-            # this TOKEN1 AssetTransfer is for TOKEN1
-            Gtxn[1].xfer_asset() == get_token1.value(),
+            # this AssetTransfer is for TOKEN1
+            Gtxn[2].xfer_asset() == get_token1.value(),
             # this TOKEN1 AssetTransfer is for an available amount of TOKEN1
-            Gtxn[1].asset_amount() <= get_protocol_unused_token1(
-                Txn.accounts[1]).value(),
+            Gtxn[2].asset_amount() <= get_protocol_unused_token1(Txn.accounts[1]).value(),
 
-            # this TOKEN2 AssetTransfer is for TOKEN2
-            Gtxn[2].xfer_asset() == get_token2.value(),
+            # this AssetTransfer is for TOKEN2
+            Gtxn[3].xfer_asset() == get_token2.value(),
             # this TOKEN2 AssetTransfer is for an available amount of TOKEN2
-            Gtxn[2].asset_amount() <= get_protocol_unused_token2(
-                Txn.accounts[1]).value(),
+            Gtxn[3].asset_amount() <= get_protocol_unused_token2(Txn.accounts[1]).value(),
         )),
-        set_protocol_unused_token1(Txn.accounts[1], get_protocol_unused_token1(Txn.accounts[1]).value() - Gtxn[1].asset_amount()),
-        set_protocol_unused_token2(Txn.accounts[1], get_protocol_unused_token2(Txn.accounts[1]).value() - Gtxn[2].asset_amount()),
+        # withdraw_token1 = Gtxn[2].asset_amount()
+        # PROTOCOL_UNUSED_TOKEN1 = PROTOCOL_UNUSED_TOKEN1 - withdraw_token1
+        set_protocol_unused_token1(
+            Txn.accounts[1], 
+            get_protocol_unused_token1(Txn.accounts[1]).value() - Gtxn[2].asset_amount()
+        ),
+        # withdraw_token2 = Gtxn[2].asset_amount()
+        # PROTOCOL_UNUSED_TOKEN2 = PROTOCOL_UNUSED_TOKEN2 - withdraw_token2
+        set_protocol_unused_token2(
+            Txn.accounts[1], 
+            get_protocol_unused_token2(Txn.accounts[1]).value() - Gtxn[3].asset_amount()
+        ),
         Int(1),
     ])
 

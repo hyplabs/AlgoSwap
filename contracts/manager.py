@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pyteal import compileTeal, Seq, App, Assert, Txn, Gtxn, TxnType, Btoi, Bytes, Int, Return, If, Cond, And, Or, Not, Global, Mode, OnComplete, Concat, AssetHolding, AssetParam
+from pyteal import *
 
 # 45 parts out of 10000 from each swap goes to liquidity providers
 swap_fee = Int(45)
@@ -75,8 +75,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         [Txn.application_args.length() == Int(0),
             Seq([
                 # initialize sender's local state as a user
-                App.localPut(Int(0), KEY_LIQUIDITY_TOKEN,
-                            Btoi(Txn.application_args[0])),
+                App.localPut(Int(0), KEY_LIQUIDITY_TOKEN, Btoi(Txn.application_args[0])),
                 App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(0)),
                 App.localPut(Int(0), KEY_USER_UNUSED_LIQUIDITY, Int(0)),
                 Int(1),
@@ -100,44 +99,43 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     def swap_token2_output(token1_input_minus_fees):
         return get_total_token2_balance.value() - (get_total_token1_balance.value() * get_total_token2_balance.value()) / (get_total_token1_balance.value() + token1_input_minus_fees)
 
+    scratchvar_swap_token2_output = ScratchVar(TealType.uint64)
+
     on_swap_deposit = Seq([
         Assert(And(
             # the additional account is an escrow with token1
             get_token1.hasValue(),
             # transfer asset is TOKEN1
-            Gtxn[1].xfer_asset() == get_token1.value(),
+            Gtxn[2].xfer_asset() == get_token1.value(),
         )),
-        # add swap fee amount to liquidity pool
+        scratchvar_swap_token2_output.store(swap_token2_output(swap_token_input_minus_fees(Gtxn[2].asset_amount()))),
+        # Add swap fee amount to the liquidity pool
+        # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + token1_input * swap_fee
         set_total_token1_balance(
-            get_total_token1_balance.value() + (Gtxn[1].asset_amount() * tmpl_swap_fee)
+            get_total_token1_balance.value() + (Gtxn[2].asset_amount() * tmpl_swap_fee)
         ),
-        # add protocol fee to protocol fee account
+        # Add protocol fee to the protocol fees account
+        # PROTOCOL_UNUSED_TOKEN1 = PROTOCOL_UNUSED_TOKEN1 + token1_input * protocol_fee
         set_protocol_unused_token1(
             Txn.accounts[1],
-            get_protocol_unused_token1(Txn.accounts[1]).value() + (Gtxn[1].asset_amount() * tmpl_protocol_fee)
+            get_protocol_unused_token1(Txn.accounts[1]).value() + (Gtxn[2].asset_amount() * tmpl_protocol_fee)
         ),
-        # assert token 2 output >= min_token2_received_from_algoswap
+        # Assert token2_output >= min_token2_received_from_algoswap
         Assert(
-            swap_token2_output(
-                swap_token_input_minus_fees(Gtxn[1].asset_amount())) >= Btoi(Txn.application_args[1]
-            )
+            scratchvar_swap_token2_output.load() >= Btoi(Txn.application_args[1])
         ),
-        # set user unused token 2 += token2_output
+        # USER_UNUSED_TOKEN2 = USER_UNUSED_TOKEN2 + token2_output
         set_user_unused_token2(
             Txn.accounts[1],
-            get_user_unused_token2(
-                Txn.accounts[1]).value() + swap_token2_output(swap_token_input_minus_fees(Gtxn[1].asset_amount())
-            )
+            get_user_unused_token2(Txn.accounts[1]).value() + scratchvar_swap_token2_output.load()
         ),
-        # update total token1 balance
+        # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + token1_input_minus_fees
         set_total_token1_balance(
-            get_total_token1_balance.value() + swap_token_input_minus_fees(Gtxn[1].asset_amount())
+            get_total_token1_balance.value() + swap_token_input_minus_fees(Gtxn[2].asset_amount())
         ),
-        # update total token2 balance
+        # TOTAL_TOKEN2_BALANCE = TOTAL_TOKEN2_BALANCE - token2_output
         set_total_token2_balance(
-            get_total_token2_balance.value() - swap_token2_output(
-                swap_token_input_minus_fees(Gtxn[1].asset_amount())
-            )
+            get_total_token2_balance.value() - scratchvar_swap_token2_output.load()
         ),
         # successful approval
         Int(1)
@@ -146,6 +144,8 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     def swap_token1_output(token2_input_minus_fees):
         return get_total_token1_balance.value() - (get_total_token1_balance.value() * get_total_token2_balance.value()) / (get_total_token2_balance.value() + token2_input_minus_fees)
 
+    scratchvar_swap_token1_output = ScratchVar(TealType.uint64)
+
     on_swap_deposit_2 = Seq([
         Assert(And(
             # the additional account is an escrow with token1
@@ -153,6 +153,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             # transfer asset is Token2
             Gtxn[1].xfer_asset() == get_token2.value(),
         )),
+        scratchvar_swap_token1_output.store(swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
         # add swap fee amount to liquidity pool
         set_total_token2_balance(
             get_total_token2_balance.value() + (Gtxn[1].asset_amount() * tmpl_swap_fee)
@@ -164,19 +165,17 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         ),
         # assert token 1 output >= min_token1_received_from_algoswap
         Assert(
-            swap_token1_output(
-                swap_token_input_minus_fees(Gtxn[1].asset_amount()
-            )) >= Btoi(Txn.application_args[1])
+            scratchvar_swap_token1_output.load() >= Btoi(Txn.application_args[1])
         ),
         # set user unused token1 += token1_output
         set_user_unused_token1(
             Txn.accounts[1],
-            get_user_unused_token1(Txn.accounts[1]).value() + swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))
+            get_user_unused_token1(Txn.accounts[1]).value() + scratchvar_swap_token1_output.load()
         ),
         # update total token2 balance
         set_total_token2_balance(get_total_token2_balance.value() + swap_token_input_minus_fees(Gtxn[1].asset_amount())),
         # update total token1 balance
-        set_total_token1_balance(get_total_token1_balance.value() - swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
+        set_total_token1_balance(get_total_token1_balance.value() - scratchvar_swap_token1_output.load()),
         # successful approval
         Int(1),
     ])
@@ -320,16 +319,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     return program
 
 
-def clear_program():
-    # TODO
-    return Int(1)
-
-
 if __name__ == "__main__":
     with open('manager_approval.teal', 'w') as f:
         compiled = compileTeal(approval_program(), Mode.Application)
-        f.write(compiled)
-
-    with open('manager_clear.teal', 'w') as f:
-        compiled = compileTeal(clear_program(), Mode.Application)
         f.write(compiled)

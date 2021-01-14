@@ -359,16 +359,7 @@ def approval_program():
     )
     return program
 
-
-def clear_program():
-    return Int(1)
-
-
 if __name__ == "__main__":
     with open('validator_approval.teal', 'w') as f:
         compiled = compileTeal(approval_program(), Mode.Application)
-        f.write(compiled)
-
-    with open('validator_clear.teal', 'w') as f:
-        compiled = compileTeal(clear_program(), Mode.Application)
         f.write(compiled)

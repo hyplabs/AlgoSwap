@@ -43,21 +43,12 @@ if __name__ == "__main__":
     MANAGER_APPROVE_BYTECODE_LEN = len(manager_approve_code)
     MANAGER_APPROVE_ADDRESS = compile_response['hash']
 
-    manager_clear_teal_code = compileTeal(
-        manager.clear_program(), Mode.Application)
-    compile_response = algod_client.compile(manager_clear_teal_code)
-    manager_clear_code = base64.b64decode(compile_response['result'])
-    MANAGER_CLEAR_BYTECODE_LEN = len(manager_clear_code)
-    MANAGER_CLEAR_ADDRESS = compile_response['hash']
     print(
-        f"Exchange Manager | Approval: {MANAGER_APPROVE_BYTECODE_LEN}/1000 bytes ({MANAGER_APPROVE_ADDRESS}) | Clear: {MANAGER_CLEAR_BYTECODE_LEN}/1000 bytes ({MANAGER_CLEAR_ADDRESS})")
+        f"Exchange Manager | {MANAGER_APPROVE_BYTECODE_LEN}/1000 bytes ({MANAGER_APPROVE_ADDRESS})")
 
     with open('manager_approval.teal', 'w') as f:
         f.write(manager_approve_teal_code)
     
-    with open('manager_clear.teal', 'w') as f:
-        f.write(manager_clear_teal_code)
-
     print()
 
     print("Compiling exchange validator application...")
@@ -68,20 +59,12 @@ if __name__ == "__main__":
     VALIDATOR_APPROVE_BYTECODE_LEN = len(validator_approve_code)
     VALIDATOR_APPROVE_ADDRESS = compile_response['hash']
 
-    validator_clear_teal_code = compileTeal(
-        validator.clear_program(), Mode.Application)
-    compile_response = algod_client.compile(validator_clear_teal_code)
-    validator_clear_code = base64.b64decode(compile_response['result'])
-    VALIDATOR_CLEAR_BYTECODE_LEN = len(validator_clear_code)
-    VALIDATOR_CLEAR_ADDRESS = compile_response['hash']
+   
     print(
-        f"Exchange Validator | Approval: {VALIDATOR_APPROVE_BYTECODE_LEN}/1000 bytes ({VALIDATOR_APPROVE_ADDRESS}) | Clear: {VALIDATOR_CLEAR_BYTECODE_LEN}/1000 bytes ({VALIDATOR_CLEAR_ADDRESS})")
+        f"Exchange Validator | {VALIDATOR_APPROVE_BYTECODE_LEN}/1000 bytes ({VALIDATOR_APPROVE_ADDRESS})")
 
     with open('validator_approval.teal', 'w') as f:
         f.write(validator_approve_teal_code)
-    
-    with open('validator_clear.teal', 'w') as f:
-        f.write(validator_clear_teal_code)
 
     print()
 

@@ -7,7 +7,6 @@ x = ScratchSlot()
 y = ScratchSlot()
 z = ScratchSlot()
 
-
 def test():
     program = Seq([
         z.store(),

@@ -1,8 +1,7 @@
 from pyteal import compileTeal, Mode, And, Int, Global, Txn, Gtxn, TxnType
 
-validator_application_id = Int(123)  # TODO: update
-manager_application_id = Int(123)  # TODO: update
-
+validator_application_id = Int(13377026)
+manager_application_id = Int(13377027)
 
 def logicsig(tmpl_validator_application_id=validator_application_id, tmpl_manager_application_id=manager_application_id):
     """

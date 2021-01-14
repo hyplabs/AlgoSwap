@@ -104,9 +104,9 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         [Txn.application_args.length() == Int(3),
         Seq([
             # initialize sender's local state as an escrow
-            App.localPut(Int(0), KEY_LIQUIDITY_TOKEN, Txn.application_args[0]),
-            App.localPut(Int(0), KEY_TOKEN1, Txn.application_args[1]),
-            App.localPut(Int(0), KEY_TOKEN2, Txn.application_args[2]),
+            App.localPut(Int(0), KEY_LIQUIDITY_TOKEN, Btoi(Txn.application_args[0])),
+            App.localPut(Int(0), KEY_TOKEN1, Btoi(Txn.application_args[1])),
+            App.localPut(Int(0), KEY_TOKEN2, Btoi(Txn.application_args[2])),
             App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(0)),
             App.localPut(Int(0), KEY_TOTAL_TOKEN2_BALANCE, Int(0)),
             Int(1),
@@ -406,8 +406,5 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     )
     return program
 
-
-if __name__ == "__main__":
-    with open('manager_approval.teal', 'w') as f:
-        compiled = compileTeal(approval_program(), Mode.Application)
-        f.write(compiled)
+def clear_program():
+    return Return(Int(1))

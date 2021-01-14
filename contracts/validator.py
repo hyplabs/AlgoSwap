@@ -17,8 +17,6 @@ TRANSACTION_TYPE_WITHDRAW_LIQUIDITY = Bytes("w")
 TRANSACTION_TYPE_REFUND = Bytes("r")
 TRANSACTION_TYPE_WITHDRAW_PROTOCOL_FEES = Bytes("p")
 
-
-
 def approval_program():
     """
     This smart contract implements the Validator part of the AlgoSwap DEX.
@@ -297,16 +295,16 @@ def approval_program():
                 # sender is escrow
                 Gtxn[2].sender() == Txn.accounts[1],
                 # is not a clawback transaction
-                Gtxn[1].asset_sender() == Global.zero_address(),
+                Gtxn[2].asset_sender() == Global.zero_address(),
 
                 # Fourth txn from Escrow to Developer
 
                 # is of type AssetTransfer
                 Gtxn[3].type_enum() == TxnType.AssetTransfer,
                 # sender is escrow
-                Gtxn[2].sender() == Txn.accounts[1],
+                Gtxn[3].sender() == Txn.accounts[1],
                 # is not a clawback transaction
-                Gtxn[2].asset_sender() == Global.zero_address(),
+                Gtxn[3].asset_sender() == Global.zero_address(),
             )
         ),
         Int(1)
@@ -376,7 +374,5 @@ def approval_program():
     )
     return program
 
-if __name__ == "__main__":
-    with open('validator_approval.teal', 'w') as f:
-        compiled = compileTeal(approval_program(), Mode.Application)
-        f.write(compiled)
+def clear_program():
+    return Return(Int(1))

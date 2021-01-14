@@ -115,8 +115,13 @@ def deploy_exchange_validator(validator_approve_code, validator_clear_code):
         approval_program=validator_approve_code,
         clear_program=validator_clear_code,
         global_schema=transaction.StateSchema(num_uints=0, num_byte_slices=1),
+        # num_byte_slices = 1 is required in local_schema because of a bug
+        # in algosdk-py 
+        # Even though it should be 0 as validator does not use local storage,
+        # it does not work if set to 0
         local_schema=transaction.StateSchema(num_uints=0, num_byte_slices=1),
     ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+    
     tx_id = algod_client.send_transaction(create_validator_transaction)
     validator_app_id = wait_for_transaction(tx_id)['created-application-index']
     print(

@@ -1,2 +1,3 @@
 git+git://github.com/algorand/pyteal@e4887d9
 py-algorand-sdk==1.4.0
+pytest==6.2.1

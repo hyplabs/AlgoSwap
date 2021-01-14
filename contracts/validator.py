@@ -2,10 +2,6 @@
 
 from pyteal import compileTeal, Seq, App, Assert, Txn, Gtxn, TxnType, Btoi, Bytes, Int, Return, If, Cond, And, Or, Not, Global, Mode, OnComplete, Concat, AssetHolding, AssetParam
 
-# Tmpl Constants
-swap_fee = Int(45)
-protocol_fee = Int(5)
-
 # Keys
 KEY_CREATOR = Bytes("C")
 

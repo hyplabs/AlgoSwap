@@ -209,35 +209,62 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             # the transfer asset is TOKEN2
             Gtxn[3].xfer_asset() == get_token2.value(),
         )),
-        # set user unused token1 += token1_deposit - token1_used
-        If(Gtxn[1].asset_amount() > Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value(),
-           # token1_deposit > matched_token
+        # token1_used = min(token1_deposit, (token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE))
+        # If token1_deposit > (token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE)
+        If(Gtxn[2].asset_amount() > Gtxn[3].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value(),
+            # USER_UNUSED_TOKEN1 = USER_UNUSED_TOKEN1 + token1_deposit - token1_used
+            # USER_UNUSED_TOKEN1 = USER_UNUSED_TOKEN1 + token1_deposit - (token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE)
             set_user_unused_token1(
                Txn.accounts[1], 
-               get_user_unused_token1(Txn.accounts[1]).value() + Gtxn[1].asset_amount() - 
-               (Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value())
+               get_user_unused_token1(Txn.accounts[1]).value() + Gtxn[2].asset_amount() - 
+               (Gtxn[3].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value())
             )
+            # Else:
+            # USER_UNUSED_TOKEN1 = USER_UNUSED_TOKEN1 + token1_deposit - token1_used
+            # USER_UNUSED_TOKEN1 = USER_UNUSED_TOKEN1 + token1_deposit - token1_deposit
+            # Nothing required
         ),
-        # set user unused token2 += token2_deposit - token2_used
-        If(Gtxn[2].asset_amount() > Gtxn[1].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value(),
-           # token2_deposit > matched_token
+        # token2_used = min(token2_deposit, (token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE))
+        # If token2_deposit > (token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE)
+        If(Gtxn[3].asset_amount() > Gtxn[2].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value(),
+           # USER_UNUSED_TOKEN2 = USER_UNUSED_TOKEN2 + token2_deposit - token2_used
+           # USER_UNUSED_TOKEN2 = USER_UNUSED_TOKEN2 + token2_deposit - (token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE)
            set_user_unused_token2(
                Txn.accounts[1],
-               get_user_unused_token2(Txn.accounts[1]).value() + Gtxn[2].asset_amount() - 
+               get_user_unused_token2(Txn.accounts[1]).value() + Gtxn[3].asset_amount() - 
                (Gtxn[2].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value())
             )
+            # Else:
+            # USER_UNUSED_TOKEN2 = USER_UNUSED_TOKEN2 + token2_deposit - token2_used
+            # USER_UNUSED_TOKEN2 = USER_UNUSED_TOKEN2 + token2_deposit - token2_deposit
+            # Nothing required
         ),
-        # set user unused liquidity += total_liquidity * token1_deposit / TOTAL_TOKEN1_BALANCE
+        # total_liquidity = Total Supply (LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))) - Balance (RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))))
+        # USER_UNUSED_LIQUIDITY = USER_UNUSED_LIQUIDITY + total_liquidity * token1_deposit / TOTAL_TOKEN1_BALANCE
         set_user_unused_liquidity(
             Txn.accounts[1],
-            get_user_unused_liquidity(Txn.accounts[1]).value() + AssetParam.total(Int(0)).value() - AssetHolding.balance(Int(2), get_liquidity_token.value()).value()),
-        # set TOTAL_TOKEN1_BALANCE += token1_used
-        If(Gtxn[1].asset_amount() > Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value(),
-           set_total_token1_balance(get_total_token1_balance.value() + Gtxn[2].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value()),
-           set_total_token1_balance(get_total_token1_balance.value() + Gtxn[1].asset_amount())),
-        # set TOTAL_TOKEN2_BALANCE += token2_used
-        If(Gtxn[2].asset_amount() > Gtxn[1].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value(),
-           set_total_token2_balance(get_total_token2_balance.value() + Gtxn[1].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value()), set_total_token2_balance(get_total_token2_balance.value() + Gtxn[2].asset_amount())),
+            get_user_unused_liquidity(Txn.accounts[1]).value() + 
+            AssetParam.total(Int(0)).value() - 
+            AssetHolding.balance(Int(2), get_liquidity_token.value()).value()
+        ),
+        # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + token1_used
+        If(Gtxn[2].asset_amount() > Gtxn[3].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value(),
+            # If token1_deposit > (token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE)
+            # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + (token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE)
+            set_total_token1_balance(get_total_token1_balance.value() + Gtxn[3].asset_amount() * get_total_token1_balance.value() / get_total_token2_balance.value()),
+            # Else:
+            # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + token1_deposit
+            set_total_token1_balance(get_total_token1_balance.value() + Gtxn[2].asset_amount())
+        ),
+        # TOTAL_TOKEN2_BALANCE = TOTAL_TOKEN2_BALANCE + token2_used
+        If(Gtxn[3].asset_amount() > Gtxn[2].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value(),
+            # If token2_deposit > (token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE)
+            # TOTAL_TOKEN2_BALANCE = TOTAL_TOKEN2_BALANCE + (token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE)
+            set_total_token2_balance(get_total_token2_balance.value() + Gtxn[2].asset_amount() * get_total_token2_balance.value() / get_total_token1_balance.value()),
+            # Else:
+            # TOTAL_TOKEN2_BALANCE = TOTAL_TOKEN2_BALANCE + token2_deposit
+            set_total_token2_balance(get_total_token2_balance.value() + Gtxn[3].asset_amount())
+        ),
         Int(1)
     ])
 

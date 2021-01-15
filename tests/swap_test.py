@@ -7,7 +7,7 @@ from algosdk.future import transaction
 
 ALGOD_ENDPOINT = os.environ['ALGOD_ENDPOINT']
 ALGOD_TOKEN = os.environ['ALGOD_TOKEN']
-INDEXER_ENDPOINT = os.environ['INDEXER_ENVIRON']
+INDEXER_ENDPOINT = os.environ['INDEXER_ENDPOINT']
 INDEXER_TOKEN = os.environ['INDEXER_TOKEN']
 TEST_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(os.environ['TEST_ACCOUNT_PRIVATE_KEY'])
 TEST_ACCOUNT_ADDRESS = account.address_from_private_key(TEST_ACCOUNT_PRIVATE_KEY)

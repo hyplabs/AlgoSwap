@@ -2,6 +2,15 @@ export ALGOD_ENDPOINT="https://testnet-algorand.api.purestake.io/ps2"
 export ALGOD_TOKEN="LGG679KlpG3kSNMWRpbr48XhlCUknSEC7gO0d1I5"
 export INDEXER_ENDPOINT="https://testnet-algorand.api.purestake.io/idx2"
 export INDEXER_TOKEN="$ALGOD_TOKEN"
-export DEVELOPER_ACCOUNT_PRIVATE_KEY="evolve enter venue hood onion shaft fury essence glare garbage major slim budget dutch dawn wink reform place wagon sand all blush antenna able reduce"
-export TEST_ACCOUNT_PRIVATE_KEY="mail solve little nothing foot trophy position settle idle ski agent gather town better dismiss fall quality pony dry tiger story human avocado absent today"
+export DEVELOPER_ACCOUNT_PRIVATE_KEY="fall pride truly discover betray limb earth various name false private safe derive brain oyster success bubble final tray maple pulp unique leisure about uphold"
+export TEST_ACCOUNT_PRIVATE_KEY="unfair patient divide leader two draw puzzle leave magic maze lunch typical salute note urban million escape gaze harsh artefact cinnamon satoshi thrive absorb still"
 
+export VALIDATOR_ADDRESS=""
+export MANAGER_ADDRESS=""
+export ESCROW_ADDRESS=""
+export ESCROW_LOGICSIG=""
+export VALIDATOR_INDEX=""
+export MANAGER_INDEX=""
+
+
+  

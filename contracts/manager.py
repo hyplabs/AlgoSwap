@@ -94,8 +94,8 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         [Txn.application_args.length() == Int(0),
             Seq([
                 # initialize sender's local state as a user
-                App.localPut(Int(0), KEY_LIQUIDITY_TOKEN, Btoi(Txn.application_args[0])),
-                App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(0)),
+                App.localPut(Int(0), KEY_USER_UNUSED_TOKEN1, Int(0)),
+                App.localPut(Int(0), KEY_USER_UNUSED_TOKEN2, Int(0)),
                 App.localPut(Int(0), KEY_USER_UNUSED_LIQUIDITY, Int(0)),
                 Int(1),
             ])

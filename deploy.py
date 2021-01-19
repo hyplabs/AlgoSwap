@@ -1,5 +1,6 @@
 import os
 import base64
+import time
 
 from algosdk.v2client import algod, indexer
 from algosdk.future import transaction
@@ -8,22 +9,30 @@ from pyteal import compileTeal, Mode
 
 from contracts import manager
 from contracts import validator
-from contracts import escrow
 
 ALGOD_ENDPOINT = os.environ['ALGOD_ENDPOINT']
 ALGOD_TOKEN = os.environ['ALGOD_TOKEN']
 INDEXER_ENDPOINT = os.environ['INDEXER_ENDPOINT']
 INDEXER_TOKEN = os.environ['INDEXER_TOKEN']
-DEVELOPER_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(
-    os.environ['DEVELOPER_ACCOUNT_PRIVATE_KEY'])
-DEVELOPER_ACCOUNT_ADDRESS = account.address_from_private_key(
-    DEVELOPER_ACCOUNT_PRIVATE_KEY)
+
+DEVELOPER_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(os.environ['DEVELOPER_ACCOUNT_PRIVATE_KEY'])
+DEVELOPER_ACCOUNT_ADDRESS = account.address_from_private_key(DEVELOPER_ACCOUNT_PRIVATE_KEY)
 ZERO_ADDRESS = encoding.encode_address(bytes(32))
 
+TEST_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(os.environ['TEST_ACCOUNT_PRIVATE_KEY'])
+TEST_ACCOUNT_ADDRESS = account.address_from_private_key(TEST_ACCOUNT_PRIVATE_KEY)
+
+TOKEN1_UNIT_NAME = "TOKEN1"
+TOKEN1_ASSET_NAME = "AlgoSwap Token 1 Test Asset"
+TOKEN2_UNIT_NAME = "TOKEN2"
+TOKEN2_ASSET_NAME = "AlgoSwap Token 2 Test Asset"
+LIQUIDITY_TOKEN_UNIT_NAME = "T1T2"
+LIQUIDITY_TOKEN_ASSET_NAME = "AlgoSwap Token1/Token2"
+
 algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ENDPOINT, headers={
-                                 "x-api-key": ALGOD_TOKEN})
-indexer_client = indexer.IndexerClient(
-    INDEXER_TOKEN, INDEXER_ENDPOINT, headers={"x-api-key": INDEXER_TOKEN})
+    "x-api-key": ALGOD_TOKEN})
+indexer_client = indexer.IndexerClient(INDEXER_TOKEN, INDEXER_ENDPOINT, headers={
+        "x-api-key": INDEXER_TOKEN})
 
 def wait_for_transaction(transaction_id):
     suggested_params = algod_client.suggested_params()
@@ -51,9 +60,9 @@ def compile_exchange_validator():
     print(
         f"Exchange Validator | Approval: {VALIDATOR_APPROVE_BYTECODE_LEN}/1000 bytes ({VALIDATOR_APPROVE_ADDRESS}) | Clear: {VALIDATOR_CLEAR_BYTECODE_LEN}/1000 bytes ({VALIDATOR_CLEAR_ADDRESS})")
 
-    with open('validator_approval.teal', 'w') as f:
+    with open('./build/validator_approval.teal', 'w') as f:
         f.write(validator_approve_teal_code)
-    with open('validator_clear.teal', 'w') as f:
+    with open('./build/validator_clear.teal', 'w') as f:
         f.write(validator_clear_teal_code)
 
     print()
@@ -79,9 +88,9 @@ def compile_exchange_manager():
     print(
         f"Exchange Manager | Approval: {MANAGER_APPROVE_BYTECODE_LEN}/1000 bytes ({MANAGER_APPROVE_ADDRESS}) | Clear: {MANAGER_CLEAR_BYTECODE_LEN}/1000 bytes ({MANAGER_CLEAR_ADDRESS})")
 
-    with open('manager_approval.teal', 'w') as f:
+    with open('./build/manager_approval.teal', 'w') as f:
         f.write(manager_approve_teal_code)
-    with open('manager_clear.teal', 'w') as f:
+    with open('./build/manager_clear.teal', 'w') as f:
         f.write(manager_clear_teal_code)
     
     print()
@@ -89,21 +98,29 @@ def compile_exchange_manager():
     return manager_approve_code, manager_clear_code
 
 def compile_exchange_escrow():
+    from contracts import escrow
+    
     print("Compiling exchange escrow logicsig...")
     escrow_logicsig_teal_code = compileTeal(escrow.logicsig(), Mode.Application)
     compile_response = algod_client.compile(escrow_logicsig_teal_code)
-    escrow_compiled_code = base64.b64decode(compile_response['result'])
-    ESCROW_BYTECODE_LEN = len(escrow_compiled_code)
+    escrow_logicsig = compile_response['result']
+    escrow_logicsig_bytes = base64.b64decode(escrow_logicsig)
+    ESCROW_BYTECODE_LEN = len(escrow_logicsig_bytes)
     ESCROW_ADDRESS = compile_response['hash']
     print(
         f"Exchange Escrow | {ESCROW_BYTECODE_LEN}/1000 bytes ({ESCROW_ADDRESS})")
 
-    with open('escrow.teal', 'w') as f:
+    with open('./build/escrow.teal', 'w') as f:
         f.write(escrow_logicsig_teal_code)
+
+    with open("./build/escrow_logicsig", "w") as f:
+        f.write(escrow_logicsig)
     
+    print(f"Escrow logicsig compiled with address {ESCROW_ADDRESS}")
+
     print()
 
-    return escrow_compiled_code, ESCROW_ADDRESS
+    return escrow_logicsig
 
 def deploy_exchange_validator(validator_approve_code, validator_clear_code):
     print("Deploying exchange validator application...")
@@ -126,6 +143,8 @@ def deploy_exchange_validator(validator_approve_code, validator_clear_code):
 
     print()
 
+    return validator_app_id
+
 def deploy_exchange_manager(manager_approve_code, manager_clear_code):
     print("Deploying exchange manager application...")
 
@@ -146,42 +165,233 @@ def deploy_exchange_manager(manager_approve_code, manager_clear_code):
 
     print()
 
+    return manager_app_id
+
+def deploy_token1_token2():
+    print(
+        f"Deploying tokens {TOKEN1_ASSET_NAME} ({TOKEN1_UNIT_NAME}) and {TOKEN2_ASSET_NAME} ({TOKEN2_UNIT_NAME})..."
+    )
+
+    txn_1 = transaction.AssetConfigTxn(
+        sender=DEVELOPER_ACCOUNT_ADDRESS,
+        sp=algod_client.suggested_params(),
+        total=1000,
+        default_frozen=False,
+        unit_name=TOKEN1_UNIT_NAME,
+        asset_name=TOKEN1_ASSET_NAME,
+        manager=DEVELOPER_ACCOUNT_ADDRESS,
+        reserve=DEVELOPER_ACCOUNT_ADDRESS,
+        freeze=DEVELOPER_ACCOUNT_ADDRESS,
+        clawback=DEVELOPER_ACCOUNT_ADDRESS,
+        url=f"https://algoswap.io/{TOKEN1_UNIT_NAME}",
+        decimals=0
+    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+
+    txn_2 = transaction.AssetConfigTxn(
+        sender=DEVELOPER_ACCOUNT_ADDRESS,
+        sp=algod_client.suggested_params(),
+        total=1000,
+        default_frozen=False,
+        unit_name=TOKEN2_UNIT_NAME,
+        asset_name=TOKEN2_ASSET_NAME,
+        manager=DEVELOPER_ACCOUNT_ADDRESS,
+        reserve=DEVELOPER_ACCOUNT_ADDRESS,
+        freeze=DEVELOPER_ACCOUNT_ADDRESS,
+        clawback=DEVELOPER_ACCOUNT_ADDRESS,
+        url=f"https://algoswap.io/{TOKEN2_UNIT_NAME}",
+        decimals=0
+    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+
+    tx_id_1 = algod_client.send_transaction(txn_1)
+    tx_id_2 = algod_client.send_transaction(txn_2)
+
+    token_1_asset_id = wait_for_transaction(tx_id_1)['created-asset-index']
+    token_2_asset_id = wait_for_transaction(tx_id_2)['created-asset-index']
+
+    print(
+        f"Deployed {TOKEN1_ASSET_NAME} ({TOKEN1_UNIT_NAME}) with Asset ID: {token_1_asset_id} | Tx ID: {tx_id_1}"
+    )
+    print(
+        f"Deployed {TOKEN2_ASSET_NAME} ({TOKEN2_UNIT_NAME}) with Asset ID: {token_2_asset_id} | Tx ID: {tx_id_2}"
+    )
+
+    print()
+
+    return token_1_asset_id, token_2_asset_id
+
+def deploy_liquidity_pair_token():
+    print(
+        f"Deploying token {LIQUIDITY_TOKEN_ASSET_NAME} ({LIQUIDITY_TOKEN_UNIT_NAME})..."
+    )
+
+    txn = transaction.AssetConfigTxn(
+        sender=DEVELOPER_ACCOUNT_ADDRESS,
+        sp=algod_client.suggested_params(),
+        total=1000,
+        default_frozen=False,
+        unit_name=LIQUIDITY_TOKEN_UNIT_NAME,
+        asset_name=LIQUIDITY_TOKEN_ASSET_NAME,
+        manager=DEVELOPER_ACCOUNT_ADDRESS,
+        reserve=DEVELOPER_ACCOUNT_ADDRESS,
+        freeze=DEVELOPER_ACCOUNT_ADDRESS,
+        clawback=DEVELOPER_ACCOUNT_ADDRESS,
+        url=f"https://algoswap.io/{LIQUIDITY_TOKEN_UNIT_NAME}",
+        decimals=0
+    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+
+    tx_id = algod_client.send_transaction(txn)
+
+    liquidity_token_asset_id = int(wait_for_transaction(tx_id)['created-asset-index'])
+
+    print(
+        f"Deployed {LIQUIDITY_TOKEN_ASSET_NAME} ({LIQUIDITY_TOKEN_UNIT_NAME}) with Asset ID: {liquidity_token_asset_id} | Tx ID: {tx_id}"
+    )
+
+    print()
+
+    return liquidity_token_asset_id
+
+def opt_escrow_into_token(escrow_logicsig, token_idx):
+    print(
+        f"Opting Escrow into Token with Asset ID: {token_idx}..."
+    )
+    program = base64.b64decode(escrow_logicsig)
+
+    lsig = transaction.LogicSig(program)
+
+    txn = transaction.AssetTransferTxn(
+        sender=lsig.address(),
+        sp=algod_client.suggested_params(),
+        receiver=lsig.address(),
+        amt=0,
+        index=token_idx
+    )
+
+    lsig_txn = transaction.LogicSigTransaction(txn, lsig)
+
+    tx_id = algod_client.send_transaction(lsig_txn)
+
+    wait_for_transaction(tx_id)
+
+    print(
+        f"Opted Escrow into Token with Asset ID: {token_idx} successfully! Tx ID: {tx_id}"
+    )
+
+    print()
+
+def opt_escrow_into_manager(escrow_logicsig, manager_app_id, liquidity_token_asset_id, token1_asset_id, token2_asset_id):
+    print("Opting Escrow into Manager contract...")
+    
+    program = base64.b64decode(escrow_logicsig)
+
+    lsig = transaction.LogicSig(program)
+
+    args = [
+        liquidity_token_asset_id.to_bytes(8, 'big'),
+        token1_asset_id.to_bytes(8, 'big'),
+        token2_asset_id.to_bytes(8, 'big')
+    ]
+
+    txn = transaction.ApplicationOptInTxn(
+        sender=lsig.address(),
+        sp=algod_client.suggested_params(),
+        index=manager_app_id,
+        app_args=args
+    )
+    
+    lsig_txn = transaction.LogicSigTransaction(txn, lsig)
+
+    tx_id = algod_client.send_transaction(lsig_txn)
+
+    wait_for_transaction(tx_id)
+
+    print(
+        f"Opted Escrow into Manager contract successfully! Tx ID: {tx_id}"
+    )
+
+    print()
+
+def opt_user_into_contract(app_id):
+    print(
+        f"Opting user into contract with App ID: {app_id}..."
+    )
+
+    txn = transaction.ApplicationOptInTxn(
+        sender=TEST_ACCOUNT_ADDRESS,
+        sp=algod_client.suggested_params(),
+        index=app_id
+    ).sign(TEST_ACCOUNT_PRIVATE_KEY)
+
+    tx_id = algod_client.send_transaction(txn)
+
+    wait_for_transaction(tx_id)
+
+    print(
+        f"Opted user into contract with App ID: {app_id} successfully! Tx ID: {tx_id}"
+    )
+
+    print()
+
+def opt_user_into_token(asset_id):
+    print(
+        f"Opting user into token with Asset ID: {asset_id}..."
+    )
+
+    txn = transaction.AssetTransferTxn(
+        sender=TEST_ACCOUNT_ADDRESS,
+        sp=algod_client.suggested_params(),
+        receiver=TEST_ACCOUNT_ADDRESS,
+        amt=0,
+        index=asset_id
+    ).sign(TEST_ACCOUNT_PRIVATE_KEY)
+
+    tx_id = algod_client.send_transaction(txn)
+
+    wait_for_transaction(tx_id)
+
+    print(
+        f"Opted user into token with Asset ID: {asset_id} successfully! Tx ID: {tx_id}"
+    )
+
+    print()
+
 if __name__ == "__main__":
+    print("Starting deployment process...")
 
     validator_approve_code, validator_clear_code = compile_exchange_validator()
 
     manager_approve_code, manager_clear_code = compile_exchange_manager()
 
-    deploy_exchange_validator(validator_approve_code, validator_clear_code)
+    validator_app_id = deploy_exchange_validator(validator_approve_code, validator_clear_code)
 
-    deploy_exchange_manager(manager_approve_code, manager_clear_code)
+    manager_app_id = deploy_exchange_manager(manager_approve_code, manager_clear_code)
 
-    input("Please update the Escrow contract with the required Validator and Manager App ID's")
+    token1_asset_id, token2_asset_id = deploy_token1_token2()
 
-    escrow_logicsig, escrow_address = compile_exchange_escrow()
+    liquidity_token_asset_id = deploy_liquidity_pair_token()
 
-    TOKEN1_NAME = "ABC"
-    TOKEN2_NAME = "DEF"
+    print("Please update the Escrow contract with the following:")
+    input(f"Validator App ID = {validator_app_id}")
+    input(f"Manager App ID = {manager_app_id}")
+    input(f"Token 1 Asset ID = {token1_asset_id}")
+    input(f"Token 2 Asset ID = {token2_asset_id}")
+    input(f"Liquidity Token Asset ID = {liquidity_token_asset_id}")
 
-    create_liquidity_token_transaction = transaction.AssetConfigTxn(
-        sender=DEVELOPER_ACCOUNT_ADDRESS,
-        sp=algod_client.suggested_params(),
-        strict_empty_address_check=False,
-        total=10000000000000000000,
-        default_frozen=False,
-        unit_name=f"AS-Pair",
-        asset_name=f"AlgoSwap {TOKEN1_NAME}-{TOKEN2_NAME} Liquidity Token",
-        manager=DEVELOPER_ACCOUNT_ADDRESS,
-        reserve=escrow_address,
-        freeze=DEVELOPER_ACCOUNT_ADDRESS,
-        clawback=DEVELOPER_ACCOUNT_ADDRESS,
-        url="https://example.com",
-        metadata_hash=b"12345678901234567890123456789012",
-        decimals=8,
-    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+    escrow_logicsig = compile_exchange_escrow()
 
-    tx_id = algod_client.send_transaction(create_liquidity_token_transaction)
-    liquidity_token_asset_id = wait_for_transaction(tx_id)['created-asset-index']
-    print(
-        f"Asset \"AlgoSwap {TOKEN1_NAME}-{TOKEN2_NAME} Liquidity Token\" deployed with Asset ID: {liquidity_token_asset_id} (Tx ID: {tx_id})"
-    )
+    input("Please fund the Escrow account with $ALGO to continue")
+
+    opt_escrow_into_token(escrow_logicsig, token1_asset_id)
+    opt_escrow_into_token(escrow_logicsig, token2_asset_id)
+    opt_escrow_into_token(escrow_logicsig, liquidity_token_asset_id)
+
+    opt_escrow_into_manager(escrow_logicsig, manager_app_id, liquidity_token_asset_id, token1_asset_id, token2_asset_id)
+
+    opt_user_into_contract(validator_app_id)
+    opt_user_into_contract(manager_app_id)
+
+    opt_user_into_token(token1_asset_id)
+    opt_user_into_token(token2_asset_id)
+    opt_user_into_token(liquidity_token_asset_id)
+
+    print("Deployment completed successfully!")

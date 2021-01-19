@@ -1,9 +1,12 @@
-from pyteal import compileTeal, Mode, And, Int, Global, Txn, Gtxn, TxnType
+from pyteal import *
 
-validator_application_id = Int(13377480)
-manager_application_id = Int(13377481)
+validator_application_id = Int(13380647) # TODO: Update
+manager_application_id = Int(13380648) # TODO: Update
+token1_asset_id = Int(13380649) # TODO: Update
+token2_asset_id = Int(13380650) # TODO: Update
+liquidity_token_asset_id = Int(13380653) # TODO: Update
 
-def logicsig(tmpl_validator_application_id=validator_application_id, tmpl_manager_application_id=manager_application_id):
+def logicsig():
     """
     This smart contract implements the Escrow part of the AlgoSwap DEX.
     It is a logicsig smart contract for a specific liquidity pair (Token 1/Token 2)
@@ -11,21 +14,64 @@ def logicsig(tmpl_validator_application_id=validator_application_id, tmpl_manage
     All withdrawals from this smart contract account require approval from the
     Validator and Manager contracts first within the same atomic transaction group.
     """
-    program = And(
-        Global.group_size() == Int(3),  # 3 transactions in this group
-        # first one is an ApplicationCall
-        Gtxn[0].type_enum() == TxnType.ApplicationCall,
-        # the ApplicationCall must be approved by the validator application
-        Gtxn[0].application_id() == tmpl_validator_application_id,
+    program = Cond(
+        [
+            # If there is a single transaction within the group
+            Global.group_size() == Int(1),
+            # Then either this is an opt-in to a contract, or to an asset
+            Or(
+                And(
+                    # This is a contract opt-in transaction
+                    Txn.on_completion() == OnComplete.OptIn,
+                    Or(
+                        # Is an opt in to the validator contract
+                        Txn.application_id() == validator_application_id,
+                        # Is an opt in to the manager contract
+                        Txn.application_id() == manager_application_id
+                    )
+                ),
+                And(
+                    # This is an asset opt-in
+                    Txn.type_enum() == TxnType.AssetTransfer,
+                    # Sender and asset receiver are both Escrow
+                    Txn.sender() == Txn.asset_receiver(),
+                    # Is an opt-in to one of the expected assets
+                    Or(
+                        # Is an opt in to Token 1 Asset
+                        Txn.xfer_asset() == token1_asset_id,
+                        # Is an opt in to Token 2 Asset
+                        Txn.xfer_asset() == token2_asset_id,
+                        # Is an opt in to Liquidity Pair Token Asset
+                        Txn.xfer_asset() == liquidity_token_asset_id
+                    )
+                )
+            )
+        ],
+        [
+            # If there are three transactions within the group
+            Global.group_size() == Int(3),
+            # Then this is a refund transaction
+            And(
+                # first one is an ApplicationCall
+                Gtxn[0].type_enum() == TxnType.ApplicationCall,
+                # the ApplicationCall must be approved by the validator application
+                Gtxn[0].application_id() == validator_application_id,
 
-        # second one is an ApplicationCall
-        Gtxn[1].type_enum() == TxnType.ApplicationCall,
-        # Must be approved by the manager application
-        Gtxn[1].application_id() == tmpl_manager_application_id,
-        
-        Txn.group_index() == Int(2),  # this AssetTransfer is the third one
-        Txn.close_remainder_to() == Global.zero_address(), # Is not a close transaction
-        Txn.asset_close_to() == Global.zero_address(), # Is not an asset close transaction
+                # second one is an ApplicationCall
+                Gtxn[1].type_enum() == TxnType.ApplicationCall,
+                # Must be approved by the manager application
+                Gtxn[1].application_id() == manager_application_id,
+
+                # this transaction is the third one
+                Txn.group_index() == Int(2),
+                # this transaction is an AssetTransfer
+                Txn.type_enum() == TxnType.AssetTransfer,
+                # this transaction is not a close transaction
+                Txn.close_remainder_to() == Global.zero_address(),
+                # this transaction is not an asset close transaction
+                Txn.asset_close_to() == Global.zero_address()
+            )
+        ]
     )
     return program
 

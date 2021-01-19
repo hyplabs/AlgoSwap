@@ -1,0 +1,511 @@
+#pragma version 2
+txn ApplicationID
+int 0
+==
+bnz l30
+txn OnCompletion
+int CloseOut
+==
+bnz l12
+txn OnCompletion
+int OptIn
+==
+bnz l12
+txna ApplicationArgs 0
+byte "s1"
+==
+bnz l22
+txna ApplicationArgs 0
+byte "s2"
+==
+bnz l22
+txna ApplicationArgs 0
+byte "a"
+==
+bnz l19
+txna ApplicationArgs 0
+byte "w"
+==
+bnz l16
+txna ApplicationArgs 0
+byte "r"
+==
+bnz l13
+txna ApplicationArgs 0
+byte "p"
+==
+bnz l10
+err
+l10:
+global GroupSize
+int 4
+==
+txn GroupIndex
+int 0
+==
+&&
+txn OnCompletion
+int NoOp
+==
+&&
+txn NumAccounts
+int 1
+==
+&&
+txn NumAppArgs
+int 1
+==
+&&
+txn Sender
+byte "C"
+app_global_get
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 OnCompletion
+int NoOp
+==
+&&
+gtxn 1 NumAccounts
+int 1
+==
+&&
+gtxn 1 NumAppArgs
+int 1
+==
+&&
+gtxna 1 Accounts 1
+txna Accounts 1
+==
+&&
+gtxna 1 ApplicationArgs 0
+txna ApplicationArgs 0
+==
+&&
+gtxn 1 Sender
+byte "C"
+app_global_get
+==
+&&
+gtxn 2 TypeEnum
+int axfer
+==
+&&
+gtxn 2 Sender
+txna Accounts 1
+==
+&&
+gtxn 2 AssetSender
+global ZeroAddress
+==
+&&
+gtxn 3 TypeEnum
+int axfer
+==
+&&
+gtxn 3 Sender
+txna Accounts 1
+==
+&&
+gtxn 3 AssetSender
+global ZeroAddress
+==
+&&
+bnz l12
+err
+l12:
+int 1
+b l31
+l13:
+global GroupSize
+int 3
+==
+txn GroupIndex
+int 0
+==
+&&
+txn OnCompletion
+int NoOp
+==
+&&
+txn NumAccounts
+int 1
+==
+&&
+txn NumAppArgs
+int 1
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 OnCompletion
+int NoOp
+==
+&&
+gtxn 1 NumAccounts
+int 1
+==
+&&
+gtxn 1 NumAppArgs
+int 1
+==
+&&
+gtxna 1 Accounts 1
+txna Accounts 1
+==
+&&
+gtxna 1 ApplicationArgs 0
+txna ApplicationArgs 0
+==
+&&
+gtxn 2 TypeEnum
+int axfer
+==
+&&
+gtxn 2 Sender
+txna Accounts 1
+==
+&&
+gtxn 2 AssetSender
+global ZeroAddress
+==
+&&
+bnz l15
+err
+l15:
+int 1
+b l31
+l16:
+global GroupSize
+int 3
+==
+txn GroupIndex
+int 0
+==
+&&
+txn OnCompletion
+int NoOp
+==
+&&
+txn NumAccounts
+int 2
+==
+&&
+txn NumAppArgs
+int 3
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 OnCompletion
+int NoOp
+==
+&&
+gtxn 1 NumAppArgs
+int 2
+==
+&&
+gtxn 1 NumAppArgs
+int 3
+==
+&&
+gtxna 1 Accounts 1
+txna Accounts 1
+==
+&&
+gtxna 1 Accounts 2
+txna Accounts 2
+==
+&&
+gtxna 1 ApplicationArgs 0
+txna ApplicationArgs 0
+==
+&&
+gtxna 1 ApplicationArgs 1
+txna ApplicationArgs 1
+==
+&&
+gtxn 2 TypeEnum
+int axfer
+==
+&&
+gtxn 2 Sender
+global ZeroAddress
+==
+&&
+gtxn 2 AssetReceiver
+txna Accounts 1
+==
+&&
+gtxn 2 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 2 AssetCloseTo
+global ZeroAddress
+==
+&&
+bnz l18
+err
+l18:
+int 1
+b l31
+l19:
+global GroupSize
+int 4
+==
+txn GroupIndex
+int 0
+==
+&&
+txn OnCompletion
+int NoOp
+==
+&&
+txn NumAccounts
+int 2
+==
+&&
+txn NumAppArgs
+int 2
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 OnCompletion
+int NoOp
+==
+&&
+gtxn 1 NumAppArgs
+int 2
+==
+&&
+gtxn 1 NumAppArgs
+int 2
+==
+&&
+gtxna 1 Accounts 1
+txna Accounts 1
+==
+&&
+gtxna 1 Accounts 2
+txna Accounts 2
+==
+&&
+gtxna 1 ApplicationArgs 0
+txna ApplicationArgs 0
+==
+&&
+gtxna 1 ApplicationArgs 1
+txna ApplicationArgs 1
+==
+&&
+gtxn 2 TypeEnum
+int axfer
+==
+&&
+gtxn 2 Sender
+global ZeroAddress
+==
+&&
+gtxn 2 AssetReceiver
+txna Accounts 1
+==
+&&
+gtxn 2 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 2 AssetCloseTo
+global ZeroAddress
+==
+&&
+gtxn 3 TypeEnum
+int axfer
+==
+&&
+gtxn 3 Sender
+global ZeroAddress
+==
+&&
+gtxn 3 AssetReceiver
+txna Accounts 1
+==
+&&
+gtxn 3 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 3 AssetCloseTo
+global ZeroAddress
+==
+&&
+bnz l21
+err
+l21:
+int 1
+b l31
+l22:
+global GroupSize
+int 3
+==
+txn GroupIndex
+int 0
+==
+&&
+txn OnCompletion
+int NoOp
+==
+&&
+txn NumAccounts
+int 1
+==
+&&
+txn NumAppArgs
+int 2
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 OnCompletion
+int NoOp
+==
+&&
+gtxn 1 NumAccounts
+int 1
+==
+&&
+gtxn 1 NumAppArgs
+int 2
+==
+&&
+gtxna 1 Accounts 1
+txna Accounts 1
+==
+&&
+gtxna 1 ApplicationArgs 0
+txna ApplicationArgs 0
+==
+&&
+gtxna 1 ApplicationArgs 1
+txna ApplicationArgs 1
+==
+&&
+gtxn 2 TypeEnum
+int axfer
+==
+&&
+gtxn 2 Sender
+global ZeroAddress
+==
+&&
+gtxn 2 AssetReceiver
+txna Accounts 1
+==
+&&
+gtxn 2 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 2 AssetCloseTo
+global ZeroAddress
+==
+&&
+bnz l24
+err
+l24:
+int 1
+b l31
+global GroupSize
+int 3
+==
+txn GroupIndex
+int 0
+==
+&&
+txn OnCompletion
+int NoOp
+==
+&&
+txn NumAccounts
+int 1
+==
+&&
+txn NumAppArgs
+int 2
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 OnCompletion
+int NoOp
+==
+&&
+gtxn 1 NumAccounts
+int 1
+==
+&&
+gtxn 1 NumAppArgs
+int 2
+==
+&&
+gtxna 1 Accounts 1
+txna Accounts 1
+==
+&&
+gtxna 1 ApplicationArgs 0
+txna ApplicationArgs 0
+==
+&&
+gtxna 1 ApplicationArgs 1
+txna ApplicationArgs 1
+==
+&&
+gtxn 2 TypeEnum
+int axfer
+==
+&&
+gtxn 2 Sender
+global ZeroAddress
+==
+&&
+gtxn 2 AssetReceiver
+txna Accounts 1
+==
+&&
+gtxn 2 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 2 AssetCloseTo
+global ZeroAddress
+==
+&&
+bnz l27
+err
+l27:
+int 1
+b l31
+int 1
+b l31
+int 1
+b l31
+l30:
+byte "C"
+txn Sender
+app_global_put
+int 1
+l31:

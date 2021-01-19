@@ -1,0 +1,76 @@
+#pragma version 2
+global GroupSize
+int 1
+==
+bnz l4
+global GroupSize
+int 3
+==
+bnz l3
+err
+l3:
+gtxn 0 TypeEnum
+int appl
+==
+gtxn 0 ApplicationID
+int 13380647
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 ApplicationID
+int 13380648
+==
+&&
+txn GroupIndex
+int 2
+==
+&&
+txn TypeEnum
+int axfer
+==
+&&
+txn CloseRemainderTo
+global ZeroAddress
+==
+&&
+txn AssetCloseTo
+global ZeroAddress
+==
+&&
+b l5
+l4:
+txn OnCompletion
+int OptIn
+==
+txn ApplicationID
+int 13380647
+==
+txn ApplicationID
+int 13380648
+==
+||
+&&
+txn TypeEnum
+int axfer
+==
+txn Sender
+txn AssetReceiver
+==
+&&
+txn XferAsset
+int 13380649
+==
+txn XferAsset
+int 13380650
+==
+||
+txn XferAsset
+int 13380653
+==
+||
+&&
+||
+l5:

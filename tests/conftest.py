@@ -12,13 +12,13 @@ INDEXER_TOKEN = os.environ['INDEXER_TOKEN']
 TEST_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(os.environ['TEST_ACCOUNT_PRIVATE_KEY'])
 TEST_ACCOUNT_ADDRESS = account.address_from_private_key(TEST_ACCOUNT_PRIVATE_KEY)
 
-VALIDATOR_ADDRESS = "XRLYLAQKSCOW36TXJVKS2OB2ZUATZTOXI5XCVH4FYSSAQJJB4S3TPI7LWY"
-MANAGER_ADDRESS = "OAXWLSC5IGC3S5HNTGUD7B3SZWDBD6WX3AJAXAQ2UKOWXTQCMCQ5PWOAFE"
-ESCROW_ADDRESS = "POXWP2YDBS33LH7KOH6VNZOAKAFTGDCFMI5B6WAZZPEU7L27UXLDIMSZU4"
+VALIDATOR_ADDRESS = os.environ['VALIDATOR_ADDRESS']
+MANAGER_ADDRESS = os.environ['MANAGER_ADDRESS']
+ESCROW_ADDRESS = os.environ['ESCROW_ADDRESS']
 
-ESCROW_LOGICSIG = ""
-VALIDATOR_INDEX = 13377480
-MANAGER_INDEX = 13377481
+ESCROW_LOGICSIG = os.environ['ESCROW_LOGICSIG']
+VALIDATOR_INDEX = int(os.environ['VALIDATOR_INDEX'])
+MANAGER_INDEX = int(os.environ['MANAGER_INDEX'])
 
 algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ENDPOINT, headers={
   "x-api-key": ALGOD_TOKEN
@@ -43,53 +43,6 @@ def wait_for_transaction(transaction_id):
     result = indexer_client.search_transactions(txid=transaction_id)
     assert len(result['transactions']) == 1, result
     return result['transactions'][0]
-
-def deploy_tokens():
-  print(f"Deploying tokens {token_1['unit_name']} and {token_2['unit_name']}...")
-
-  txn_1 = transaction.AssetConfigTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    total=10000000000000000000,
-    default_frozen=False,
-    unit_name=token_1['unit_name'],
-    asset_name=token_1['asset_name'],
-    manager=TEST_ACCOUNT_ADDRESS,
-    reserve=TEST_ACCOUNT_ADDRESS,
-    freeze=TEST_ACCOUNT_ADDRESS,
-    clawback=TEST_ACCOUNT_ADDRESS,
-    url="https://example.com/abc",
-    decimals=8
-  ).sign(TEST_ACCOUNT_PRIVATE_KEY)
-
-  txn_2 = transaction.AssetConfigTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    total=10000000000000000000,
-    default_frozen=False,
-    unit_name=token_2['unit_name'],
-    asset_name=token_2['asset_name'],
-    manager=TEST_ACCOUNT_ADDRESS,
-    reserve=TEST_ACCOUNT_ADDRESS,
-    freeze=TEST_ACCOUNT_ADDRESS,
-    clawback=TEST_ACCOUNT_ADDRESS,
-    url="https://example.com/def",
-    decimals=8
-  ).sign(TEST_ACCOUNT_PRIVATE_KEY)
-
-  tx_id_1 = algod_client.send_transaction(txn_1)
-  tx_id_2 = algod_client.send_transaction(txn_2)
-
-  token_1_asset_id = wait_for_transaction(tx_id_1)['created-asset-index']
-  token_2_asset_id = wait_for_transaction(tx_id_2)['created-asset-index']
-
-
-  print(
-    f"Deployed {token_1['asset_name']} ({token_1['unit_name']}) with Asset ID: {token_1_asset_id} | Tx ID: {tx_id_1}"
-  )
-  print(
-    f"Deployed {token_2['asset_name']} ({token_2['unit_name']}) with Asset ID: {token_2_asset_id} | Tx ID: {tx_id_2}"
-  )
 
 def user_opt_in():
   print("Opting user into Validator and Manager contracts...")

@@ -1,11 +1,11 @@
 from pyteal import *
 
-validator_application_id = Int(13605355) # TODO: Update
-manager_application_id = Int(13605359) # TODO: Update
-token1_asset_id = Int(13605363) # TODO: Update
-token2_asset_id = Int(13605365) # TODO: Update
-liquidity_token_asset_id = Int(13605371) # TODO: Update
-optin_last_valid = Int(11819911) # TODO: Update
+validator_application_id = Int(13616886) # TODO: Update
+manager_application_id = Int(13616887) # TODO: Update
+token1_asset_id = Int(13616888) # TODO: Update
+token2_asset_id = Int(13616889) # TODO: Update
+liquidity_token_asset_id = Int(13616890) # TODO: Update
+optin_last_valid = Int(11825150) # TODO: Update
 
 def logicsig():
     """

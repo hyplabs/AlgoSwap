@@ -236,7 +236,7 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
-gtxn 2 Sender
+gtxn 2 AssetSender
 global ZeroAddress
 ==
 &&
@@ -313,7 +313,7 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
-gtxn 2 Sender
+gtxn 2 AssetSender
 global ZeroAddress
 ==
 &&
@@ -333,7 +333,7 @@ gtxn 3 TypeEnum
 int axfer
 ==
 &&
-gtxn 3 Sender
+gtxn 3 AssetSender
 global ZeroAddress
 ==
 &&
@@ -406,7 +406,7 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
-gtxn 2 Sender
+gtxn 2 AssetSender
 global ZeroAddress
 ==
 &&
@@ -478,7 +478,7 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
-gtxn 2 Sender
+gtxn 2 AssetSender
 global ZeroAddress
 ==
 &&

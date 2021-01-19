@@ -79,7 +79,7 @@ def approval_program():
                 # Is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
                 # Asset sender is zero address
-                Gtxn[2].sender() == Global.zero_address(),
+                Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is attached account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
                 # Is not a close transaction
@@ -126,7 +126,7 @@ def approval_program():
                 # Is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
                 # Sender is zero address
-                Gtxn[2].sender() == Global.zero_address(),
+                Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is attached account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
                 # Is not a close transaction
@@ -176,7 +176,7 @@ def approval_program():
                 # Is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
                 # Asset sender is zero address
-                Gtxn[2].sender() == Global.zero_address(),
+                Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
                 # Is not a close transaction
@@ -189,7 +189,7 @@ def approval_program():
                 # Is of type AssetTransfer
                 Gtxn[3].type_enum() == TxnType.AssetTransfer,
                 # Asset sender is zero address
-                Gtxn[3].sender() == Global.zero_address(),
+                Gtxn[3].asset_sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
                 Gtxn[3].asset_receiver() == Txn.accounts[1],
                 # Is not a close transaction
@@ -239,7 +239,7 @@ def approval_program():
                 # is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
                 # Asset sender is zero address
-                Gtxn[2].sender() == Global.zero_address(),
+                Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
                 Gtxn[2].asset_receiver() == Txn.accounts[1],
                 # Is not a close transaction

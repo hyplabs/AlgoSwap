@@ -1,5 +1,4 @@
 import os
-import pytest
 import base64
 
 from algosdk.v2client import algod, indexer
@@ -13,12 +12,11 @@ INDEXER_TOKEN = os.environ['INDEXER_TOKEN']
 TEST_ACCOUNT_PRIVATE_KEY = mnemonic.to_private_key(os.environ['TEST_ACCOUNT_PRIVATE_KEY'])
 TEST_ACCOUNT_ADDRESS = account.address_from_private_key(TEST_ACCOUNT_PRIVATE_KEY)
 
+ESCROW_LOGICSIG = os.environ['ESCROW_LOGICSIG']
 ESCROW_ADDRESS = os.environ['ESCROW_ADDRESS']
 
-ESCROW_LOGICSIG = os.environ['ESCROW_LOGICSIG']
 VALIDATOR_INDEX = int(os.environ['VALIDATOR_INDEX'])
 MANAGER_INDEX = int(os.environ['MANAGER_INDEX'])
-
 TOKEN1_INDEX = int(os.environ['TOKEN1_INDEX'])
 TOKEN2_INDEX = int(os.environ['TOKEN2_INDEX'])
 LIQUIDITY_TOKEN_INDEX = int(os.environ['LIQUIDITY_TOKEN_INDEX'])
@@ -37,10 +35,8 @@ def wait_for_transaction(transaction_id):
   assert len(result['transactions']) == 1, result
   return result['transactions'][0]
 
-def add_liquidity_test():
-  print(
-    f"Building add liquidity atomic transaction group..."
-  )
+def add_liquidity():
+  print("Building add liquidity atomic transaction group...")
 
   encoded_app_args = [
     bytes("a", "utf-8"),
@@ -111,13 +107,20 @@ def add_liquidity_test():
 
   print()
 
-def get_refund_test():
+def get_token1_refund():
+  pass
+
+def get_token2_refund():
+  pass
+
+def get_liquidity_token_refund():
   print("Attempting to get refund of liquidity tokens from Escrow...")
 
   encoded_app_args = [
     bytes("r", "utf-8")
   ]
 
+  ## Liquidity Token
   # Transaction to Validator
   txn_1 = transaction.ApplicationCallTxn(
     sender=TEST_ACCOUNT_ADDRESS,
@@ -153,7 +156,7 @@ def get_refund_test():
   lsig = transaction.LogicSig(program)
 
   txn_3 = transaction.AssetTransferTxn(
-    sender=lsig.address(),
+    sender=ESCROW_ADDRESS,
     sp=algod_client.suggested_params(),
     receiver=TEST_ACCOUNT_ADDRESS,
     amt=unused_liquidity,
@@ -183,5 +186,8 @@ def get_refund_test():
   print()
 
 if __name__ == "__main__":
-  add_liquidity_test()
-  get_refund_test()
+  add_liquidity()
+
+  get_token1_refund()
+  get_token2_refund()
+  get_liquidity_token_refund()

@@ -1,10 +1,11 @@
 from pyteal import *
 
-validator_application_id = Int(13605013) # TODO: Update
-manager_application_id = Int(13605015) # TODO: Update
-token1_asset_id = Int(13605016) # TODO: Update
-token2_asset_id = Int(13605017) # TODO: Update
-liquidity_token_asset_id = Int(13605018) # TODO: Update
+validator_application_id = Int(13605198) # TODO: Update
+manager_application_id = Int(13605199) # TODO: Update
+token1_asset_id = Int(13605201) # TODO: Update
+token2_asset_id = Int(13605202) # TODO: Update
+liquidity_token_asset_id = Int(13605211) # TODO: Update
+optin_last_valid = Int(11819750) # TODO: Update
 
 def logicsig():
     """
@@ -23,6 +24,8 @@ def logicsig():
                 And(
                     # This is a contract opt-in transaction
                     Txn.on_completion() == OnComplete.OptIn,
+                    # Transaction's last valid round is lte specified last valid round
+                    Txn.last_valid() <= optin_last_valid,
                     Or(
                         # Is an opt in to the validator contract
                         Txn.application_id() == validator_application_id,
@@ -35,6 +38,8 @@ def logicsig():
                     Txn.type_enum() == TxnType.AssetTransfer,
                     # Sender and asset receiver are both Escrow
                     Txn.sender() == Txn.asset_receiver(),
+                    # Transaction's last valid round is lte specified last valid round
+                    Txn.last_valid() <= optin_last_valid,
                     # Is an opt-in to one of the expected assets
                     Or(
                         # Is an opt in to Token 1 Asset

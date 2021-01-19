@@ -288,7 +288,7 @@ def opt_escrow_into_token(escrow_logicsig, token_idx):
         sp=algod_client.suggested_params(),
         receiver=lsig.address(),
         amt=0,
-        index=token_idx
+        index=token_idx,
     )
 
     lsig_txn = transaction.LogicSigTransaction(txn, lsig)
@@ -428,12 +428,15 @@ if __name__ == "__main__":
 
     liquidity_token_asset_id = deploy_liquidity_pair_token()
 
+    params = algod_client.suggested_params()
+
     print("Please update the Escrow contract with the following:")
     input(f"Validator App ID = {validator_app_id}")
     input(f"Manager App ID = {manager_app_id}")
     input(f"Token 1 Asset ID = {token1_asset_id}")
     input(f"Token 2 Asset ID = {token2_asset_id}")
     input(f"Liquidity Token Asset ID = {liquidity_token_asset_id}")
+    input(f"Last Valid Round = {params.last + 100}")
 
     escrow_logicsig = compile_exchange_escrow()
 

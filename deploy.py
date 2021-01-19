@@ -411,6 +411,43 @@ def transfer_liquidity_token_to_escrow(liquidity_token_asset_id, escrow_logicsig
     print()
 
 
+def transfer_token1_token2_to_user(token1_asset_id, token2_asset_id):
+    print(
+        f"Transferring {int(TOKEN1_AMOUNT/2)} {TOKEN1_ASSET_NAME} ({TOKEN1_UNIT_NAME}) with Asset ID: {token1_asset_id} and {int(TOKEN2_AMOUNT/2)} {TOKEN2_ASSET_NAME} ({TOKEN2_UNIT_NAME}) with Asset ID: {token2_asset_id} to User..."
+    )
+
+    txn_1 = transaction.AssetTransferTxn(
+        sender=DEVELOPER_ACCOUNT_ADDRESS,
+        sp=algod_client.suggested_params(),
+        receiver=TEST_ACCOUNT_ADDRESS,
+        amt=int(TOKEN1_AMOUNT/2),
+        index=token1_asset_id
+    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+
+    txn_2 = transaction.AssetTransferTxn(
+        sender=DEVELOPER_ACCOUNT_ADDRESS,
+        sp=algod_client.suggested_params(),
+        receiver=TEST_ACCOUNT_ADDRESS,
+        amt=int(TOKEN2_AMOUNT/2),
+        index=token2_asset_id
+    ).sign(DEVELOPER_ACCOUNT_PRIVATE_KEY)
+
+    tx_id_1 = algod_client.send_transaction(txn_1)
+    tx_id_2 = algod_client.send_transaction(txn_2)
+
+    wait_for_transaction(tx_id_1)
+    wait_for_transaction(tx_id_2)
+
+    print(
+        f"Transferred {int(TOKEN1_AMOUNT/2)} {TOKEN1_ASSET_NAME} ({TOKEN1_UNIT_NAME}) with Asset ID: {token1_asset_id} to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id_1}"
+    )
+
+    print(
+        f"Transferred {int(TOKEN2_AMOUNT/2)} {TOKEN2_ASSET_NAME} ({TOKEN2_UNIT_NAME}) with Asset ID: {token2_asset_id} to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id_2}"
+    )   
+
+    print()
+
 if __name__ == "__main__":
     print("Starting deployment process...")
 
@@ -457,5 +494,6 @@ if __name__ == "__main__":
     opt_user_into_token(liquidity_token_asset_id)
 
     transfer_liquidity_token_to_escrow(liquidity_token_asset_id, escrow_logicsig)
+    transfer_token1_token2_to_user(token1_asset_id, token2_asset_id)
 
     print("Deployment completed successfully!")

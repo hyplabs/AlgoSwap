@@ -33,3 +33,4 @@ def wait_for_transaction(transaction_id):
   result = indexer_client.search_transactions(txid=transaction_id)
   assert len(result['transactions']) == 1, result
   return result['transactions'][0]
+

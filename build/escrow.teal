@@ -13,7 +13,7 @@ gtxn 0 TypeEnum
 int appl
 ==
 gtxn 0 ApplicationID
-int 13616886
+int 13618972
 ==
 &&
 gtxn 1 TypeEnum
@@ -21,7 +21,7 @@ int appl
 ==
 &&
 gtxn 1 ApplicationID
-int 13616887
+int 13618974
 ==
 &&
 txn GroupIndex
@@ -46,14 +46,14 @@ txn OnCompletion
 int OptIn
 ==
 txn LastValid
-int 11825150
+int 11842094
 <=
 &&
 txn ApplicationID
-int 13616886
+int 13618972
 ==
 txn ApplicationID
-int 13616887
+int 13618974
 ==
 ||
 &&
@@ -65,18 +65,18 @@ txn AssetReceiver
 ==
 &&
 txn LastValid
-int 11825150
+int 11842094
 <=
 &&
 txn XferAsset
-int 13616888
+int 13618975
 ==
 txn XferAsset
-int 13616889
+int 13618976
 ==
 ||
 txn XferAsset
-int 13616890
+int 13618977
 ==
 ||
 &&

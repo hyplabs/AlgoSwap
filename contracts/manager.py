@@ -48,7 +48,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     """
     get_liquidity_token = App.localGetEx(Int(1), Global.current_application_id(), KEY_LIQUIDITY_TOKEN)
 
-    get_token1 = App.localGetEx(Int(1), Global.current_application_id(), KEY_TOKEN1)
+    def get_token1(): return App.localGetEx(Int(1), Global.current_application_id(), KEY_TOKEN1)
 
     get_token2 = App.localGetEx(Int(1), Global.current_application_id(), KEY_TOKEN2)
 
@@ -123,9 +123,9 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     on_swap_deposit = Seq([
         Assert(And(
             # the additional account is an escrow with token1
-            get_token1.hasValue(),
+            get_token1().hasValue(),
             # transfer asset is TOKEN1
-            Gtxn[2].xfer_asset() == get_token1.value(),
+            Gtxn[2].xfer_asset() == get_token1().value(),
         )),
         scratchvar_swap_token2_output.store(swap_token2_output(swap_token_input_minus_fees(Gtxn[2].asset_amount()))),
         # Add swap fee amount to the liquidity pool
@@ -168,7 +168,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     on_swap_deposit_2 = Seq([
         Assert(And(
             # the additional account is an escrow with token1
-            get_token1.hasValue(),
+            get_token1().hasValue(),
             # transfer asset is Token2
             Gtxn[1].xfer_asset() == get_token2.value(),
         )),
@@ -203,9 +203,9 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
 
     on_add_liquidity_deposit = Seq([
         Assert(And(
-            get_token1.hasValue(),  # the first additional account is an escrow with token1
+            get_token1().hasValue(),  # the first additional account is an escrow with token1
             # the transfer asset is TOKEN1
-            Gtxn[2].xfer_asset() == get_token1.value(),
+            Gtxn[2].xfer_asset() == get_token1().value(),
             # the transfer asset is TOKEN2
             Gtxn[3].xfer_asset() == get_token2.value(),
         )),
@@ -274,7 +274,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     on_withdraw_liquidity = Seq([
         Assert(And(
             # this ApplicationCall's first additional account is an escrow and has key of token 1
-            get_token1.hasValue(),
+            get_token1().hasValue(),
             # the AssetTransfer is for liquidity token
             Gtxn[2].xfer_asset() == get_liquidity_token.value(),
         )),
@@ -312,12 +312,12 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     on_refund = Seq([
         Assert(
             # this ApplicationCall's additional account is an escrow account with token1
-            get_token1.hasValue(),
+            get_token1().hasValue(),
         ),
         Cond([
             # this AssetTransfer is for an available amount of TOKEN1
             And(
-                Gtxn[2].xfer_asset() == get_token1.value(),
+                Gtxn[2].xfer_asset() == get_token1().value(),
                 Gtxn[2].asset_amount() <= get_user_unused_token1(Txn.accounts[1]).value()
             ),
             # unused_token1 = Gtxn[2].asset_amount()
@@ -357,10 +357,10 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
     on_withdraw_protocol_fees = Seq([
         Assert(And(
             # this ApplicationCall's additional account is an escrow account with token1
-            get_token1.hasValue(),
+            get_token1().hasValue(),
 
             # this AssetTransfer is for TOKEN1
-            Gtxn[2].xfer_asset() == get_token1.value(),
+            Gtxn[2].xfer_asset() == get_token1().value(),
             # this TOKEN1 AssetTransfer is for an available amount of TOKEN1
             Gtxn[2].asset_amount() <= get_protocol_unused_token1(Txn.accounts[1]).value(),
 

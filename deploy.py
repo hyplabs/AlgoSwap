@@ -455,45 +455,45 @@ if __name__ == "__main__":
 
     manager_approve_code, manager_clear_code = compile_exchange_manager()
 
-    validator_app_id = deploy_exchange_validator(
-        validator_approve_code, validator_clear_code)
+    # validator_app_id = deploy_exchange_validator(
+    #     validator_approve_code, validator_clear_code)
 
-    manager_app_id = deploy_exchange_manager(
-        manager_approve_code, manager_clear_code)
+    # manager_app_id = deploy_exchange_manager(
+    #     manager_approve_code, manager_clear_code)
 
-    token1_asset_id, token2_asset_id = deploy_token1_token2()
+    # token1_asset_id, token2_asset_id = deploy_token1_token2()
 
-    liquidity_token_asset_id = deploy_liquidity_pair_token()
+    # liquidity_token_asset_id = deploy_liquidity_pair_token()
 
-    params = algod_client.suggested_params()
+    # params = algod_client.suggested_params()
 
-    print("Please update the Escrow contract with the following:")
-    input(f"Validator App ID = {validator_app_id}")
-    input(f"Manager App ID = {manager_app_id}")
-    input(f"Token 1 Asset ID = {token1_asset_id}")
-    input(f"Token 2 Asset ID = {token2_asset_id}")
-    input(f"Liquidity Token Asset ID = {liquidity_token_asset_id}")
-    input(f"Last Valid Round = {params.last + 100}")
+    # print("Please update the Escrow contract with the following:")
+    # input(f"Validator App ID = {validator_app_id}")
+    # input(f"Manager App ID = {manager_app_id}")
+    # input(f"Token 1 Asset ID = {token1_asset_id}")
+    # input(f"Token 2 Asset ID = {token2_asset_id}")
+    # input(f"Liquidity Token Asset ID = {liquidity_token_asset_id}")
+    # input(f"Last Valid Round = {params.last + 100}")
 
-    escrow_logicsig = compile_exchange_escrow()
+    # escrow_logicsig = compile_exchange_escrow()
 
-    input("Please fund the Escrow account with $ALGO to continue")
+    # input("Please fund the Escrow account with $ALGO to continue")
 
-    opt_escrow_into_token(escrow_logicsig, token1_asset_id)
-    opt_escrow_into_token(escrow_logicsig, token2_asset_id)
-    opt_escrow_into_token(escrow_logicsig, liquidity_token_asset_id)
+    # opt_escrow_into_token(escrow_logicsig, token1_asset_id)
+    # opt_escrow_into_token(escrow_logicsig, token2_asset_id)
+    # opt_escrow_into_token(escrow_logicsig, liquidity_token_asset_id)
 
-    opt_escrow_into_manager(escrow_logicsig, manager_app_id,
-                            liquidity_token_asset_id, token1_asset_id, token2_asset_id)
+    # opt_escrow_into_manager(escrow_logicsig, manager_app_id,
+    #                         liquidity_token_asset_id, token1_asset_id, token2_asset_id)
 
-    opt_user_into_contract(validator_app_id)
-    opt_user_into_contract(manager_app_id)
+    # opt_user_into_contract(validator_app_id)
+    # opt_user_into_contract(manager_app_id)
 
-    opt_user_into_token(token1_asset_id)
-    opt_user_into_token(token2_asset_id)
-    opt_user_into_token(liquidity_token_asset_id)
+    # opt_user_into_token(token1_asset_id)
+    # opt_user_into_token(token2_asset_id)
+    # opt_user_into_token(liquidity_token_asset_id)
 
-    transfer_liquidity_token_to_escrow(liquidity_token_asset_id, escrow_logicsig)
-    transfer_token1_token2_to_user(token1_asset_id, token2_asset_id)
+    # transfer_liquidity_token_to_escrow(liquidity_token_asset_id, escrow_logicsig)
+    # transfer_token1_token2_to_user(token1_asset_id, token2_asset_id)
 
     print("Deployment completed successfully!")

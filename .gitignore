@@ -4,3 +4,4 @@ __pycache__/
 contracts/__pycache__/
 settings.json
 .DS_Store
+*.code-workspace

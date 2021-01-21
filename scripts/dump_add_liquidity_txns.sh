@@ -1,19 +1,19 @@
 export ALGORAND_DATA=~/node/data
-export VALIDATOR_INDEX="13618972"
-export MANAGER_INDEX="13618974"
-export TOKEN1_INDEX="13618975"
-export TOKEN2_INDEX="13618976"
-export LIQUIDITY_TOKEN_INDEX="13618977"
-export ESCROW_ADDRESS="XUYMP63JGWKHDIYPTQIVICYQU7QX5IOUKNIHN7WBZFB7W3AAKTNWJMXNBA"
-export TEST_ACCOUNT_ADDRESS="WK65MDZIJSZ4TYONGRBTMJFZM5UPRXCVMUZ2JTL6RCXY55JUQX5UBJAIAI"
+export MANAGER_INDEX="13631691"
+export VALIDATOR_INDEX="13631692"
+export TOKEN1_INDEX="13631693"
+export TOKEN2_INDEX="13631694"
+export LIQUIDITY_TOKEN_INDEX="13631695"
+export ESCROW_ADDRESS="TWQNZUE3SDL7VQZCEEDKXUGTF2VSTQ6BLJLO5JYXKGANQHARRN46BYWGZ4"
+export TEST_ACCOUNT_ADDRESS="7SKGGC2K66FMQVIXH3FVQFSQE6OPPDIACSEHQNZIOEEZULVBICYFEYESGU"
 
-./goal app call --app-id ${VALIDATOR_INDEX} --app-arg "str:a" --app-arg "str:5" --from ${TEST_ACCOUNT_ADDRESS} --app-account ${ESCROW_ADDRESS} --app-account ${ESCROW_ADDRESS} --foreign-asset ${LIQUIDITY_TOKEN_INDEX} --out=txn1.tx
+./goal app call --app-id ${VALIDATOR_INDEX} --app-arg "str:a" --app-arg "str:1" --from ${TEST_ACCOUNT_ADDRESS} --foreign-asset ${LIQUIDITY_TOKEN_INDEX} --app-account ${ESCROW_ADDRESS} --app-account ${ESCROW_ADDRESS} --out=txn1.tx
 
-./goal app call --app-id ${MANAGER_INDEX} --app-arg "str:a" --app-arg "str:5" --from ${TEST_ACCOUNT_ADDRESS} --app-account ${ESCROW_ADDRESS} --app-account ${ESCROW_ADDRESS} --foreign-asset ${LIQUIDITY_TOKEN_INDEX} --out=txn2.tx
+./goal app call --app-id ${MANAGER_INDEX} --app-arg "str:a" --app-arg "str:1" --from ${TEST_ACCOUNT_ADDRESS} --foreign-asset ${LIQUIDITY_TOKEN_INDEX} --app-account ${ESCROW_ADDRESS} --app-account ${ESCROW_ADDRESS} --out=txn2.tx
 
-./goal asset send -a 50 --assetid ${TOKEN1_INDEX} -f ${TEST_ACCOUNT_ADDRESS} -t ${ESCROW_ADDRESS} --out=txn3.tx
+./goal asset send -a 5 --assetid ${TOKEN1_INDEX} -f ${TEST_ACCOUNT_ADDRESS} -t ${ESCROW_ADDRESS} --out=txn3.tx
 
-./goal asset send -a 50 --assetid ${TOKEN2_INDEX} -f ${TEST_ACCOUNT_ADDRESS} -t ${ESCROW_ADDRESS} --out=txn4.tx
+./goal asset send -a 5 --assetid ${TOKEN2_INDEX} -f ${TEST_ACCOUNT_ADDRESS} -t ${ESCROW_ADDRESS} --out=txn4.tx
 
 cat txn1.tx txn2.tx txn3.tx txn4.tx > combinedtxns.tx
 

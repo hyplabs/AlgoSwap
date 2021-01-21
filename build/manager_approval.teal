@@ -2,31 +2,31 @@
 txn ApplicationID
 int 0
 ==
-bnz l22
+bnz l20
 txn OnCompletion
 int CloseOut
 ==
-bnz l55
+bnz l20
 txn OnCompletion
 int OptIn
 ==
-bnz l49
+bnz l39
 txna ApplicationArgs 0
 byte "s1"
 ==
-bnz l44
+bnz l36
 txna ApplicationArgs 0
 byte "s2"
 ==
-bnz l39
+bnz l33
 txna ApplicationArgs 0
 byte "a"
 ==
-bnz l26
+bnz l22
 txna ApplicationArgs 0
 byte "w"
 ==
-bnz l23
+bnz l21
 txna ApplicationArgs 0
 byte "r"
 ==
@@ -37,21 +37,19 @@ byte "p"
 bnz l10
 err
 l10:
-load 37
-gtxn 2 XferAsset
-load 38
-==
-&&
 gtxn 2 AssetAmount
-load 39
+int 1
+byte "P1"
+txna Accounts 1
+concat
+app_local_get
 <=
-&&
-gtxn 3 XferAsset
-load 1
-==
-&&
 gtxn 3 AssetAmount
-load 40
+int 1
+byte "P2"
+txna Accounts 1
+concat
+app_local_get
 <=
 &&
 bnz l12
@@ -61,7 +59,11 @@ int 1
 byte "P1"
 txna Accounts 1
 concat
-load 41
+int 1
+byte "P1"
+txna Accounts 1
+concat
+app_local_get
 gtxn 2 AssetAmount
 -
 app_local_put
@@ -69,351 +71,423 @@ int 1
 byte "P2"
 txna Accounts 1
 concat
-load 42
+int 1
+byte "P2"
+txna Accounts 1
+concat
+app_local_get
 gtxn 3 AssetAmount
 -
 app_local_put
 int 1
-b l57
+b l45
 l13:
-load 29
-bnz l15
-err
-l15:
 gtxn 2 XferAsset
-load 30
+int 1
+byte "T1"
+app_local_get
 ==
 gtxn 2 AssetAmount
-load 31
-<=
-&&
-bnz l21
-gtxn 2 XferAsset
-load 1
-==
-gtxn 2 AssetAmount
-load 33
-<=
-&&
-bnz l20
-gtxn 2 XferAsset
-load 0
-==
-gtxn 2 AssetAmount
-load 35
+int 0
+byte "U1"
+txna Accounts 1
+concat
+app_local_get
 <=
 &&
 bnz l19
+gtxn 2 XferAsset
+int 1
+byte "T2"
+app_local_get
+==
+gtxn 2 AssetAmount
+int 0
+byte "U2"
+txna Accounts 1
+concat
+app_local_get
+<=
+&&
+bnz l18
+gtxn 2 XferAsset
+int 1
+byte "LT"
+app_local_get
+==
+gtxn 2 AssetAmount
+int 0
+byte "UL"
+txna Accounts 1
+concat
+app_local_get
+<=
+&&
+bnz l17
 err
+l17:
+int 0
+byte "UL"
+txna Accounts 1
+concat
+int 0
+byte "UL"
+txna Accounts 1
+concat
+app_local_get
+gtxn 2 AssetAmount
+-
+app_local_put
+b l20
+l18:
+int 0
+byte "U2"
+txna Accounts 1
+concat
+int 0
+byte "U2"
+txna Accounts 1
+concat
+app_local_get
+gtxn 2 AssetAmount
+-
+app_local_put
+b l20
 l19:
 int 0
-byte "UL"
+byte "U1"
 txna Accounts 1
 concat
-load 36
-gtxn 2 AssetAmount
--
-app_local_put
-b l22
-l20:
 int 0
-byte "U2"
+byte "U1"
 txna Accounts 1
 concat
-load 34
+app_local_get
 gtxn 2 AssetAmount
 -
 app_local_put
-b l22
+l20:
+int 1
+b l45
 l21:
 int 0
-byte "U1"
-txna Accounts 1
-concat
-load 32
-gtxn 2 AssetAmount
--
-app_local_put
-l22:
+asset_params_get AssetTotal
+store 8
+store 9
+int 2
 int 1
-b l57
-l23:
-load 22
-gtxn 2 XferAsset
-load 0
-==
-&&
-bnz l25
-err
-l25:
-load 2
+byte "LT"
+app_local_get
+asset_holding_get AssetBalance
+store 10
+store 11
+int 1
+byte "B1"
+app_local_get
 gtxn 2 AssetAmount
 *
-load 23
-load 24
+load 9
+load 11
 -
 /
-store 20
+store 6
 int 0
 byte "U1"
 txna Accounts 1
 concat
-load 25
-load 20
+int 0
+byte "U1"
+txna Accounts 1
+concat
+app_local_get
+load 6
 +
 app_local_put
-load 3
+int 1
+byte "B2"
+app_local_get
 gtxn 2 AssetAmount
 *
-load 26
-load 27
+load 9
+load 11
 -
 /
-store 21
+store 7
 int 0
 byte "U2"
 txna Accounts 1
 concat
-load 28
-load 21
+int 0
+byte "U2"
+txna Accounts 1
+concat
+app_local_get
+load 7
 +
 app_local_put
 int 1
 byte "B1"
-load 2
-load 20
+int 1
+byte "B1"
+app_local_get
+load 6
 -
 app_local_put
 int 1
 byte "B2"
-load 3
-load 21
+int 1
+byte "B2"
+app_local_get
+load 7
 -
 app_local_put
 int 1
-b l57
-l26:
-load 13
-gtxn 2 XferAsset
-load 14
-==
-&&
-gtxn 3 XferAsset
-load 1
-==
-&&
-bnz l28
-err
-l28:
-gtxn 2 AssetAmount
+b l45
+l22:
+int 0
+asset_params_get AssetTotal
+store 8
+store 9
+int 2
+int 1
+byte "LT"
+app_local_get
+asset_holding_get AssetBalance
+store 10
+store 11
+int 1
+byte "B1"
+app_local_get
+store 2
+int 1
+byte "B2"
+app_local_get
+store 3
 gtxn 3 AssetAmount
 load 2
 *
 load 3
 /
+store 0
+gtxn 2 AssetAmount
+load 3
+*
+load 2
+/
+store 1
+gtxn 2 AssetAmount
+load 0
 >
-bz l30
+bz l24
 int 0
 byte "U1"
 txna Accounts 1
 concat
-load 15
+int 0
+byte "U1"
+txna Accounts 1
+concat
+app_local_get
 gtxn 2 AssetAmount
 +
-gtxn 3 AssetAmount
-load 2
-*
-load 3
-/
+load 0
 -
 app_local_put
-l30:
+l24:
 gtxn 3 AssetAmount
-gtxn 2 AssetAmount
-load 3
-*
-load 2
-/
+load 1
 >
-bz l32
+bz l26
 int 0
 byte "U2"
 txna Accounts 1
 concat
-load 16
+int 0
+byte "U2"
+txna Accounts 1
+concat
+app_local_get
 gtxn 3 AssetAmount
 +
-gtxn 2 AssetAmount
-load 3
-*
-load 2
-/
+load 1
 -
 app_local_put
-l32:
+l26:
 int 0
 byte "UL"
 txna Accounts 1
 concat
-load 17
-load 18
+int 0
+byte "UL"
+txna Accounts 1
+concat
+app_local_get
+load 9
 +
-load 19
+load 11
 -
 app_local_put
 gtxn 2 AssetAmount
-gtxn 3 AssetAmount
-load 2
-*
-load 3
-/
+load 0
 >
-bnz l34
+bnz l28
 int 1
 byte "B1"
 load 2
 gtxn 2 AssetAmount
 +
 app_local_put
-b l35
-l34:
+b l29
+l28:
 int 1
 byte "B1"
 load 2
-gtxn 3 AssetAmount
-load 2
-*
-load 3
-/
+load 0
 +
 app_local_put
-l35:
+l29:
 gtxn 3 AssetAmount
-gtxn 2 AssetAmount
-load 3
-*
-load 2
-/
->
-bnz l37
-int 1
-byte "B2"
-load 3
-gtxn 3 AssetAmount
-+
-app_local_put
-b l38
-l37:
-int 1
-byte "B2"
-load 3
-gtxn 2 AssetAmount
-load 3
-*
-load 2
-/
-+
-app_local_put
-l38:
-int 1
-b l57
-l39:
-load 10
-gtxn 1 XferAsset
 load 1
-==
-&&
-bnz l41
-err
-l41:
-load 2
-load 2
+>
+bnz l31
+int 1
+byte "B2"
 load 3
+gtxn 3 AssetAmount
++
+app_local_put
+b l32
+l31:
+int 1
+byte "B2"
+load 3
+load 1
++
+app_local_put
+l32:
+int 1
+b l45
+l33:
+int 1
+byte "B1"
+app_local_get
+int 1
+byte "B1"
+app_local_get
+int 1
+byte "B2"
+app_local_get
 *
-load 3
+int 1
+byte "B2"
+app_local_get
 gtxn 1 AssetAmount
 int 1
 int 5
+int 10000
+/
 -
 int 45
+int 10000
+/
 -
 *
 +
 /
 -
-store 9
-int 1
-byte "B2"
-load 3
-gtxn 1 AssetAmount
-int 45
-*
-+
-app_local_put
+store 5
 int 1
 byte "P2"
 txna Accounts 1
 concat
-load 11
+int 1
+byte "P2"
+txna Accounts 1
+concat
+app_local_get
 gtxn 1 AssetAmount
 int 5
+int 10000
+/
 *
 +
 app_local_put
-load 9
+load 5
 txna ApplicationArgs 1
 btoi
 >=
-bnz l43
+bnz l35
 err
-l43:
+l35:
 int 0
 byte "U1"
 txna Accounts 1
 concat
-load 12
-load 9
+int 0
+byte "U1"
+txna Accounts 1
+concat
+app_local_get
+load 5
 +
 app_local_put
 int 1
 byte "B2"
-load 3
+int 1
+byte "B2"
+app_local_get
+gtxn 1 AssetAmount
+int 45
+int 10000
+/
+*
++
 gtxn 1 AssetAmount
 int 1
 int 5
+int 10000
+/
 -
 int 45
+int 10000
+/
 -
 *
 +
 app_local_put
 int 1
 byte "B1"
-load 2
-load 9
+int 1
+byte "B1"
+app_local_get
+load 5
 -
 app_local_put
 int 1
-b l57
-l44:
-load 5
-gtxn 2 XferAsset
-load 6
-==
-&&
-bnz l46
-err
-l46:
-load 3
-load 2
-load 3
+b l45
+l36:
+int 1
+byte "B2"
+app_local_get
+int 1
+byte "B1"
+app_local_get
+int 1
+byte "B2"
+app_local_get
 *
-load 2
+int 1
+byte "B1"
+app_local_get
 gtxn 2 AssetAmount
 int 1
 int 5
+int 10000
+/
 -
 int 45
+int 10000
+/
 -
 *
 +
@@ -421,20 +495,18 @@ int 45
 -
 store 4
 int 1
-byte "B1"
-load 2
-gtxn 2 AssetAmount
-int 45
-*
-+
-app_local_put
+byte "P1"
+txna Accounts 1
+concat
 int 1
 byte "P1"
 txna Accounts 1
 concat
-load 7
+app_local_get
 gtxn 2 AssetAmount
 int 5
+int 10000
+/
 *
 +
 app_local_put
@@ -442,48 +514,63 @@ load 4
 txna ApplicationArgs 1
 btoi
 >=
-bnz l48
+bnz l38
 err
-l48:
+l38:
 int 0
 byte "U2"
 txna Accounts 1
 concat
-load 8
+int 0
+byte "U2"
+txna Accounts 1
+concat
+app_local_get
 load 4
 +
 app_local_put
 int 1
 byte "B1"
-load 2
+int 1
+byte "B1"
+app_local_get
+gtxn 2 AssetAmount
+int 45
+int 10000
+/
+*
++
 gtxn 2 AssetAmount
 int 1
 int 5
+int 10000
+/
 -
 int 45
+int 10000
+/
 -
 *
 +
 app_local_put
 int 1
 byte "B2"
-load 3
+int 1
+byte "B2"
+app_local_get
 load 4
 -
 app_local_put
 int 1
-b l57
-l49:
-txn NumAppArgs
-int 0
-==
-bnz l53
+b l45
+l39:
 txn NumAppArgs
 int 3
 ==
-bnz l52
-err
-l52:
+bnz l41
+int 1
+b l42
+l41:
 int 0
 byte "LT"
 txna ApplicationArgs 0
@@ -501,48 +588,16 @@ btoi
 app_local_put
 int 0
 byte "B1"
-int 0
+int 1
 app_local_put
 int 0
 byte "B2"
-int 0
+int 1
 app_local_put
 int 1
-b l54
-l53:
-int 0
-byte "U1"
-int 0
-app_local_put
-int 0
-byte "U2"
-int 0
-app_local_put
-int 0
-byte "UL"
-int 0
-app_local_put
+l42:
+b l45
 int 1
-l54:
-b l57
-l55:
-int 0
-byte "U1"
-app_local_get
-int 0
-==
-int 0
-byte "U2"
-app_local_get
-int 0
-==
-&&
-int 0
-byte "UL"
-app_local_get
-int 0
-==
-&&
-b l57
+b l45
 int 1
-l57:
+l45:

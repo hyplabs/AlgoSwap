@@ -8,7 +8,6 @@ from algosdk import encoding, account, mnemonic, error
 from pyteal import compileTeal, Mode
 
 from contracts import manager
-from contracts import validator
 
 ALGOD_ENDPOINT = os.environ['ALGOD_ENDPOINT']
 ALGOD_TOKEN = os.environ['ALGOD_TOKEN']
@@ -28,16 +27,16 @@ TEST_ACCOUNT_ADDRESS = account.address_from_private_key(
 
 TOKEN1_UNIT_NAME = "TOKEN1"
 TOKEN1_ASSET_NAME = "AlgoSwap Token 1 Test Asset"
-TOKEN1_AMOUNT = 1000
-TOKEN1_DECIMALS = 0
+TOKEN1_AMOUNT = 100000000
+TOKEN1_DECIMALS = 6
 TOKEN2_UNIT_NAME = "TOKEN2"
 TOKEN2_ASSET_NAME = "AlgoSwap Token 2 Test Asset"
-TOKEN2_AMOUNT = 1000
-TOKEN2_DECIMALS = 0
+TOKEN2_AMOUNT = 100000000
+TOKEN2_DECIMALS = 6
 LIQUIDITY_TOKEN_UNIT_NAME = "T1T2"
 LIQUIDITY_TOKEN_ASSET_NAME = "AlgoSwap Token1/Token2"
-LIQUIDITY_TOKEN_AMOUNT = 1000
-LIQUIDITY_TOKEN_DECIMALS = 0
+LIQUIDITY_TOKEN_AMOUNT = 100000000
+LIQUIDITY_TOKEN_DECIMALS = 6
 
 
 algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ENDPOINT, headers={
@@ -48,13 +47,15 @@ indexer_client = indexer.IndexerClient(INDEXER_TOKEN, INDEXER_ENDPOINT, headers=
 
 def wait_for_transaction(transaction_id):
     suggested_params = algod_client.suggested_params()
-    algod_client.status_after_block(suggested_params.first + 2)
+    algod_client.status_after_block(suggested_params.first + 4)
     result = indexer_client.search_transactions(txid=transaction_id)
     assert len(result['transactions']) == 1, result
     return result['transactions'][0]
 
 
 def compile_exchange_validator():
+    from contracts import validator
+
     print("Compiling exchange validator application...")
 
     validator_approve_teal_code = compileTeal(
@@ -72,7 +73,7 @@ def compile_exchange_validator():
     VALIDATOR_CLEAR_ADDRESS = compile_response['hash']
 
     print(
-        f"Exchange Validator | Approval: {VALIDATOR_APPROVE_BYTECODE_LEN}/1000 bytes ({VALIDATOR_APPROVE_ADDRESS}) | Clear: {VALIDATOR_CLEAR_BYTECODE_LEN}/1000 bytes ({VALIDATOR_CLEAR_ADDRESS})")
+        f"Exchange Validator | Approval: {VALIDATOR_APPROVE_BYTECODE_LEN}/1024 bytes ({VALIDATOR_APPROVE_ADDRESS}) | Clear: {VALIDATOR_CLEAR_BYTECODE_LEN}/1024 bytes ({VALIDATOR_CLEAR_ADDRESS})")
 
     with open('./build/validator_approval.teal', 'w') as f:
         f.write(validator_approve_teal_code)
@@ -102,7 +103,7 @@ def compile_exchange_manager():
     MANAGER_CLEAR_ADDRESS = compile_response['hash']
 
     print(
-        f"Exchange Manager | Approval: {MANAGER_APPROVE_BYTECODE_LEN}/1000 bytes ({MANAGER_APPROVE_ADDRESS}) | Clear: {MANAGER_CLEAR_BYTECODE_LEN}/1000 bytes ({MANAGER_CLEAR_ADDRESS})")
+        f"Exchange Manager | Approval: {MANAGER_APPROVE_BYTECODE_LEN}/1024 bytes ({MANAGER_APPROVE_ADDRESS}) | Clear: {MANAGER_CLEAR_BYTECODE_LEN}/1024 bytes ({MANAGER_CLEAR_ADDRESS})")
 
     with open('./build/manager_approval.teal', 'w') as f:
         f.write(manager_approve_teal_code)
@@ -451,49 +452,51 @@ def transfer_token1_token2_to_user(token1_asset_id, token2_asset_id):
 if __name__ == "__main__":
     print("Starting deployment process...")
 
-    validator_approve_code, validator_clear_code = compile_exchange_validator()
-
     manager_approve_code, manager_clear_code = compile_exchange_manager()
 
-    # validator_app_id = deploy_exchange_validator(
-    #     validator_approve_code, validator_clear_code)
+    manager_app_id = deploy_exchange_manager(
+         manager_approve_code, manager_clear_code)
 
-    # manager_app_id = deploy_exchange_manager(
-    #     manager_approve_code, manager_clear_code)
+    input(f"Update Manager Index in Validator = {manager_app_id}")
 
-    # token1_asset_id, token2_asset_id = deploy_token1_token2()
+    validator_approve_code, validator_clear_code = compile_exchange_validator()
 
-    # liquidity_token_asset_id = deploy_liquidity_pair_token()
+    validator_app_id = deploy_exchange_validator(
+        validator_approve_code, validator_clear_code)
 
-    # params = algod_client.suggested_params()
+    token1_asset_id, token2_asset_id = deploy_token1_token2()
 
-    # print("Please update the Escrow contract with the following:")
-    # input(f"Validator App ID = {validator_app_id}")
-    # input(f"Manager App ID = {manager_app_id}")
-    # input(f"Token 1 Asset ID = {token1_asset_id}")
-    # input(f"Token 2 Asset ID = {token2_asset_id}")
-    # input(f"Liquidity Token Asset ID = {liquidity_token_asset_id}")
-    # input(f"Last Valid Round = {params.last + 100}")
+    liquidity_token_asset_id = deploy_liquidity_pair_token()
 
-    # escrow_logicsig = compile_exchange_escrow()
+    params = algod_client.suggested_params()
 
-    # input("Please fund the Escrow account with $ALGO to continue")
+    print("Please update the Escrow contract with the following:")
+    input(f"Manager App ID = {manager_app_id}")
+    input(f"Validator App ID = {validator_app_id}")
+    input(f"Token 1 Asset ID = {token1_asset_id}")
+    input(f"Token 2 Asset ID = {token2_asset_id}")
+    input(f"Liquidity Token Asset ID = {liquidity_token_asset_id}")
+    input(f"Last Valid Round = {params.last + 100}")
 
-    # opt_escrow_into_token(escrow_logicsig, token1_asset_id)
-    # opt_escrow_into_token(escrow_logicsig, token2_asset_id)
-    # opt_escrow_into_token(escrow_logicsig, liquidity_token_asset_id)
+    escrow_logicsig = compile_exchange_escrow()
 
-    # opt_escrow_into_manager(escrow_logicsig, manager_app_id,
-    #                         liquidity_token_asset_id, token1_asset_id, token2_asset_id)
+    input("Please fund the Escrow account with $ALGO to continue")
 
-    # opt_user_into_contract(validator_app_id)
-    # opt_user_into_contract(manager_app_id)
+    opt_escrow_into_token(escrow_logicsig, token1_asset_id)
+    opt_escrow_into_token(escrow_logicsig, token2_asset_id)
+    opt_escrow_into_token(escrow_logicsig, liquidity_token_asset_id)
 
-    # opt_user_into_token(token1_asset_id)
-    # opt_user_into_token(token2_asset_id)
-    # opt_user_into_token(liquidity_token_asset_id)
+    opt_escrow_into_manager(escrow_logicsig, manager_app_id,
+                            liquidity_token_asset_id, token1_asset_id, token2_asset_id)
 
-    # transfer_liquidity_token_to_escrow(liquidity_token_asset_id, escrow_logicsig)
-    # transfer_token1_token2_to_user(token1_asset_id, token2_asset_id)
+    opt_user_into_contract(validator_app_id)
+    opt_user_into_contract(manager_app_id)
+
+    opt_user_into_token(token1_asset_id)
+    opt_user_into_token(token2_asset_id)
+    opt_user_into_token(liquidity_token_asset_id)
+
+    transfer_liquidity_token_to_escrow(liquidity_token_asset_id, escrow_logicsig)
+    transfer_token1_token2_to_user(token1_asset_id, token2_asset_id)
 
     print("Deployment completed successfully!")

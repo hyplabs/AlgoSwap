@@ -14,7 +14,7 @@ bnz l12
 txna ApplicationArgs 0
 byte "s1"
 ==
-bnz l22
+bnz l25
 txna ApplicationArgs 0
 byte "s2"
 ==
@@ -37,6 +37,18 @@ byte "p"
 bnz l10
 err
 l10:
+int 1
+int 13631691
+byte "T1"
+app_local_get_ex
+store 0
+store 1
+int 1
+int 13631691
+byte "T2"
+app_local_get_ex
+store 2
+store 3
 global GroupSize
 int 4
 ==
@@ -94,6 +106,10 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
+gtxn 2 XferAsset
+load 1
+==
+&&
 gtxn 2 Sender
 txna Accounts 1
 ==
@@ -104,6 +120,10 @@ global ZeroAddress
 &&
 gtxn 3 TypeEnum
 int axfer
+==
+&&
+gtxn 3 XferAsset
+load 3
 ==
 &&
 gtxn 3 Sender
@@ -181,6 +201,12 @@ l15:
 int 1
 b l31
 l16:
+int 1
+int 13631691
+byte "LT"
+app_local_get_ex
+store 4
+store 5
 global GroupSize
 int 3
 ==
@@ -236,6 +262,10 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
+gtxn 2 XferAsset
+load 5
+==
+&&
 gtxn 2 AssetSender
 global ZeroAddress
 ==
@@ -258,6 +288,18 @@ l18:
 int 1
 b l31
 l19:
+int 1
+int 13631691
+byte "T1"
+app_local_get_ex
+store 0
+store 1
+int 1
+int 13631691
+byte "T2"
+app_local_get_ex
+store 2
+store 3
 global GroupSize
 int 4
 ==
@@ -313,6 +355,10 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
+gtxn 2 XferAsset
+load 1
+==
+&&
 gtxn 2 AssetSender
 global ZeroAddress
 ==
@@ -331,6 +377,10 @@ global ZeroAddress
 &&
 gtxn 3 TypeEnum
 int axfer
+==
+&&
+gtxn 3 XferAsset
+load 3
 ==
 &&
 gtxn 3 AssetSender
@@ -355,6 +405,12 @@ l21:
 int 1
 b l31
 l22:
+int 1
+int 13631691
+byte "T2"
+app_local_get_ex
+store 2
+store 3
 global GroupSize
 int 3
 ==
@@ -404,6 +460,10 @@ txna ApplicationArgs 1
 &&
 gtxn 2 TypeEnum
 int axfer
+==
+&&
+gtxn 2 XferAsset
+load 3
 ==
 &&
 gtxn 2 AssetSender
@@ -427,6 +487,13 @@ err
 l24:
 int 1
 b l31
+l25:
+int 1
+int 13631691
+byte "T1"
+app_local_get_ex
+store 0
+store 1
 global GroupSize
 int 3
 ==
@@ -476,6 +543,10 @@ txna ApplicationArgs 1
 &&
 gtxn 2 TypeEnum
 int axfer
+==
+&&
+gtxn 2 XferAsset
+load 1
 ==
 &&
 gtxn 2 AssetSender

@@ -2,8 +2,14 @@
 
 from pyteal import compileTeal, Seq, App, Assert, Txn, Gtxn, TxnType, Btoi, Bytes, Int, Return, If, Cond, And, Or, Not, Global, Mode, OnComplete, Concat, AssetHolding, AssetParam
 
+# Manager App ID
+MANAGER_INDEX = Int(13631691) # TODO: Update
+
 # Keys
 KEY_CREATOR = Bytes("C")
+KEY_TOKEN1 = Bytes("T1")
+KEY_TOKEN2 = Bytes("T2")
+KEY_LIQUIDITY_TOKEN = Bytes("LT")
 
 # Transaction Types
 TRANSACTION_TYPE_SWAP_DEPOSIT_TOKEN1_TO_TOKEN2 = Bytes("s1")
@@ -32,6 +38,11 @@ def approval_program():
         r   Get a refund of unused tokens
         p   Withdraw protocol fees (Developer only)
     """
+
+    key_token1 = App.localGetEx(Int(1), MANAGER_INDEX, KEY_TOKEN1)
+    key_token2 = App.localGetEx(Int(1), MANAGER_INDEX, KEY_TOKEN2)
+    key_liquidity_token = App.localGetEx(Int(1), MANAGER_INDEX, KEY_LIQUIDITY_TOKEN)
+
     # On application create, put the creator key in global storage
     on_create = Seq([
         App.globalPut(KEY_CREATOR, Txn.sender()),
@@ -45,6 +56,7 @@ def approval_program():
     on_opt_in = Int(1)
 
     on_swap_deposit = Seq([
+        key_token1,
         Assert(
             And(
                 # Group has 3 transactions
@@ -78,6 +90,8 @@ def approval_program():
 
                 # Is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
+                # Transfer asset is TOKEN1
+                Gtxn[2].xfer_asset() == key_token1.value(),
                 # Asset sender is zero address
                 Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is attached account
@@ -92,6 +106,7 @@ def approval_program():
     ])
 
     on_swap_deposit_2 = Seq([
+        key_token2,
         Assert(
             And(
                 # Group has 3 transactions
@@ -125,6 +140,8 @@ def approval_program():
 
                 # Is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
+                # Transfer asset is Token 2
+                Gtxn[2].xfer_asset() == key_token2.value(),
                 # Sender is zero address
                 Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is attached account
@@ -139,6 +156,8 @@ def approval_program():
     ])
 
     on_add_liquidity_deposit = Seq([
+        key_token1,
+        key_token2,
         Assert(
             And(
                 # Group has 4 transactions
@@ -175,6 +194,8 @@ def approval_program():
 
                 # Is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
+                # Transfer asset is Token 1
+                Gtxn[2].xfer_asset() == key_token1.value(),
                 # Asset sender is zero address
                 Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
@@ -188,6 +209,8 @@ def approval_program():
 
                 # Is of type AssetTransfer
                 Gtxn[3].type_enum() == TxnType.AssetTransfer,
+                # Transfer asset is Token 2
+                Gtxn[3].xfer_asset() == key_token2.value(),
                 # Asset sender is zero address
                 Gtxn[3].asset_sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
@@ -202,6 +225,7 @@ def approval_program():
     ])
 
     on_withdraw_liquidity = Seq([
+        key_liquidity_token,
         Assert(
             And(
                 # Group has 3 transactions
@@ -238,6 +262,8 @@ def approval_program():
 
                 # is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
+                # Transfer asset is liquidity token
+                Gtxn[2].xfer_asset() == key_liquidity_token.value(),
                 # Asset sender is zero address
                 Gtxn[2].asset_sender() == Global.zero_address(),
                 # Asset receiver is the escrow account
@@ -252,6 +278,8 @@ def approval_program():
     ])
 
     on_withdraw_protocol_fees = Seq([
+        key_token1,
+        key_token2,
         Assert(
             And(
                 # Group has 4 transactions
@@ -288,6 +316,8 @@ def approval_program():
 
                 # is of type AssetTransfer
                 Gtxn[2].type_enum() == TxnType.AssetTransfer,
+                # Transfer asset is Token 1
+                Gtxn[2].xfer_asset() == key_token1.value(),
                 # sender is escrow
                 Gtxn[2].sender() == Txn.accounts[1],
                 # is not a clawback transaction
@@ -297,6 +327,8 @@ def approval_program():
 
                 # is of type AssetTransfer
                 Gtxn[3].type_enum() == TxnType.AssetTransfer,
+                # Transfer asset is Token 2
+                Gtxn[3].xfer_asset() == key_token2.value(),
                 # sender is escrow
                 Gtxn[3].sender() == Txn.accounts[1],
                 # is not a clawback transaction
@@ -371,4 +403,4 @@ def approval_program():
     return program
 
 def clear_program():
-    return Return(Int(1))
+    return Int(1)

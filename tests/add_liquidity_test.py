@@ -30,7 +30,7 @@ indexer_client = indexer.IndexerClient(INDEXER_TOKEN, INDEXER_ENDPOINT, headers=
 
 def wait_for_transaction(transaction_id):
   suggested_params = algod_client.suggested_params()
-  algod_client.status_after_block(suggested_params.first + 2)
+  algod_client.status_after_block(suggested_params.first + 4)
   result = indexer_client.search_transactions(txid=transaction_id)
   assert len(result['transactions']) == 1, result
   return result['transactions'][0]
@@ -144,49 +144,51 @@ def get_liquidity_token_refund():
   # Calculate unused_liquidity
   unused_liquidity = 0
   results = algod_client.account_info(TEST_ACCOUNT_ADDRESS)
-  local_state = results['apps-local-state'][0]
-  for index in local_state:
-    if local_state[index] == MANAGER_INDEX:
-      unused_liquidity = local_state['UL']
+  local_state = results['apps-local-state']
+  for block in local_state:
+    if block['id'] == MANAGER_INDEX:
+      for kvs in block['key-value']:
+        decoded_key = base64.b64decode(kvs['key']).decode('latin-1')
+        print(decoded_key)
 
   print(f"User unused liquidity is {unused_liquidity}")
 
-  # Transaction to get refund from Escrow
-  program = base64.b64decode(ESCROW_LOGICSIG)
-  lsig = transaction.LogicSig(program)
+  # # Transaction to get refund from Escrow
+  # program = base64.b64decode(ESCROW_LOGICSIG)
+  # lsig = transaction.LogicSig(program)
 
-  txn_3 = transaction.AssetTransferTxn(
-    sender=ESCROW_ADDRESS,
-    sp=algod_client.suggested_params(),
-    receiver=TEST_ACCOUNT_ADDRESS,
-    amt=unused_liquidity,
-    index=LIQUIDITY_TOKEN_INDEX
-  )
+  # txn_3 = transaction.AssetTransferTxn(
+  #   sender=ESCROW_ADDRESS,
+  #   sp=algod_client.suggested_params(),
+  #   receiver=TEST_ACCOUNT_ADDRESS,
+  #   amt=unused_liquidity,
+  #   index=LIQUIDITY_TOKEN_INDEX
+  # )
 
-  # Get group ID and assign to transactions
-  gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
-  txn_1.group = gid
-  txn_2.group = gid
-  txn_3.group = gid
+  # # Get group ID and assign to transactions
+  # gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
+  # txn_1.group = gid
+  # txn_2.group = gid
+  # txn_3.group = gid
 
-  # Sign transactions
-  stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
+  # # Sign transactions
+  # stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
+  # stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
+  # stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
 
-  # Broadcast the transactions
-  signed_txns = [stxn_1, stxn_2, stxn_3]
-  tx_id = algod_client.send_transactions(signed_txns)
+  # # Broadcast the transactions
+  # signed_txns = [stxn_1, stxn_2, stxn_3]
+  # tx_id = algod_client.send_transactions(signed_txns)
 
-  # Wait for transaction
-  wait_for_transaction(tx_id)
+  # # Wait for transaction
+  # wait_for_transaction(tx_id)
 
-  print(f"Got refund of liquidity tokens from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
+  # print(f"Got refund of liquidity tokens from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
 
   print()
 
 if __name__ == "__main__":
-  add_liquidity()
+  #add_liquidity()
 
   get_token1_refund()
   get_token2_refund()

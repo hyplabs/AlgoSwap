@@ -2,7 +2,7 @@ import os
 import base64
 
 from algosdk.v2client import algod, indexer
-from algosdk import mnemonic, account
+from algosdk import mnemonic, account, encoding
 from algosdk.future import transaction
 
 ALGOD_ENDPOINT = os.environ['ALGOD_ENDPOINT']
@@ -148,8 +148,16 @@ def get_liquidity_token_refund():
   for block in local_state:
     if block['id'] == MANAGER_INDEX:
       for kvs in block['key-value']:
-        decoded_key = base64.b64decode(kvs['key']).decode('latin-1')
-        print(decoded_key)
+        decoded_key = base64.b64decode(kvs['key'])
+        prefix_bytes = decoded_key[:2]
+        prefix_key = prefix_bytes.decode('utf-8')
+        addr_bytes = decoded_key[2:]
+        b32_encoded_addr = base64.b32encode(addr_bytes).decode('utf-8')
+        escrow_addr = encoding.encode_address(base64.b32decode(b32_encoded_addr))
+
+        if (prefix_key == "UL" and ESCROW_ADDRESS == escrow_addr):
+          unused_liquidity = kvs['value']['uint']
+
 
   print(f"User unused liquidity is {unused_liquidity}")
 

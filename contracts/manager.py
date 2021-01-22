@@ -3,10 +3,7 @@
 from pyteal import *
 
 # 45 parts out of 10000 from each swap goes to liquidity providers
-swap_fee = Int(45) / Int(10000)
 # 5 parts out of 10000 from each swap goes to the developers
-protocol_fee = Int(5) / Int(10000)
-
 
 KEY_TOTAL_TOKEN1_BALANCE = Bytes("B1")
 KEY_TOTAL_TOKEN2_BALANCE = Bytes("B2")
@@ -26,7 +23,7 @@ TRANSACTION_TYPE_REFUND = Bytes("r")
 TRANSACTION_TYPE_WITHDRAW_PROTOCOL_FEES = Bytes("p")
 
 
-def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
+def approval_program():
     """
     This smart contract implements the Manager part of the AlgoSwap DEX.
     It maintains the global and local storage for users and escrow contracts
@@ -105,7 +102,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         Int(1)
     )
 
-    def swap_token_input_minus_fees(asset_amount: Int): return asset_amount * (Int(1) - tmpl_protocol_fee - tmpl_swap_fee)
+    def swap_token_input_minus_fees(asset_amount: Int): return (asset_amount * Int(9950)) / Int(10000)
 
     def swap_token2_output(token1_input_minus_fees: Int):
         return read_key_total_token2_bal - (read_key_total_token1_bal * read_key_total_token2_bal) / (read_key_total_token1_bal + token1_input_minus_fees)
@@ -117,7 +114,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         # PROTOCOL_UNUSED_TOKEN1 = PROTOCOL_UNUSED_TOKEN1 + token1_input * protocol_fee
         write_protocol_unused_token1(
             Txn.accounts[1],
-            read_protocol_unused_token1(Txn.accounts[1]) + (Gtxn[2].asset_amount() * tmpl_protocol_fee)
+            read_protocol_unused_token1(Txn.accounts[1]) + (Gtxn[2].asset_amount() / Int(2000))
         ),
         # Assert token2_output >= min_token2_received_from_algoswap
         Assert(
@@ -131,7 +128,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         # Update total balance
         # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + (token1_input * swap_fee) + token1_input_minus_fees
         write_key_total_token1_bal(
-            read_key_total_token1_bal + (Gtxn[2].asset_amount() * tmpl_swap_fee) + swap_token_input_minus_fees(Gtxn[2].asset_amount())
+            read_key_total_token1_bal + ((Gtxn[2].asset_amount() * Int(9)) / Int(10000)) + swap_token_input_minus_fees(Gtxn[2].asset_amount())
         ),
         # TOTAL_TOKEN2_BALANCE = TOTAL_TOKEN2_BALANCE - token2_output
         write_key_total_token2_bal(
@@ -150,7 +147,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
         # add protocol fee to protocol fees account
         write_protocol_unused_token2(
             Txn.accounts[1],
-            read_protocol_unused_token2(Txn.accounts[1]) + (Gtxn[1].asset_amount() * tmpl_protocol_fee)
+            read_protocol_unused_token2(Txn.accounts[1]) + (Gtxn[1].asset_amount() / Int(2000))
         ),
         # assert token 1 output >= min_token1_received_from_algoswap
         Assert(
@@ -162,7 +159,7 @@ def approval_program(tmpl_swap_fee=swap_fee, tmpl_protocol_fee=protocol_fee):
             read_user_unused_token1(Txn.accounts[1]) + scratchvar_swap_token1_output.load()
         ),
         # update total token2 balance = total_token2_balance + swap fees + swap_token_input_minus_fees
-        write_key_total_token2_bal(read_key_total_token2_bal + (Gtxn[1].asset_amount() * tmpl_swap_fee) + swap_token_input_minus_fees(Gtxn[1].asset_amount())),
+        write_key_total_token2_bal(read_key_total_token2_bal + ((Gtxn[1].asset_amount() * Int(9)) / Int(2000)) + swap_token_input_minus_fees(Gtxn[1].asset_amount())),
         # update total token1 balance
         write_key_total_token1_bal(read_key_total_token1_bal - scratchvar_swap_token1_output.load()),
         # successful approval

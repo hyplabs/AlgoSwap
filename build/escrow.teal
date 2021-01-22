@@ -2,18 +2,22 @@
 global GroupSize
 int 1
 ==
-bnz l4
+bnz l6
 global GroupSize
 int 3
 ==
-bnz l3
+bnz l5
+global GroupSize
+int 4
+==
+bnz l4
 err
-l3:
+l4:
 gtxn 0 TypeEnum
 int appl
 ==
 gtxn 0 ApplicationID
-int 13631692
+int 13649738
 ==
 &&
 gtxn 1 TypeEnum
@@ -21,7 +25,44 @@ int appl
 ==
 &&
 gtxn 1 ApplicationID
-int 13631691
+int 13649731
+==
+&&
+txn GroupIndex
+int 2
+==
+txn GroupIndex
+int 3
+==
+||
+&&
+txn TypeEnum
+int axfer
+==
+&&
+txn CloseRemainderTo
+global ZeroAddress
+==
+&&
+txn AssetCloseTo
+global ZeroAddress
+==
+&&
+b l7
+l5:
+gtxn 0 TypeEnum
+int appl
+==
+gtxn 0 ApplicationID
+int 13649738
+==
+&&
+gtxn 1 TypeEnum
+int appl
+==
+&&
+gtxn 1 ApplicationID
+int 13649731
 ==
 &&
 txn GroupIndex
@@ -40,20 +81,20 @@ txn AssetCloseTo
 global ZeroAddress
 ==
 &&
-b l5
-l4:
+b l7
+l6:
 txn OnCompletion
 int OptIn
 ==
 txn LastValid
-int 11863696
+int 11885898
 <=
 &&
 txn ApplicationID
-int 13631692
+int 13649738
 ==
 txn ApplicationID
-int 13631691
+int 13649731
 ==
 ||
 &&
@@ -65,20 +106,20 @@ txn AssetReceiver
 ==
 &&
 txn LastValid
-int 11863696
+int 11885898
 <=
 &&
 txn XferAsset
-int 13631693
+int 13649742
 ==
 txn XferAsset
-int 13631694
+int 13649743
 ==
 ||
 txn XferAsset
-int 13631695
+int 13649749
 ==
 ||
 &&
 ||
-l5:
+l7:

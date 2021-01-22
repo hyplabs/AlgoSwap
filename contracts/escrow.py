@@ -76,6 +76,35 @@ def logicsig():
                 # this transaction is not an asset close transaction
                 Txn.asset_close_to() == Global.zero_address()
             )
+        ],
+        [
+            # If there are four transactions within the group
+            Global.group_size() == Int(4),
+            # Then this is a withdraw protocol fees transaction
+            And(
+                # first one is an ApplicationCall
+                # first one is an ApplicationCall
+                Gtxn[0].type_enum() == TxnType.ApplicationCall,
+                # the ApplicationCall must be approved by the validator application
+                Gtxn[0].application_id() == validator_application_id,
+
+                # second one is an ApplicationCall
+                Gtxn[1].type_enum() == TxnType.ApplicationCall,
+                # Must be approved by the manager application
+                Gtxn[1].application_id() == manager_application_id,
+
+                # this transaction is the third or fourth one
+                Or(
+                    Txn.group_index() == Int(2),
+                    Txn.group_index() == Int(3),
+                ),
+                # this transaction is an AssetTransfer
+                Txn.type_enum() == TxnType.AssetTransfer,
+                # this transaction is not a close transaction
+                Txn.close_remainder_to() == Global.zero_address(),
+                # this transaction is not an asset close transaction
+                Txn.asset_close_to() == Global.zero_address(),
+            )
         ]
     )
     return program

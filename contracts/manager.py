@@ -208,8 +208,8 @@ def approval_program():
         write_user_unused_liquidity(
             Txn.accounts[1],
             read_user_unused_liquidity(Txn.accounts[1]) + 
-            asset_param_total.value() - 
-            asset_holding_balance.value()
+            (asset_param_total.value() - asset_holding_balance.value()) * 
+            (Gtxn[2].asset_amount / scratchvar_total_token1_bal.load())
         ),
         # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + token1_used
         If(Gtxn[2].asset_amount() > scratchvar_token1_used.load(),

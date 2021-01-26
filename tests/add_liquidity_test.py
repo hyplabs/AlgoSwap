@@ -70,7 +70,7 @@ def add_liquidity():
     sender=TEST_ACCOUNT_ADDRESS,
     sp=algod_client.suggested_params(),
     receiver=ESCROW_ADDRESS,
-    amt=50,
+    amt=50000000,
     index=TOKEN1_INDEX
   )
 
@@ -79,7 +79,7 @@ def add_liquidity():
     sender=TEST_ACCOUNT_ADDRESS,
     sp=algod_client.suggested_params(),
     receiver=ESCROW_ADDRESS,
-    amt=50,
+    amt=50000000,
     index=TOKEN2_INDEX
   )
 
@@ -280,6 +280,7 @@ def get_liquidity_token_refund():
   unused_liquidity = 0
   results = algod_client.account_info(TEST_ACCOUNT_ADDRESS)
   local_state = results['apps-local-state']
+  print(local_state)
   for block in local_state:
     if block['id'] == MANAGER_INDEX:
       for kvs in block['key-value']:
@@ -292,6 +293,7 @@ def get_liquidity_token_refund():
 
         if (prefix_key == "UL" and ESCROW_ADDRESS == escrow_addr):
           unused_liquidity = kvs['value']['uint']
+          print(f"abc: {unused_liquidity}")
   
   print(f"User unused liquidity is {unused_liquidity}")
 

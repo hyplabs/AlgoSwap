@@ -3,7 +3,7 @@
 from pyteal import compileTeal, Seq, App, Assert, Txn, Gtxn, TxnType, Btoi, Bytes, Int, Return, If, Cond, And, Or, Not, Global, Mode, OnComplete, Concat, AssetHolding, AssetParam
 
 # Manager App ID
-MANAGER_INDEX = Int(13649731) # TODO: Update
+MANAGER_INDEX = Int(13650126) # TODO: Update
 
 # Keys
 KEY_CREATOR = Bytes("C")

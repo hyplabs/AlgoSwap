@@ -382,16 +382,10 @@ int 1
 byte "B2"
 app_local_get
 gtxn 1 AssetAmount
-int 1
-int 5
-int 10000
-/
--
-int 45
-int 10000
-/
--
+int 9950
 *
+int 10000
+/
 +
 /
 -
@@ -406,10 +400,8 @@ txna Accounts 1
 concat
 app_local_get
 gtxn 1 AssetAmount
-int 5
-int 10000
+int 2000
 /
-*
 +
 app_local_put
 load 5
@@ -437,22 +429,16 @@ int 1
 byte "B2"
 app_local_get
 gtxn 1 AssetAmount
-int 45
-int 10000
-/
+int 9
 *
+int 2000
+/
 +
 gtxn 1 AssetAmount
-int 1
-int 5
-int 10000
-/
--
-int 45
-int 10000
-/
--
+int 9950
 *
+int 10000
+/
 +
 app_local_put
 int 1
@@ -480,16 +466,10 @@ int 1
 byte "B1"
 app_local_get
 gtxn 2 AssetAmount
-int 1
-int 5
-int 10000
-/
--
-int 45
-int 10000
-/
--
+int 9950
 *
+int 10000
+/
 +
 /
 -
@@ -504,10 +484,8 @@ txna Accounts 1
 concat
 app_local_get
 gtxn 2 AssetAmount
-int 5
-int 10000
+int 2000
 /
-*
 +
 app_local_put
 load 4
@@ -535,22 +513,16 @@ int 1
 byte "B1"
 app_local_get
 gtxn 2 AssetAmount
-int 45
+int 9
+*
 int 10000
 /
-*
 +
 gtxn 2 AssetAmount
-int 1
-int 5
-int 10000
-/
--
-int 45
-int 10000
-/
--
+int 9950
 *
+int 10000
+/
 +
 app_local_put
 int 1

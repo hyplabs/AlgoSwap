@@ -69,14 +69,18 @@ Actual keys in TEAL use shorter names than the ones specified here for readabili
 
 Manager also needs to store some information about each [Escrow Contract](#escrow-contract). To do this, each Escrow Contract opts into the Manager, and we store fields in Manager's local storage for the Escrow Contract.
 
+- `TOKEN1` and `TOKEN2`: The asset ID's of Token 1 and Token 2 respectively.
+
+- `LIQUIDITY_TOKEN`: The asset ID of the liquidity token for this escrow contract.
+
 - `TOTAL_TOKEN1_BALANCE` and `TOTAL_TOKEN2_BALANCE`: Total amounts of TOKEN1 and TOKEN2 currently in the liquidity pool, respectively.
 
-  - Different from getting the Escrow contract's balance for `TOKEN1` and `TOKEN2` because the real balances also include the values of `USER_TOKEN1_UNUSED` and `USER_TOKEN2_UNUSED` for [User](#user) and the [Protocol Fees](#protocol-fees)
-  - These values are initialized to 0
+  - Different from getting the Escrow contract's balance for `TOKEN1` and `TOKEN2` because the real balances also include the values of `USER_TOKEN1_UNUSED` and `USER_TOKEN2_UNUSED` for [User](#user) and the [Protocol Fees](#protocol-fees).
+  - These values are initialized to 0.
 
-- `TOKEN1` and `TOKEN2`: The asset ID's of Token 1 and Token 2 respectively
+- `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED`: Total amount of `LIQUIDITY_TOKEN` distributed to users.
 
-- `LIQUIDITY_TOKEN`: The asset ID of the liquidity token for this escrow contract
+  - Different from calculating (total supply of `LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))`) minus (current balance of `RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2)))`), because the real amount of `LIQUIDITY_TOKEN` distributed to users should also include the values of `USER_UNUSED_LIQUIDITY` for [User](#user).
 
 - `PROTOCOL_UNUSED_TOKEN1` and `PROTOCOL_UNUSED_TOKEN2`: Total amounts of Token 1 and Token 2 currently allocated towards protocol fees. These are withdrawable by the [Developer](#developer)
 
@@ -208,7 +212,7 @@ Therefore, liquidity providers must deposit an amount such that `(TOTAL_TOKEN1_B
 
 We can solve to get `token2_deposit = token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE`. Likewise `token1_deposit = token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE`.
 
-When either `TOTAL_TOKEN1_BALANCE` or `TOTAL_TOKEN2_BALANCE` are 0, this is a special case where we define both `token1_deposit` and `token2_deposit` to be 0. In this special case, User does get to control the exchange rate, but this can only happen when User is the very first liquidity provider. User would be advised to deposit amounts of TOKEN1 and TOKEN2 that are equal in value on other exchanges, or else arbitrageurs will quickly skim off the difference.
+When `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED` is 0 (which also implies that one or more of `TOTAL_TOKEN1_BALANCE` or `TOTAL_TOKEN2_BALANCE` are 0), this means that the user adding liquidity is the very first liquidity provider. In this special case, User is able to control the exchange rate, but this can only happen when User is the very first liquidity provider. User would be advised to deposit amounts of TOKEN1 and TOKEN2 that are equal in value on other exchanges, or else arbitrageurs will quickly skim off the difference.
 
 So, if User is sending `x` of Token 1, they need to send `x * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE` of Token 2 as well, in order to keep the instantaneous exchange rate the same.
 
@@ -219,7 +223,7 @@ Due to slippage, Users cannot be expected to send exact amounts for each deposit
 
 are made available in the liquidity pool, and the rest is all refundable to the sender.
 
-To split liquidity fees, we need to measure how much liquidity each liquidity provider is providing. To do this, we define a unitless measure of liquidity where the first liquidity provider on AlgoSwap sets it initially to the amount of TOKEN1 they've provided, and after that liquidity providers gain liquidity as a factor of how much they've increased the amount of TOKEN1 in the liquidity pool. For example, if `TOTAL_TOKEN1_BALANCE` is 1000 and someone adds 1000 of TOKEN1, they doubled the amount of liquidity in the system, therefore they should gain whatever amount of liquidity currently exists.
+To split liquidity fees, we need to measure how much liquidity each liquidity provider is providing. To do this, we define a unitless measure of liquidity where the first liquidity provider on AlgoSwap sets it initially to the amount of TOKEN1 they've provided, and after that liquidity providers gain liquidity as a factor of how much they've increased the amount of TOKEN1 in the liquidity pool. For example, if `TOTAL_TOKEN1_BALANCE` is 1000 and someone adds 1000 of TOKEN1, they doubled the amount of liquidity in the system, therefore they should gain an amount of liquidity equal to whatever amount of liquidity currently exists.
 
 Therefore, we can now define an add liquidity operation as follows:
 
@@ -232,9 +236,7 @@ Therefore, we can now define an add liquidity operation as follows:
       - `LastValid` is set to be a few rounds in the future (no verification needed)
       - `Application ID` is Validator's application ID (no verification needed)
       - `OnComplete` is `NoOp`
-      - `Accounts` is a two-element array consisting of
-        - `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))`
-        - `RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2)))`
+      - `Accounts` is a one-element array consisting of `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))`.
       - `App Arguments` is a two-element array consisting of:
         - The string `"a"` which identifies this transaction group as an add liquidity transaction.
         - `min_liquidity_received_from_algoswap`: The minimum amount of liquidity token that the user should receive. If the exchange rate rises such that the User would receive less than this amount of liqudity token, the swap fails.
@@ -246,9 +248,7 @@ Therefore, we can now define an add liquidity operation as follows:
       - `LastValid` is set to be a few rounds in the future (no verification needed)
       - `Application ID` is Validator's application ID (no verification needed)
       - `OnComplete` is `NoOp`
-      - `Accounts` is a two-element array consisting of
-        - `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))`
-        - `RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2)))`
+      - `Accounts` is a one-element array consisting of `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))`.
       - `App Arguments` is a two-element array consisting of:
         - The string `"a"` which identifies this transaction group as an add liquidity transaction.
         - `min_liquidity_received_from_algoswap`: The minimum amount of liquidity token that the user should receive. If the exchange rate rises such that the User would receive less than this amount of liqudity token, the swap fails.
@@ -269,14 +269,18 @@ Therefore, we can now define an add liquidity operation as follows:
 
 3. Validator runs its approval program for validating the fields of the transaction group
 4. Manager runs its approval program for updating the [Application State](#application-state) for this transaction group
-   1. Retrieve `TOTAL_TOKEN1_BALANCE` and `TOTAL_TOKEN2_BALANCE` from `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`.
-   2. Compute `token1_used = min(token1_deposit, token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE)`, where `token2_deposit` is the TOKEN2 `AssetAmount` value from the transaction group.
-   3. Compute `token2_used = min(token2_deposit, token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE)`, where `token1_deposit` is the TOKEN1 `AssetAmount` value from the transaction group.
+   1. Retrieve `TOTAL_TOKEN1_BALANCE`, `TOTAL_TOKEN2_BALANCE`, and `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED` from `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`.
+   2. If `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED` is 0:
+      1. Compute `token1_used = token1_deposit` and `token2_used = token2_deposit`, where `token1_deposit` and `token2_deposit` are the TOKEN1 and TOKEN2 `AssetAmount` values from the transaction group.
+      2. Compute `new_liquidity = token1_deposit`.
+   3. Otherwise (if `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED` is not 0):
+      1. Compute `token1_used = min(token1_deposit, token2_deposit * TOTAL_TOKEN1_BALANCE / TOTAL_TOKEN2_BALANCE)`, where `token1_deposit` and `token2_deposit` are the TOKEN1 and TOKEN2 `AssetAmount` values from the transaction group.
+      2. Compute `token2_used = min(token2_deposit, token1_deposit * TOTAL_TOKEN2_BALANCE / TOTAL_TOKEN1_BALANCE)`.
+      3. Compute `new_liquidity = TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED * token1_deposit / TOTAL_TOKEN1_BALANCE`.
    4. Set `USER_UNUSED_TOKEN1(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += token1_deposit - token1_used` in `MANAGER`'s local storage for `USER`.
    5. Set `USER_UNUSED_TOKEN2(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += token2_deposit - token2_used` in `MANAGER`'s local storage for `USER`.
-   6. Compute `total_liquidity` to be the total supply of `LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))`, minus the current balance of `RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2)))`.
-   7. Set `USER_UNUSED_LIQUIDITY(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += total_liquidity * token1_deposit / TOTAL_TOKEN1_BALANCE` in `MANAGER`'s local storage for `USER`.
-   8. Set `TOTAL_TOKEN1_BALANCE += token1_used` and `TOTAL_TOKEN2_BALANCE += token2_used` in `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`. These amounts are now part of the liquidity pool and can only be retrieved with a liquidity withdrawal operation. The rest of `USER`'s tokens in `MANAGER` can now be refunded to `USER` in the following steps.
+   6. Set `USER_UNUSED_LIQUIDITY(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += new_liquidity` in `MANAGER`'s local storage for `USER`.
+   7. Set `TOTAL_TOKEN1_BALANCE += token1_used` and `TOTAL_TOKEN2_BALANCE += token2_used` and `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED += new_liquidity` in `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`. These amounts are now part of the liquidity pool and can only be retrieved with a liquidity withdrawal operation. The unused remainder of `USER`'s tokens in `MANAGER` can now be refunded to `USER` in the following steps.
 5. Frontend reads the value of `unused_token1 = USER_UNUSED_TOKEN1(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2)))`, `unused_token2 = USER_UNUSED_TOKEN2(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2)))`, and `unused_liquidity = USER_UNUSED_LIQUIDITY(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2)))` from Manager's local storage for the User.
 6. Frontend asks Wallet to sign an atomic transaction group consisting of 3 transactions:
    1. An `ApplicationCall` transaction from User to Validator
@@ -319,7 +323,7 @@ We can define a withdraw liquidity operation as follows:
       - `LastValid` is set to be a few rounds in the future, perhaps around 30 seconds (no verification needed). This is intended to limit frontrunning techniques that delay the transaction for many rounds.
       - `Application ID` is `MANAGER`'s application ID (no verification needed).
       - `OnComplete` is `NoOp`.
-      - `Accounts` is a two-element array consisting of `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))` and `RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2)))`.
+      - `Accounts` is a two-element array consisting of `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))`.
       - `App Arguments` is a three-element array consisting of:
         - The string "w": identifies this transaction as a "withdraw liquidity".
         - `min_token1_received_from_algoswap`: the swap fails if the exchange rate rises such that `USER` would receive less than this amount of TOKEN1. This is intended to limit frontrunning techniques that manipulate the liquidity pool distribution.
@@ -332,7 +336,7 @@ We can define a withdraw liquidity operation as follows:
       - `LastValid` is set to be a few rounds in the future, perhaps around 30 seconds (no verification needed). This is intended to limit frontrunning techniques that delay the transaction for many rounds.
       - `Application ID` is `MANAGER`'s application ID (no verification needed).
       - `OnComplete` is `NoOp`.
-      - `Accounts` is a two-element array consisting of `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))` and `RESERVE_ADDR(LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2)))`.
+      - `Accounts` is a one-element array consisting of `ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))`.
       - `App Arguments` is a three-element array consisting of:
         - The string "w": identifies this transaction as a "withdraw liquidity".
         - `min_token1_received_from_algoswap`: the swap fails if the exchange rate rises such that `USER` would receive less than this amount of TOKEN1. This is intended to limit frontrunning techniques that manipulate the liquidity pool distribution.
@@ -346,14 +350,13 @@ We can define a withdraw liquidity operation as follows:
       - `AssetReceiver` is `ESCROW(TOKEN1, TOKEN2)`.
       - All other AssetTransfer-specific transaction fields MUST not be present.
 
-3. Validator runs its approval program for validating the fields of the transaction group
+3. Validator runs its approval program for validating the fields of the transaction group.
 4. Manager runs its approval program for updating the [Application State](#application-state) for this transaction group
-   1. Retrieve `TOTAL_TOKEN1_BALANCE` and `TOTAL_TOKEN2_BALANCE` from `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`.
-   2. Compute `total_liquidity` to be the total supply of `LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))`, minus the current balance of the `LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))` reserve.
-   3. Compute `token1_available = TOTAL_TOKEN1_BALANCE * user liquidity / total_liquidity` and `token2_available = TOTAL_TOKEN2_BALANCE * user liquidity / total_liquidity`, where `user_liquidity` is the `AssetAmount` value in the transaction group. This is the fraction of the liquidity pool provided by `USER`. As the liquidity pool grows from liquidity provider fees, `USER` still owns the same slice of the pie, but the whole pie grew larger, so `USER` owns more liquidity than they did before.
-   4. Set `USER_UNUSED_TOKEN1(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += token1_available` in `MANAGER`'s local storage for `USER`.
-   5. Set `USER_UNUSED_TOKEN2(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += token2_available` in `MANAGER`'s local storage for `USER`.
-   6. Set `TOTAL_TOKEN1_BALANCE -= token1_available` and `TOTAL_TOKEN2_BALANCE -= token2_available` in `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`.
+   1. Retrieve `TOTAL_TOKEN1_BALANCE`, `TOTAL_TOKEN2_BALANCE`, and `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED` from `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`.
+   2. Compute `token1_available = TOTAL_TOKEN1_BALANCE * user_liquidity / TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED` and `token2_available = TOTAL_TOKEN2_BALANCE * user_liquidity / TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED`, where `user_liquidity` is the `AssetAmount` value in the transaction group. This is the fraction of the liquidity pool provided by `USER`. As the liquidity pool grows from liquidity provider fees, `USER` still owns the same slice of the pie, but the whole pie grew larger, so `USER`'s liquidity tokens are worth more than before.
+   3. Set `USER_UNUSED_TOKEN1(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += token1_available` in `MANAGER`'s local storage for `USER`.
+   4. Set `USER_UNUSED_TOKEN2(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2))) += token2_available` in `MANAGER`'s local storage for `USER`.
+   5. Set `TOTAL_TOKEN1_BALANCE -= token1_available`, `TOTAL_TOKEN2_BALANCE -= token2_available`, and `TOTAL_LIQUIDITY_TOKEN_DISTRIBUTED -= user_liquidity` in `MANAGER`'s local storage for `ESCROW(TOKEN1, TOKEN2)`.
 5. Frontend reads the value of `unused_token1 = USER_UNUSED_TOKEN1(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2)))` and `unused_token2 = USER_UNUSED_TOKEN2(ADDRESS_OF(ESCROW(TOKEN1, TOKEN2)))` from Manager's local storage for the User.
 6. Frontend asks Wallet to sign an atomic transaction group consisting of 3 transactions:
    1. An `ApplicationCall` transaction from User to Validator

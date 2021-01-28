@@ -106,8 +106,8 @@ def approval_program():
         Int(1)
     )
 
-    # 193/200 = 9950/10000 = 0.45% (45/10000) swap fee and 0.05% (5/10000) protocol fee
-    def swap_token_input_minus_fees(asset_amount: Int): return (asset_amount * Int(193)) / Int(200)
+    # 199/200 = 9950/10000 = 0.45% (45/10000) swap fee and 0.05% (5/10000) protocol fee
+    def swap_token_input_minus_fees(asset_amount: Int): return (asset_amount * Int(199)) / Int(200)
 
     def swap_token2_output(token1_input_minus_fees: Int):
         return read_key_total_token2_bal - (read_key_total_token1_bal * read_key_total_token2_bal) / (read_key_total_token1_bal + token1_input_minus_fees)

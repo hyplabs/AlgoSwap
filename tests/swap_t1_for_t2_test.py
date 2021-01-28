@@ -20,6 +20,8 @@ MANAGER_INDEX = int(os.environ['MANAGER_INDEX'])
 TOKEN1_INDEX = int(os.environ['TOKEN1_INDEX'])
 TOKEN2_INDEX = int(os.environ['TOKEN2_INDEX'])
 
+TOKEN1_AMOUNT = 100000000
+
 algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ENDPOINT, headers={
   "x-api-key": ALGOD_TOKEN
 })
@@ -39,7 +41,7 @@ def swap_token1_for_token2():
 
   encoded_app_args = [
     bytes("s1", "utf-8"),
-    bytes("4", "utf-8")
+    (80888500).to_bytes(8, 'big')
   ]
 
   # Transaction to Validator
@@ -67,7 +69,7 @@ def swap_token1_for_token2():
     sender=TEST_ACCOUNT_ADDRESS,
     sp=algod_client.suggested_params(),
     receiver=ESCROW_ADDRESS,
-    amt=5,
+    amt=TOKEN1_AMOUNT,
     index=TOKEN1_INDEX
   )
 
@@ -114,8 +116,8 @@ def get_token2_refund():
         b32_encoded_addr = base64.b32encode(addr_bytes).decode('utf-8')
         escrow_addr = encoding.encode_address(base64.b32decode(b32_encoded_addr))
 
-        if (prefix_key == "T2" and ESCROW_ADDRESS == escrow_addr):
-          unused_token2 = kvs['value']['uint']
+        if (prefix_key == "U2" and ESCROW_ADDRESS == escrow_addr):
+          unused_token2 = int(kvs['value']['uint']) - 1
 
   print(f"User unused Token 2 is {unused_token2}")
 
@@ -175,6 +177,6 @@ def get_token2_refund():
   print()
 
 if __name__ == "__main__":
-  swap_token1_for_token2()
+  #swap_token1_for_token2()
 
   get_token2_refund()

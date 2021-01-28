@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from pyteal import compileTeal, Seq, App, Assert, Txn, Gtxn, TxnType, Btoi, Bytes, Int, Return, If, Cond, And, Or, Not, Global, Mode, OnComplete, Concat, AssetHolding, AssetParam
+from pyteal import *
 
 # Manager App ID
-MANAGER_INDEX = Int(13650126) # TODO: Update
+MANAGER_INDEX = Int(13795367) # TODO: Update
 
 # Keys
 KEY_CREATOR = Bytes("C")
@@ -166,8 +166,8 @@ def approval_program():
                 Txn.group_index() == Int(0),
                 # No additional actions needed from this transaction
                 Txn.on_completion() == OnComplete.NoOp,
-                # Has two additional accounts attached
-                Txn.accounts.length() == Int(2),
+                # Has one additional account attached
+                Txn.accounts.length() == Int(1),
                 # Has two application arguments attached
                 Txn.application_args.length() == Int(2),
 
@@ -179,13 +179,12 @@ def approval_program():
                 Gtxn[1].type_enum() == TxnType.ApplicationCall,
                 # No additional actions needed
                 Gtxn[1].on_completion() == OnComplete.NoOp,
-                # Has two additional accounts attached
-                Gtxn[1].application_args.length() == Int(2),
+                # Has one additional account attached
+                Gtxn[1].accounts.length() == Int(1),
                 # Has two application arguments attached
                 Gtxn[1].application_args.length() == Int(2),
                 # Additional accounts are same as first txn
                 Txn.accounts[1] == Gtxn[1].accounts[1],
-                Txn.accounts[2] == Gtxn[1].accounts[2],
                 # Application arguments are same as first txn
                 Txn.application_args[0] == Gtxn[1].application_args[0],
                 Txn.application_args[1] == Gtxn[1].application_args[1],
@@ -234,8 +233,8 @@ def approval_program():
                 Txn.group_index() == Int(0),
                 # No additional actions are needed from this transaction
                 Txn.on_completion() == OnComplete.NoOp,
-                # Has two additional accounts attached
-                Txn.accounts.length() == Int(2),
+                # Has one additional account attached
+                Txn.accounts.length() == Int(1),
                 # Has three application arguments attached
                 Txn.application_args.length() == Int(3),
 
@@ -248,15 +247,15 @@ def approval_program():
                 # No additional actions needed
                 Gtxn[1].on_completion() == OnComplete.NoOp,
                 # Has two additional accounts attached
-                Gtxn[1].application_args.length() == Int(2),
+                Gtxn[1].accounts.length() == Int(1),
                 # Has three application arguments attached
                 Gtxn[1].application_args.length() == Int(3),
                 # Additional accounts are same as first txn
                 Txn.accounts[1] == Gtxn[1].accounts[1],
-                Txn.accounts[2] == Gtxn[1].accounts[2],
                 # Application arguments are same as first txn
                 Txn.application_args[0] == Gtxn[1].application_args[0],
                 Txn.application_args[1] == Gtxn[1].application_args[1],
+                Txn.application_args[2] == Gtxn[1].application_args[2],
 
                 # Third txn to Escrow
 

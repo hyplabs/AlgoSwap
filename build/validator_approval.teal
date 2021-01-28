@@ -38,13 +38,13 @@ bnz l10
 err
 l10:
 int 1
-int 13650126
+int 13795367
 byte "T1"
 app_local_get_ex
 store 0
 store 1
 int 1
-int 13650126
+int 13795367
 byte "T2"
 app_local_get_ex
 store 2
@@ -202,7 +202,7 @@ int 1
 b l31
 l16:
 int 1
-int 13650126
+int 13795367
 byte "LT"
 app_local_get_ex
 store 4
@@ -219,7 +219,7 @@ int NoOp
 ==
 &&
 txn NumAccounts
-int 2
+int 1
 ==
 &&
 txn NumAppArgs
@@ -234,8 +234,8 @@ gtxn 1 OnCompletion
 int NoOp
 ==
 &&
-gtxn 1 NumAppArgs
-int 2
+gtxn 1 NumAccounts
+int 1
 ==
 &&
 gtxn 1 NumAppArgs
@@ -246,16 +246,16 @@ gtxna 1 Accounts 1
 txna Accounts 1
 ==
 &&
-gtxna 1 Accounts 2
-txna Accounts 2
-==
-&&
 gtxna 1 ApplicationArgs 0
 txna ApplicationArgs 0
 ==
 &&
 gtxna 1 ApplicationArgs 1
 txna ApplicationArgs 1
+==
+&&
+gtxna 1 ApplicationArgs 2
+txna ApplicationArgs 2
 ==
 &&
 gtxn 2 TypeEnum
@@ -289,13 +289,13 @@ int 1
 b l31
 l19:
 int 1
-int 13650126
+int 13795367
 byte "T1"
 app_local_get_ex
 store 0
 store 1
 int 1
-int 13650126
+int 13795367
 byte "T2"
 app_local_get_ex
 store 2
@@ -312,7 +312,7 @@ int NoOp
 ==
 &&
 txn NumAccounts
-int 2
+int 1
 ==
 &&
 txn NumAppArgs
@@ -327,8 +327,8 @@ gtxn 1 OnCompletion
 int NoOp
 ==
 &&
-gtxn 1 NumAppArgs
-int 2
+gtxn 1 NumAccounts
+int 1
 ==
 &&
 gtxn 1 NumAppArgs
@@ -337,10 +337,6 @@ int 2
 &&
 gtxna 1 Accounts 1
 txna Accounts 1
-==
-&&
-gtxna 1 Accounts 2
-txna Accounts 2
 ==
 &&
 gtxna 1 ApplicationArgs 0
@@ -406,7 +402,7 @@ int 1
 b l31
 l22:
 int 1
-int 13650126
+int 13795367
 byte "T2"
 app_local_get_ex
 store 2
@@ -489,7 +485,7 @@ int 1
 b l31
 l25:
 int 1
-int 13650126
+int 13795367
 byte "T1"
 app_local_get_ex
 store 0

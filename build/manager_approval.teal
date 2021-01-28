@@ -10,19 +10,19 @@ bnz l20
 txn OnCompletion
 int OptIn
 ==
-bnz l39
+bnz l42
 txna ApplicationArgs 0
 byte "s1"
 ==
-bnz l36
+bnz l39
 txna ApplicationArgs 0
 byte "s2"
 ==
-bnz l33
+bnz l36
 txna ApplicationArgs 0
 byte "a"
 ==
-bnz l22
+bnz l24
 txna ApplicationArgs 0
 byte "w"
 ==
@@ -40,15 +40,11 @@ l10:
 gtxn 2 AssetAmount
 int 1
 byte "P1"
-txna Accounts 1
-concat
 app_local_get
 <=
 gtxn 3 AssetAmount
 int 1
 byte "P2"
-txna Accounts 1
-concat
 app_local_get
 <=
 &&
@@ -57,30 +53,22 @@ err
 l12:
 int 1
 byte "P1"
-txna Accounts 1
-concat
 int 1
 byte "P1"
-txna Accounts 1
-concat
 app_local_get
 gtxn 2 AssetAmount
 -
 app_local_put
 int 1
 byte "P2"
-txna Accounts 1
-concat
 int 1
 byte "P2"
-txna Accounts 1
-concat
 app_local_get
 gtxn 3 AssetAmount
 -
 app_local_put
 int 1
-b l45
+b l48
 l13:
 gtxn 2 XferAsset
 int 1
@@ -168,57 +156,24 @@ gtxn 2 AssetAmount
 app_local_put
 l20:
 int 1
-b l45
+b l48
 l21:
-int 0
-asset_params_get AssetTotal
-store 8
-store 9
-int 2
-int 1
-byte "LT"
-app_local_get
-asset_holding_get AssetBalance
-store 10
-store 11
 int 1
 byte "B1"
 app_local_get
 gtxn 2 AssetAmount
 *
-load 9
-load 11
--
-/
-store 6
-int 0
-byte "U1"
-txna Accounts 1
-concat
-int 0
-byte "U1"
-txna Accounts 1
-concat
-app_local_get
-load 6
-+
-app_local_put
 int 1
-byte "B2"
+byte "LD"
 app_local_get
-gtxn 2 AssetAmount
-*
-load 9
-load 11
--
 /
 store 7
 int 0
-byte "U2"
+byte "U1"
 txna Accounts 1
 concat
 int 0
-byte "U2"
+byte "U1"
 txna Accounts 1
 concat
 app_local_get
@@ -226,35 +181,66 @@ load 7
 +
 app_local_put
 int 1
-byte "B1"
-int 1
-byte "B1"
+byte "B2"
 app_local_get
-load 6
--
+gtxn 2 AssetAmount
+*
+int 1
+byte "LD"
+app_local_get
+/
+store 8
+int 0
+byte "U2"
+txna Accounts 1
+concat
+int 0
+byte "U2"
+txna Accounts 1
+concat
+app_local_get
+load 8
++
 app_local_put
+load 7
+txna ApplicationArgs 1
+btoi
+>=
+load 8
+txna ApplicationArgs 2
+btoi
+>=
+&&
+bnz l23
+err
+l23:
 int 1
-byte "B2"
+byte "B1"
 int 1
-byte "B2"
+byte "B1"
 app_local_get
 load 7
 -
 app_local_put
 int 1
-b l45
-l22:
-int 0
-asset_params_get AssetTotal
-store 8
-store 9
-int 2
+byte "B2"
 int 1
-byte "LT"
+byte "B2"
 app_local_get
-asset_holding_get AssetBalance
-store 10
-store 11
+load 8
+-
+app_local_put
+int 1
+byte "LD"
+int 1
+byte "LD"
+app_local_get
+gtxn 2 AssetAmount
+-
+app_local_put
+int 1
+b l48
+l24:
 int 1
 byte "B1"
 app_local_get
@@ -263,148 +249,64 @@ int 1
 byte "B2"
 app_local_get
 store 3
+int 1
+byte "LD"
+app_local_get
+store 4
+load 4
+int 0
+==
+bnz l32
 gtxn 3 AssetAmount
 load 2
 *
 load 3
 /
+store 10
+gtxn 2 AssetAmount
+load 10
+<
+bnz l27
+load 10
 store 0
+b l28
+l27:
+gtxn 2 AssetAmount
+store 0
+l28:
 gtxn 2 AssetAmount
 load 3
 *
 load 2
 /
+store 10
+gtxn 3 AssetAmount
+load 10
+<
+bnz l30
+load 10
+store 1
+b l31
+l30:
+gtxn 3 AssetAmount
+store 1
+l31:
+load 4
+gtxn 2 AssetAmount
+*
+load 2
+/
+store 9
+b l33
+l32:
+gtxn 2 AssetAmount
+store 0
+gtxn 3 AssetAmount
 store 1
 gtxn 2 AssetAmount
-load 0
->
-bz l24
-int 0
-byte "U1"
-txna Accounts 1
-concat
-int 0
-byte "U1"
-txna Accounts 1
-concat
-app_local_get
-gtxn 2 AssetAmount
-+
-load 0
--
-app_local_put
-l24:
-gtxn 3 AssetAmount
-load 1
->
-bz l26
-int 0
-byte "U2"
-txna Accounts 1
-concat
-int 0
-byte "U2"
-txna Accounts 1
-concat
-app_local_get
-gtxn 3 AssetAmount
-+
-load 1
--
-app_local_put
-l26:
-int 0
-byte "UL"
-txna Accounts 1
-concat
-int 0
-byte "UL"
-txna Accounts 1
-concat
-app_local_get
-load 9
-+
-load 11
--
-app_local_put
-gtxn 2 AssetAmount
-load 0
->
-bnz l28
-int 1
-byte "B1"
-load 2
-gtxn 2 AssetAmount
-+
-app_local_put
-b l29
-l28:
-int 1
-byte "B1"
-load 2
-load 0
-+
-app_local_put
-l29:
-gtxn 3 AssetAmount
-load 1
->
-bnz l31
-int 1
-byte "B2"
-load 3
-gtxn 3 AssetAmount
-+
-app_local_put
-b l32
-l31:
-int 1
-byte "B2"
-load 3
-load 1
-+
-app_local_put
-l32:
-int 1
-b l45
+store 9
 l33:
-int 1
-byte "B1"
-app_local_get
-int 1
-byte "B1"
-app_local_get
-int 1
-byte "B2"
-app_local_get
-*
-int 1
-byte "B2"
-app_local_get
-gtxn 1 AssetAmount
-int 9950
-*
-int 10000
-/
-+
-/
--
-store 5
-int 1
-byte "P2"
-txna Accounts 1
-concat
-int 1
-byte "P2"
-txna Accounts 1
-concat
-app_local_get
-gtxn 1 AssetAmount
-int 2000
-/
-+
-app_local_put
-load 5
+load 9
 txna ApplicationArgs 1
 btoi
 >=
@@ -420,40 +322,60 @@ byte "U1"
 txna Accounts 1
 concat
 app_local_get
-load 5
+gtxn 2 AssetAmount
 +
-app_local_put
-int 1
-byte "B2"
-int 1
-byte "B2"
-app_local_get
-gtxn 1 AssetAmount
-int 9
-*
-int 2000
-/
-+
-gtxn 1 AssetAmount
-int 9950
-*
-int 10000
-/
-+
-app_local_put
-int 1
-byte "B1"
-int 1
-byte "B1"
-app_local_get
-load 5
+load 0
 -
 app_local_put
+int 0
+byte "U2"
+txna Accounts 1
+concat
+int 0
+byte "U2"
+txna Accounts 1
+concat
+app_local_get
+gtxn 3 AssetAmount
++
+load 1
+-
+app_local_put
+int 0
+byte "UL"
+txna Accounts 1
+concat
+int 0
+byte "UL"
+txna Accounts 1
+concat
+app_local_get
+load 9
++
+app_local_put
 int 1
-b l45
+byte "B1"
+load 2
+load 0
++
+app_local_put
+int 1
+byte "B2"
+load 3
+load 1
++
+app_local_put
+int 1
+byte "LD"
+load 4
+load 9
++
+app_local_put
+int 1
+b l48
 l36:
 int 1
-byte "B2"
+byte "B1"
 app_local_get
 int 1
 byte "B1"
@@ -463,32 +385,28 @@ byte "B2"
 app_local_get
 *
 int 1
-byte "B1"
+byte "B2"
 app_local_get
-gtxn 2 AssetAmount
-int 9950
+gtxn 1 AssetAmount
+int 193
 *
-int 10000
+int 200
 /
 +
 /
 -
-store 4
+store 6
 int 1
-byte "P1"
-txna Accounts 1
-concat
+byte "P2"
 int 1
-byte "P1"
-txna Accounts 1
-concat
+byte "P2"
 app_local_get
-gtxn 2 AssetAmount
+gtxn 1 AssetAmount
 int 2000
 /
 +
 app_local_put
-load 4
+load 6
 txna ApplicationArgs 1
 btoi
 >=
@@ -496,6 +414,86 @@ bnz l38
 err
 l38:
 int 0
+byte "U1"
+txna Accounts 1
+concat
+int 0
+byte "U1"
+txna Accounts 1
+concat
+app_local_get
+load 6
++
+app_local_put
+int 1
+byte "B2"
+int 1
+byte "B2"
+app_local_get
+gtxn 1 AssetAmount
+int 9
+*
+int 2000
+/
++
+gtxn 1 AssetAmount
+int 193
+*
+int 200
+/
++
+app_local_put
+int 1
+byte "B1"
+int 1
+byte "B1"
+app_local_get
+load 6
+-
+app_local_put
+int 1
+b l48
+l39:
+int 1
+byte "B2"
+app_local_get
+int 1
+byte "B1"
+app_local_get
+int 1
+byte "B2"
+app_local_get
+*
+int 1
+byte "B1"
+app_local_get
+gtxn 2 AssetAmount
+int 193
+*
+int 200
+/
++
+/
+-
+store 5
+int 1
+byte "P1"
+int 1
+byte "P1"
+app_local_get
+gtxn 2 AssetAmount
+int 2000
+/
++
+app_local_put
+load 5
+txna ApplicationArgs 1
+btoi
+>=
+bnz l41
+err
+l41:
+int 0
 byte "U2"
 txna Accounts 1
 concat
@@ -504,7 +502,7 @@ byte "U2"
 txna Accounts 1
 concat
 app_local_get
-load 4
+load 5
 +
 app_local_put
 int 1
@@ -519,9 +517,9 @@ int 10000
 /
 +
 gtxn 2 AssetAmount
-int 9950
+int 193
 *
-int 10000
+int 200
 /
 +
 app_local_put
@@ -530,19 +528,19 @@ byte "B2"
 int 1
 byte "B2"
 app_local_get
-load 4
+load 5
 -
 app_local_put
 int 1
-b l45
-l39:
+b l48
+l42:
 txn NumAppArgs
 int 3
 ==
-bnz l41
+bnz l44
 int 1
-b l42
-l41:
+b l45
+l44:
 int 0
 byte "LT"
 txna ApplicationArgs 0
@@ -567,9 +565,9 @@ byte "B2"
 int 1
 app_local_put
 int 1
-l42:
-b l45
-int 1
-b l45
-int 1
 l45:
+b l48
+int 1
+b l48
+int 1
+l48:

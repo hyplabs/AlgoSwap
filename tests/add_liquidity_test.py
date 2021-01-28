@@ -21,6 +21,8 @@ TOKEN1_INDEX = int(os.environ['TOKEN1_INDEX'])
 TOKEN2_INDEX = int(os.environ['TOKEN2_INDEX'])
 LIQUIDITY_TOKEN_INDEX = int(os.environ['LIQUIDITY_TOKEN_INDEX'])
 
+TOKEN_AMOUNT = 500000000
+
 algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ENDPOINT, headers={
   "x-api-key": ALGOD_TOKEN
 })
@@ -49,9 +51,8 @@ def add_liquidity():
     sp=algod_client.suggested_params(),
     index=VALIDATOR_INDEX,
     on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS, ESCROW_ADDRESS],
+    accounts=[ESCROW_ADDRESS],
     app_args=encoded_app_args,
-    foreign_assets=[LIQUIDITY_TOKEN_INDEX]
   )
 
   # Transaction to Manager
@@ -60,9 +61,8 @@ def add_liquidity():
     sp=algod_client.suggested_params(),
     index=MANAGER_INDEX,
     on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS, ESCROW_ADDRESS],
+    accounts=[ESCROW_ADDRESS],
     app_args=encoded_app_args,
-    foreign_assets=[LIQUIDITY_TOKEN_INDEX]
   )
 
   # Transaction to send Token1 to Escrow
@@ -70,7 +70,7 @@ def add_liquidity():
     sender=TEST_ACCOUNT_ADDRESS,
     sp=algod_client.suggested_params(),
     receiver=ESCROW_ADDRESS,
-    amt=50000000,
+    amt=TOKEN_AMOUNT,
     index=TOKEN1_INDEX
   )
 
@@ -79,7 +79,7 @@ def add_liquidity():
     sender=TEST_ACCOUNT_ADDRESS,
     sp=algod_client.suggested_params(),
     receiver=ESCROW_ADDRESS,
-    amt=50000000,
+    amt=TOKEN_AMOUNT,
     index=TOKEN2_INDEX
   )
 
@@ -129,63 +129,63 @@ def get_token1_refund():
         escrow_addr = encoding.encode_address(base64.b32decode(b32_encoded_addr))
 
         if (prefix_key == "T1" and ESCROW_ADDRESS == escrow_addr):
-          unused_token2 = kvs['value']['uint']
+          unused_token1 = int(kvs['value']['uint']) - 1
 
   print(f"User unused Token 1 is {unused_token1}")
 
-  # Transaction to Validator
-  txn_1 = transaction.ApplicationCallTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    index=VALIDATOR_INDEX,
-    on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS],
-    app_args=encoded_app_args
-  )
+  if unused_token1 != 0:
+    # Transaction to Validator
+    txn_1 = transaction.ApplicationCallTxn(
+      sender=TEST_ACCOUNT_ADDRESS,
+      sp=algod_client.suggested_params(),
+      index=VALIDATOR_INDEX,
+      on_complete=transaction.OnComplete.NoOpOC,
+      accounts=[ESCROW_ADDRESS],
+      app_args=encoded_app_args
+    )
 
-  # Transaction to Manager
-  txn_2 = transaction.ApplicationCallTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    index=MANAGER_INDEX,
-    on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS],
-    app_args=encoded_app_args
-  )
+    # Transaction to Manager
+    txn_2 = transaction.ApplicationCallTxn(
+      sender=TEST_ACCOUNT_ADDRESS,
+      sp=algod_client.suggested_params(),
+      index=MANAGER_INDEX,
+      on_complete=transaction.OnComplete.NoOpOC,
+      accounts=[ESCROW_ADDRESS],
+      app_args=encoded_app_args
+    )
 
-  # Make LogicSig
-  program = base64.b64decode(ESCROW_LOGICSIG)
-  lsig = transaction.LogicSig(program)
+    # Make LogicSig
+    program = base64.b64decode(ESCROW_LOGICSIG)
+    lsig = transaction.LogicSig(program)
 
-  # Transaction to get refund of Token 1 from Escrow
-  txn_3 = transaction.AssetTransferTxn(
-    sender=ESCROW_ADDRESS,
-    sp=algod_client.suggested_params(),
-    receiver=TEST_ACCOUNT_ADDRESS,
-    amt=unused_token1,
-    index=TOKEN1_INDEX
-  )
+    # Transaction to get refund of Token 1 from Escrow
+    txn_3 = transaction.AssetTransferTxn(
+      sender=ESCROW_ADDRESS,
+      sp=algod_client.suggested_params(),
+      receiver=TEST_ACCOUNT_ADDRESS,
+      amt=unused_token1,
+      index=TOKEN1_INDEX
+    )
 
-  # Get group ID and assign to transactions
-  gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
-  txn_1.group = gid
-  txn_2.group = gid
-  txn_3.group = gid
+    # Get group ID and assign to transactions
+    gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
+    txn_1.group = gid
+    txn_2.group = gid
+    txn_3.group = gid
 
-  # Sign transactions
-  stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
+    # Sign transactions
+    stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
+    stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
+    stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
 
-  # Broadcast the transactions
-  signed_txns = [stxn_1, stxn_2, stxn_3]
-  tx_id = algod_client.send_transactions(signed_txns)
+    # Broadcast the transactions
+    signed_txns = [stxn_1, stxn_2, stxn_3]
+    tx_id = algod_client.send_transactions(signed_txns)
 
-  # Wait for transaction
-  wait_for_transaction(tx_id)
+    # Wait for transaction
+    wait_for_transaction(tx_id)
 
-  print(f"Got refund of Token 1 from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
-
+    print(f"Got refund of Token 1 from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
   print()
 
 def get_token2_refund():
@@ -210,62 +210,63 @@ def get_token2_refund():
         escrow_addr = encoding.encode_address(base64.b32decode(b32_encoded_addr))
 
         if (prefix_key == "T2" and ESCROW_ADDRESS == escrow_addr):
-          unused_token2 = kvs['value']['uint']
+          unused_token2 = int(kvs['value']['uint']) - 1
 
   print(f"User unused Token 2 is {unused_token2}")
 
-  # Transaction to Validator
-  txn_1 = transaction.ApplicationCallTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    index=VALIDATOR_INDEX,
-    on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS],
-    app_args=encoded_app_args
-  )
+  if unused_token2 != 0:
+    # Transaction to Validator
+    txn_1 = transaction.ApplicationCallTxn(
+      sender=TEST_ACCOUNT_ADDRESS,
+      sp=algod_client.suggested_params(),
+      index=VALIDATOR_INDEX,
+      on_complete=transaction.OnComplete.NoOpOC,
+      accounts=[ESCROW_ADDRESS],
+      app_args=encoded_app_args
+    )
 
-  # Transaction to Manager
-  txn_2 = transaction.ApplicationCallTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    index=MANAGER_INDEX,
-    on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS],
-    app_args=encoded_app_args
-  )
+    # Transaction to Manager
+    txn_2 = transaction.ApplicationCallTxn(
+      sender=TEST_ACCOUNT_ADDRESS,
+      sp=algod_client.suggested_params(),
+      index=MANAGER_INDEX,
+      on_complete=transaction.OnComplete.NoOpOC,
+      accounts=[ESCROW_ADDRESS],
+      app_args=encoded_app_args
+    )
 
-  # Make LogicSig
-  program = base64.b64decode(ESCROW_LOGICSIG)
-  lsig = transaction.LogicSig(program)
+    # Make LogicSig
+    program = base64.b64decode(ESCROW_LOGICSIG)
+    lsig = transaction.LogicSig(program)
 
-  # Transaction to get refund of Token 2 from Escrow
-  txn_3 = transaction.AssetTransferTxn(
-    sender=ESCROW_ADDRESS,
-    sp=algod_client.suggested_params(),
-    receiver=TEST_ACCOUNT_ADDRESS,
-    amt=unused_token2,
-    index=TOKEN2_INDEX
-  )
+    # Transaction to get refund of Token 2 from Escrow
+    txn_3 = transaction.AssetTransferTxn(
+      sender=ESCROW_ADDRESS,
+      sp=algod_client.suggested_params(),
+      receiver=TEST_ACCOUNT_ADDRESS,
+      amt=unused_token2,
+      index=TOKEN2_INDEX
+    )
 
-  # Get group ID and assign to transactions
-  gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
-  txn_1.group = gid
-  txn_2.group = gid
-  txn_3.group = gid
+    # Get group ID and assign to transactions
+    gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
+    txn_1.group = gid
+    txn_2.group = gid
+    txn_3.group = gid
 
-  # Sign transactions
-  stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
+    # Sign transactions
+    stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
+    stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
+    stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
 
-  # Broadcast the transactions
-  signed_txns = [stxn_1, stxn_2, stxn_3]
-  tx_id = algod_client.send_transactions(signed_txns)
+    # Broadcast the transactions
+    signed_txns = [stxn_1, stxn_2, stxn_3]
+    tx_id = algod_client.send_transactions(signed_txns)
 
-  # Wait for transaction
-  wait_for_transaction(tx_id)
+    # Wait for transaction
+    wait_for_transaction(tx_id)
 
-  print(f"Got refund of Token 2 from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
+    print(f"Got refund of Token 2 from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
 
   print()
 
@@ -280,7 +281,6 @@ def get_liquidity_token_refund():
   unused_liquidity = 0
   results = algod_client.account_info(TEST_ACCOUNT_ADDRESS)
   local_state = results['apps-local-state']
-  print(local_state)
   for block in local_state:
     if block['id'] == MANAGER_INDEX:
       for kvs in block['key-value']:
@@ -292,65 +292,63 @@ def get_liquidity_token_refund():
         escrow_addr = encoding.encode_address(base64.b32decode(b32_encoded_addr))
 
         if (prefix_key == "UL" and ESCROW_ADDRESS == escrow_addr):
-          unused_liquidity = kvs['value']['uint']
-          print(f"abc: {unused_liquidity}")
+          unused_liquidity = int(kvs['value']['uint'])
   
   print(f"User unused liquidity is {unused_liquidity}")
 
+  if unused_liquidity != 0:
+    # Transaction to Validator
+    txn_1 = transaction.ApplicationCallTxn(
+      sender=TEST_ACCOUNT_ADDRESS,
+      sp=algod_client.suggested_params(),
+      index=VALIDATOR_INDEX,
+      on_complete=transaction.OnComplete.NoOpOC,
+      accounts=[ESCROW_ADDRESS],
+      app_args=encoded_app_args
+    )
 
-  ## Liquidity Token
-  # Transaction to Validator
-  txn_1 = transaction.ApplicationCallTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    index=VALIDATOR_INDEX,
-    on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS],
-    app_args=encoded_app_args
-  )
+    # Transaction to Manager
+    txn_2 = transaction.ApplicationCallTxn(
+      sender=TEST_ACCOUNT_ADDRESS,
+      sp=algod_client.suggested_params(),
+      index=MANAGER_INDEX,
+      on_complete=transaction.OnComplete.NoOpOC,
+      accounts=[ESCROW_ADDRESS],
+      app_args=encoded_app_args
+    )
 
-  # Transaction to Manager
-  txn_2 = transaction.ApplicationCallTxn(
-    sender=TEST_ACCOUNT_ADDRESS,
-    sp=algod_client.suggested_params(),
-    index=MANAGER_INDEX,
-    on_complete=transaction.OnComplete.NoOpOC,
-    accounts=[ESCROW_ADDRESS],
-    app_args=encoded_app_args
-  )
+    # Make LogicSig
+    program = base64.b64decode(ESCROW_LOGICSIG)
+    lsig = transaction.LogicSig(program)
 
-  # Make LogicSig
-  program = base64.b64decode(ESCROW_LOGICSIG)
-  lsig = transaction.LogicSig(program)
+    # Transaction to get Liquidity Token refund
+    txn_3 = transaction.AssetTransferTxn(
+      sender=ESCROW_ADDRESS,
+      sp=algod_client.suggested_params(),
+      receiver=TEST_ACCOUNT_ADDRESS,
+      amt=unused_liquidity,
+      index=LIQUIDITY_TOKEN_INDEX
+    )
 
-  # Transaction to get Liquidity Token refund
-  txn_3 = transaction.AssetTransferTxn(
-    sender=ESCROW_ADDRESS,
-    sp=algod_client.suggested_params(),
-    receiver=TEST_ACCOUNT_ADDRESS,
-    amt=unused_liquidity,
-    index=LIQUIDITY_TOKEN_INDEX
-  )
+    # Get group ID and assign to transactions
+    gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
+    txn_1.group = gid
+    txn_2.group = gid
+    txn_3.group = gid
 
-  # Get group ID and assign to transactions
-  gid = transaction.calculate_group_id([txn_1, txn_2, txn_3])
-  txn_1.group = gid
-  txn_2.group = gid
-  txn_3.group = gid
+    # Sign transactions
+    stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
+    stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
+    stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
 
-  # Sign transactions
-  stxn_1 = txn_1.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_2 = txn_2.sign(TEST_ACCOUNT_PRIVATE_KEY)
-  stxn_3 = transaction.LogicSigTransaction(txn_3, lsig)
+    # Broadcast the transactions
+    signed_txns = [stxn_1, stxn_2, stxn_3]
+    tx_id = algod_client.send_transactions(signed_txns)
 
-  # Broadcast the transactions
-  signed_txns = [stxn_1, stxn_2, stxn_3]
-  tx_id = algod_client.send_transactions(signed_txns)
+    # Wait for transaction
+    wait_for_transaction(tx_id)
 
-  # Wait for transaction
-  wait_for_transaction(tx_id)
-
-  print(f"Got refund of liquidity tokens from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
+    print(f"Got refund of liquidity tokens from AlgoSwap to User successfully! Tx ID: https://testnet.algoexplorer.io/tx/{tx_id}")
 
   print()
 

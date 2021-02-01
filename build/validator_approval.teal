@@ -38,13 +38,13 @@ bnz l10
 err
 l10:
 int 1
-int 13795367
+int 13987418
 byte "T1"
 app_local_get_ex
 store 0
 store 1
 int 1
-int 13795367
+int 13987418
 byte "T2"
 app_local_get_ex
 store 2
@@ -202,7 +202,7 @@ int 1
 b l31
 l16:
 int 1
-int 13795367
+int 13987418
 byte "LT"
 app_local_get_ex
 store 4
@@ -289,13 +289,13 @@ int 1
 b l31
 l19:
 int 1
-int 13795367
+int 13987418
 byte "T1"
 app_local_get_ex
 store 0
 store 1
 int 1
-int 13795367
+int 13987418
 byte "T2"
 app_local_get_ex
 store 2
@@ -402,7 +402,7 @@ int 1
 b l31
 l22:
 int 1
-int 13795367
+int 13987418
 byte "T2"
 app_local_get_ex
 store 2
@@ -485,7 +485,7 @@ int 1
 b l31
 l25:
 int 1
-int 13795367
+int 13987418
 byte "T1"
 app_local_get_ex
 store 0

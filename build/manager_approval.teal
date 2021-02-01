@@ -387,8 +387,8 @@ app_local_get
 int 1
 byte "B2"
 app_local_get
-gtxn 1 AssetAmount
-int 193
+gtxn 2 AssetAmount
+int 199
 *
 int 200
 /
@@ -401,7 +401,7 @@ byte "P2"
 int 1
 byte "P2"
 app_local_get
-gtxn 1 AssetAmount
+gtxn 2 AssetAmount
 int 2000
 /
 +
@@ -430,14 +430,14 @@ byte "B2"
 int 1
 byte "B2"
 app_local_get
-gtxn 1 AssetAmount
+gtxn 2 AssetAmount
 int 9
 *
 int 2000
 /
 +
-gtxn 1 AssetAmount
-int 193
+gtxn 2 AssetAmount
+int 199
 *
 int 200
 /
@@ -468,7 +468,7 @@ int 1
 byte "B1"
 app_local_get
 gtxn 2 AssetAmount
-int 193
+int 199
 *
 int 200
 /
@@ -513,11 +513,11 @@ app_local_get
 gtxn 2 AssetAmount
 int 9
 *
-int 10000
+int 2000
 /
 +
 gtxn 2 AssetAmount
-int 193
+int 199
 *
 int 200
 /
@@ -555,14 +555,6 @@ int 0
 byte "T2"
 txna ApplicationArgs 2
 btoi
-app_local_put
-int 0
-byte "B1"
-int 1
-app_local_put
-int 0
-byte "B2"
-int 1
 app_local_put
 int 1
 l45:

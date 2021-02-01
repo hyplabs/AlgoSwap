@@ -99,8 +99,6 @@ def approval_program():
             App.localPut(Int(0), KEY_LIQUIDITY_TOKEN, Btoi(Txn.application_args[0])),
             App.localPut(Int(0), KEY_TOKEN1, Btoi(Txn.application_args[1])),
             App.localPut(Int(0), KEY_TOKEN2, Btoi(Txn.application_args[2])),
-            App.localPut(Int(0), KEY_TOTAL_TOKEN1_BALANCE, Int(1)),
-            App.localPut(Int(0), KEY_TOTAL_TOKEN2_BALANCE, Int(1)),
             Int(1),
         ]),
         Int(1)
@@ -132,7 +130,7 @@ def approval_program():
         # Update total balance
         # TOTAL_TOKEN1_BALANCE = TOTAL_TOKEN1_BALANCE + (token1_input * swap_fee) + token1_input_minus_fees
         write_key_total_token1_bal(
-            read_key_total_token1_bal + ((Gtxn[2].asset_amount() * Int(9)) / Int(10000)) + swap_token_input_minus_fees(Gtxn[2].asset_amount())
+            read_key_total_token1_bal + ((Gtxn[2].asset_amount() * Int(9)) / Int(2000)) + swap_token_input_minus_fees(Gtxn[2].asset_amount())
         ),
         # TOTAL_TOKEN2_BALANCE = TOTAL_TOKEN2_BALANCE - token2_output
         write_key_total_token2_bal(
@@ -147,10 +145,10 @@ def approval_program():
 
 
     on_swap_deposit_2 = Seq([
-        scratchvar_swap_token1_output.store(swap_token1_output(swap_token_input_minus_fees(Gtxn[1].asset_amount()))),
+        scratchvar_swap_token1_output.store(swap_token1_output(swap_token_input_minus_fees(Gtxn[2].asset_amount()))),
         # add protocol fee to protocol fees account
         write_protocol_unused_token2(
-            read_protocol_unused_token2 + (Gtxn[1].asset_amount() / Int(2000))
+            read_protocol_unused_token2 + (Gtxn[2].asset_amount() / Int(2000))
         ),
         # assert token 1 output >= min_token1_received_from_algoswap
         Assert(
@@ -162,14 +160,12 @@ def approval_program():
             read_user_unused_token1(Txn.accounts[1]) + scratchvar_swap_token1_output.load()
         ),
         # update total token2 balance = total_token2_balance + swap fees + swap_token_input_minus_fees
-        write_key_total_token2_bal(read_key_total_token2_bal + ((Gtxn[1].asset_amount() * Int(9)) / Int(2000)) + swap_token_input_minus_fees(Gtxn[1].asset_amount())),
+        write_key_total_token2_bal(read_key_total_token2_bal + ((Gtxn[2].asset_amount() * Int(9)) / Int(2000)) + swap_token_input_minus_fees(Gtxn[2].asset_amount())),
         # update total token1 balance
         write_key_total_token1_bal(read_key_total_token1_bal - scratchvar_swap_token1_output.load()),
         # successful approval
         Int(1),
     ])
-
-    def total_liquidity(total_supply: Int, reserve_balance: Int): return total_supply - reserve_balance
 
     on_add_liquidity_deposit = Seq([
         scratchvar_total_token1_bal.store(read_key_total_token1_bal),

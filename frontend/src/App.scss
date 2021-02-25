@@ -1,0 +1,16 @@
+.App {
+  text-align: center;
+  background-image: white;
+  background-position: 0px -30vh;
+  min-height: 100vh;
+
+  .App-container {
+    padding-top: 100px;
+    font-size: calc(10px + 2vmin);
+  }
+
+  .App-logo-modal {
+    margin-right: 8px;
+    height: 16px;
+  }
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import SwapComponent from '../components/SwapComponent';
+import {SwapComponent} from '../components/SwapComponent';
 
 const SwapPage: React.FC = () => {
   return (

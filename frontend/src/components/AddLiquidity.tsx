@@ -24,19 +24,25 @@ export default class AddLiquidity extends React.PureComponent<Props, State> {
         <TokenAmount
           title="From"
           amount={this.state.firstAmount}
-          updateAmount={(amount) => this.setState({ firstAmount: amount})} 
+          updateAmount={amount => this.setState({firstAmount: amount})}
           token={this.props.firstToken}
-          updateToken={(token) => this.props.updateTokens(token, this.props.secondToken)} 
+          updateToken={token => this.props.updateTokens(token, this.props.secondToken)}
+          active={false}
+          onClick={() => console.log('clicked')}
         />
         <p className="AddLiquidity-plus">+</p>
         <TokenAmount
           title="To"
           amount={this.state.secondAmount}
-          updateAmount={(amount) => this.setState({ secondAmount: amount})} 
+          updateAmount={amount => this.setState({secondAmount: amount})}
           token={this.props.secondToken}
-          updateToken={(token) => this.props.updateTokens(this.props.firstToken, token)} 
+          updateToken={token => this.props.updateTokens(this.props.firstToken, token)}
+          active={false}
+          onClick={() => console.log('clicked')}
         />
-        <button className="AddLiquidity-add" onClick={this.add}>Add Liquidity</button>
+        <button className="AddLiquidity-add" onClick={this.add}>
+          Add Liquidity
+        </button>
       </div>
     );
   }

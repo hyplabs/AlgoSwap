@@ -1,7 +1,41 @@
+/* @font-face {
+  font-family: 'Overpass 1';
+  src: url('./assets/fonts/1/Overpass-Thin.ttf') format('ttf');
+}
+@font-face {
+  font-family: 'Overpass 2';
+  src: url('./assets/fonts/2/Overpass-ExtraLight.ttf') format('ttf');
+}
+@font-face {
+  font-family: 'Overpass 3';
+  src: url('./assets/fonts/3/Overpass-Light.ttf') format('ttf');
+} */
+@font-face {
+  font-family: 'Overpass 4';
+  src: url('./assets/fonts/4/Overpass-Regular.woff') format('woff'),
+    url('./assets/fonts/4/Overpass-Regular.woff2') format('woff2');
+}
+/* @font-face {
+  font-family: 'Overpass 5';
+  src: url('./assets/fonts/5/Overpass-SemiBold.ttf') format('ttf');
+}
+@font-face {
+  font-family: 'Overpass 6';
+  src: url('./assets/fonts/6/Overpass-Bold.ttf') format('ttf');
+}
+@font-face {
+  font-family: 'Overpass 7';
+  src: url('./assets/fonts/7/Overpass-ExtraBold.ttf') format('ttf');
+}
+@font-face {
+  font-family: 'Overpass 8';
+  src: url('./assets/fonts/8/Overpass-Black.ttf') format('ttf');
+} */
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Overpass 4', 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

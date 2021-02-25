@@ -24,19 +24,25 @@ export default class CreatePair extends React.PureComponent<Props, State> {
         <TokenAmount
           title="Token 1"
           amount={this.state.firstAmount}
-          updateAmount={(amount) => this.setState({ firstAmount: amount})} 
+          updateAmount={amount => this.setState({firstAmount: amount})}
           token={this.props.firstToken}
-          updateToken={(token) => this.props.updateTokens(token, this.props.secondToken)} 
+          updateToken={token => this.props.updateTokens(token, this.props.secondToken)}
+          active={false}
+          onClick={() => console.log('clicked')}
         />
         <p className="CreatePair-plus">+</p>
         <TokenAmount
           title="Token 2"
           amount={this.state.secondAmount}
-          updateAmount={(amount) => this.setState({ secondAmount: amount})} 
+          updateAmount={amount => this.setState({secondAmount: amount})}
           token={this.props.secondToken}
-          updateToken={(token) => this.props.updateTokens(this.props.firstToken, token)} 
+          updateToken={token => this.props.updateTokens(this.props.firstToken, token)}
+          active={false}
+          onClick={() => console.log('clicked')}
         />
-        <button className="CreatePair-create" onClick={this.create}>Create Pair</button>
+        <button className="CreatePair-create" onClick={this.create}>
+          Create Pair
+        </button>
       </div>
     );
   }

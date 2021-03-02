@@ -26,6 +26,7 @@ const SwapComponent: React.FC<Props> = (props: any) => {
   const [toTabSelected, setToTabSelected] = useState<boolean>(false);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openSwapModal, setOpenSwapModal] = useState<boolean>(false);
 
   useEffect(() => {
     setTokenList([
@@ -47,6 +48,10 @@ const SwapComponent: React.FC<Props> = (props: any) => {
 
   const toggleModal = () => {
     setOpenModal(!openModal);
+  };
+
+  const toggleSwapModal = () => {
+    setOpenSwapModal(!openSwapModal);
   };
 
   async function connectToAlgoSigner() {
@@ -127,7 +132,9 @@ const SwapComponent: React.FC<Props> = (props: any) => {
       </div>
       <div className="SwapComponent-bottom">
         {walletAddr ? (
-          <button className="SwapComponent-button">Swap</button>
+          <button className="SwapComponent-button" onClick={toggleSwapModal}>
+            Swap
+          </button>
         ) : (
           <button className="SwapComponent-button" onClick={toggleModal}>
             Connect to a wallet
@@ -155,6 +162,42 @@ const SwapComponent: React.FC<Props> = (props: any) => {
               <img className="Wallet-logo-modal" src="/algosigner.png" alt="AlgoSigner" />
             </div>
           </button>
+        </div>
+      </Rodal>
+
+      <Rodal
+        customStyles={modalStyle}
+        visible={openSwapModal}
+        onClose={toggleSwapModal}
+        showCloseButton={true}
+      >
+        <div className="SwapComponent-swap-modal">
+          <div className="SwapComponent-swap-modal-header">Confirm Swap</div>
+          <div className="SwapComponent-swap-modal-txdetails">
+            <div className="SwapComponent-swap-modal-txdetail_1">
+              <span>
+                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />1
+              </span>
+              <span>ETH</span>
+            </div>
+            <p className="SwapComponent-arrow">↓</p>
+            <div className="SwapComponent-swap-modal-txdetail_2">
+              <span>
+                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />1
+              </span>
+              <span>ALGO</span>
+            </div>
+            <div className="SwapComponent-swap-modal-subtitle">
+              Output is estimated. You will receive at least <strong>0.5 ALGO</strong> or the
+              transaction will revert.
+            </div>
+          </div>
+          <div className="SwapComponent-swap-modal-txinfo">
+            <div className="SwapComponent-swap-modal-txinfo-item">
+              <span>Price: </span>
+              <span>1 ALGO/ETH</span>
+            </div>
+          </div>
         </div>
       </Rodal>
     </div>

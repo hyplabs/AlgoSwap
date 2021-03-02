@@ -1,11 +1,12 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import {Link, useLocation} from 'react-router-dom';
 
 import './Navbar.scss';
 
 interface Props {}
 
-export const AlgoSwapNavbar: React.FC<Props> = () => {
+const AlgoSwapNavbar: React.FC<Props> = (props: any) => {
   const {pathname} = useLocation();
 
   return (
@@ -31,6 +32,17 @@ export const AlgoSwapNavbar: React.FC<Props> = () => {
           </Link>
         </div>
       </div>
+      <div className="Navbar-right">
+        <p>{props.user.accountAddress}</p>
+      </div>
     </nav>
   );
 };
+
+const mapStateToProps = (state: any) => {
+  return {
+    user: state.user,
+  };
+};
+
+export default connect(mapStateToProps, undefined)(AlgoSwapNavbar);

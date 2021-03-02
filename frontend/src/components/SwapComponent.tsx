@@ -1,8 +1,10 @@
+// @ts-nocheck
 import React, {useEffect, useState} from 'react';
 import TokenAmount from './TokenAmount';
+import {connect} from 'react-redux';
+import {SetAccountAddress} from '../redux/actions/user';
 
-/* eslint-dsiable */
-// @ts-ignore
+/* eslint-disable */
 import Rodal from 'rodal';
 import 'rodal/lib/rodal.css';
 
@@ -10,7 +12,7 @@ import './SwapComponent.scss';
 
 interface Props {}
 
-export const SwapComponent: React.FC<Props> = () => {
+const SwapComponent: React.FC<Props> = (props: any) => {
   const [walletAddr, setWalletAddr] = useState<string>('');
 
   // To-Dos: Fetch the tokens from the backend
@@ -29,11 +31,11 @@ export const SwapComponent: React.FC<Props> = () => {
     setTokenList([
       ['ETH', '0'],
       ['BTC', '1'],
-      ['ALG', '2'],
-      ['USD', '3'],
+      ['ALGO', '2'],
+      ['USDC', '3'],
     ]);
 
-    setWalletAddr('');
+    setWalletAddr(props.user.accountAddress);
     setFromAmount('');
     setFromToken('ETH');
     setToAmount('');
@@ -47,9 +49,26 @@ export const SwapComponent: React.FC<Props> = () => {
     setOpenModal(!openModal);
   };
 
+  async function connectToAlgoSigner() {
+    if (typeof AlgoSigner !== 'undefined') {
+      try {
+        await AlgoSigner.connect();
+        let testnetAccounts = await AlgoSigner.accounts({
+          ledger: 'TestNet',
+        });
+
+        setWalletAddr(testnetAccounts[0].address);
+        props.SetAccountAddress(testnetAccounts[0].address);
+        setOpenModal(!openModal);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
   const modalStyle = {
     position: 'relative',
-    'border-radius': '30px',
+    borderRadius: '30px',
     top: '210px',
   };
 
@@ -130,7 +149,7 @@ export const SwapComponent: React.FC<Props> = () => {
             </div>
             Connect to a wallet
           </div>
-          <button className="SwapComponent-wallet-modal-select">
+          <button className="SwapComponent-wallet-modal-select" onClick={connectToAlgoSigner}>
             <div className="SwapComponent-wallet-modal-item">
               AlgoSigner
               <img className="Wallet-logo-modal" src="/algosigner.png" alt="AlgoSigner" />
@@ -141,3 +160,13 @@ export const SwapComponent: React.FC<Props> = () => {
     </div>
   );
 };
+
+const mapStateToProps = (state: any) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = {SetAccountAddress};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SwapComponent);

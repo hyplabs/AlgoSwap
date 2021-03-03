@@ -1,31 +1,63 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
+
+import {selectUserAccountAddress} from '../redux/reducers/user';
+import {selectFromToken, selectToToken, selectTokenList} from '../redux/reducers/tokens';
+import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '../redux/actions';
 
 import TokenAmount from './TokenAmount';
-import './AddLiquidity.css';
+import './AddLiquidity.scss';
 
-export default class AddLiquidity extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      firstAmount: '',
-      secondAmount: '',
-    };
-  }
+export const AddLiquidity: React.FC = () => {
+  // Local state
+  const [firstAmount, setFirstAmount] = useState<string>('');
+  const [secondAmount, setSecondAmount] = useState<string>('');
 
-  add = () => {
-    // TODO
-    console.log(this.state.firstAmount + ' ' + this.props.firstToken);
-    console.log(this.state.secondAmount + ' ' + this.props.secondToken);
+  const [firstTabSelected, setFirstTabSelected] = useState<boolean>(false);
+  const [secondTabSelected, setSecondTabSelected] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+
+  // Redux state
+  const walletAddr = useSelector(selectUserAccountAddress);
+  const tokenList = useSelector(selectTokenList);
+  const firstToken = useSelector(selectFromToken);
+  const secondToken = useSelector(selectToToken);
+
+  const dispatch = useDispatch();
+
+  const onFirstRender = () => {
+    dispatch(
+      setTokenList([
+        ['ETH', '0'],
+        ['BTC', '1'],
+        ['ALG', '2'],
+        ['USD', '3'],
+      ])
+    );
+    dispatch(setAccountAddress(''));
   };
 
-  render() {
-    return (
-      <div className="AddLiquidity">
+  useEffect(() => {
+    onFirstRender();
+
+    setFirstTabSelected(false);
+    setSecondTabSelected(false);
+  });
+
+  const toggleModal = () => {
+    setOpenModal(!openModal);
+  };
+
+  return (
+    <div className="AddLiquidity">
+      <div className="AddLiquidity-header">Add Liquidity</div>
+      <div className="AddLiquidity-content">
         <TokenAmount
           title="From"
-          amount={this.state.firstAmount}
-          updateAmount={amount => this.setState({firstAmount: amount})}
-          token={this.props.firstToken}
+          amount={firstAmount}
+          updateAmount={amount => dispatch(setFirstAmount(amount))}
+          tokenList={tokenList}
+          token={fromToken}
           updateToken={token => this.props.updateTokens(token, this.props.secondToken)}
           active={false}
           onClick={() => console.log('clicked')}
@@ -40,20 +72,10 @@ export default class AddLiquidity extends React.PureComponent<Props, State> {
           active={false}
           onClick={() => console.log('clicked')}
         />
-        <button className="AddLiquidity-add" onClick={this.add}>
-          Add Liquidity
-        </button>
       </div>
-    );
-  }
-}
-
-interface Props {
-  firstToken: string;
-  secondToken: string;
-  updateTokens: (first: string, second: string) => void;
-}
-interface State {
-  firstAmount: string;
-  secondAmount: string;
-}
+      <button className="AddLiquidity-add" onClick={this.add}>
+        Add Liquidity
+      </button>
+    </div>
+  );
+};

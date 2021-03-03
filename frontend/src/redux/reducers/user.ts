@@ -1,15 +1,16 @@
 import ActionType from '../actions/types';
-import {CurrentUserAction} from '../actions/user';
+import {CurrentAccountAddress} from '../actions';
+import CurrentAlgoSwapContext, {CurrentUser} from './types';
 
-export interface CurrentUser {
-  readonly accountAddress: string | null;
-}
-
-export const defaultUser: CurrentUser = {
+const initUser: CurrentUser = {
   accountAddress: null,
 };
 
-export default function user(state = defaultUser, action: CurrentUserAction) {
+export const selectUserAccountAddress = (state: CurrentAlgoSwapContext) => {
+  return state.user.accountAddress;
+};
+
+export default function user(state = initUser, action: CurrentAccountAddress): CurrentUser {
   switch (action.type) {
     case ActionType.SetAccountAddress:
       return {...state, accountAddress: action.accountAddress};

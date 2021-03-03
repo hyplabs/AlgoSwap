@@ -1,0 +1,32 @@
+.AddLiquidity {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 30px;
+  border: 2px solid lightgray;
+  padding: 20px 1.5rem 20px 1.5rem;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.16);
+
+  .AddLiquidity-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .AddLiquidity-plus {
+    font-size: 16px;
+  }
+
+  .AddLiquidity-add {
+    margin-top: 16px;
+    background-color: #132d5a;
+    color: #ffffff;
+    padding: 8px 16px;
+    border: 1px solid #132d5a;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+}

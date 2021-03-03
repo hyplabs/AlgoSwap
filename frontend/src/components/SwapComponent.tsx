@@ -1,4 +1,10 @@
 import React, {useEffect, useState} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
+
+import {selectUserAccountAddress} from '../redux/reducers/user';
+import {selectFromToken, selectToToken, selectTokenList} from '../redux/reducers/tokens';
+import {setAccountAddress, setTokenList, setFromToken, setToToken} from '../redux/actions';
+
 import TokenAmount from './TokenAmount';
 
 /* eslint-dsiable */
@@ -8,36 +14,39 @@ import 'rodal/lib/rodal.css';
 
 import './SwapComponent.scss';
 
-interface Props {}
-
-export const SwapComponent: React.FC<Props> = () => {
-  const [walletAddr, setWalletAddr] = useState<string>('');
-
-  // To-Dos: Fetch the tokens from the backend
-  const [tokenList, setTokenList] = useState<Array<Array<string>>>([]);
+export const SwapComponent: React.FC = () => {
+  // Local state
   const [fromAmount, setFromAmount] = useState<string>('');
-  const [fromToken, setFromToken] = useState<string>('');
   const [toAmount, setToAmount] = useState<string>('');
-  const [toToken, setToToken] = useState<string>('');
 
   const [fromTabSelected, setFromTabSelected] = useState<boolean>(false);
   const [toTabSelected, setToTabSelected] = useState<boolean>(false);
-
   const [openModal, setOpenModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    setTokenList([
-      ['ETH', '0'],
-      ['BTC', '1'],
-      ['ALG', '2'],
-      ['USD', '3'],
-    ]);
+  // Redux state
+  const walletAddr = useSelector(selectUserAccountAddress);
+  const tokenList = useSelector(selectTokenList);
+  const fromToken = useSelector(selectFromToken);
+  const toToken = useSelector(selectToToken);
 
-    setWalletAddr('');
+  const dispatch = useDispatch();
+
+  const onFirstRender = () => {
+    dispatch(
+      setTokenList([
+        ['ETH', '0'],
+        ['BTC', '1'],
+        ['ALG', '2'],
+        ['USD', '3'],
+      ])
+    );
+    dispatch(setAccountAddress(''));
+  };
+
+  useEffect(() => {
+    onFirstRender();
     setFromAmount('');
-    setFromToken('ETH');
     setToAmount('');
-    setToToken('USD');
 
     setFromTabSelected(false);
     setToTabSelected(false);
@@ -52,12 +61,6 @@ export const SwapComponent: React.FC<Props> = () => {
     'border-radius': '30px',
     top: '210px',
   };
-
-  function swap() {
-    // TODO
-    console.log(fromAmount + ' ' + fromToken);
-    console.log(toAmount + ' ' + toToken);
-  }
 
   function setActiveTab(type: string) {
     if (fromTabSelected === false && toTabSelected === false) {
@@ -90,7 +93,7 @@ export const SwapComponent: React.FC<Props> = () => {
           updateAmount={amount => setFromAmount(amount)}
           tokenList={tokenList}
           token={fromToken}
-          updateToken={token => setFromToken(token)}
+          updateToken={token => dispatch(setFromToken(token))}
           active={fromTabSelected}
           onClick={() => setActiveTab('From')}
         />
@@ -101,7 +104,7 @@ export const SwapComponent: React.FC<Props> = () => {
           updateAmount={amount => setToAmount(amount)}
           tokenList={tokenList}
           token={toToken}
-          updateToken={token => setToToken(token)}
+          updateToken={token => dispatch(setToToken(token))}
           active={toTabSelected}
           onClick={() => setActiveTab('To')}
         />

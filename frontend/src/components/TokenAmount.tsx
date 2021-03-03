@@ -62,7 +62,7 @@ const TokenAmount: React.FC<Props> = ({
           value={amount}
         />
         <button className="TokenAmount-token-select" onClick={toggleModal}>
-          {token}
+          {token === '' ? 'Select' : token}
         </button>
       </div>
       <Rodal

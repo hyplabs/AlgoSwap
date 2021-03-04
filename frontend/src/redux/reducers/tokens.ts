@@ -10,10 +10,10 @@ import CurrentAlgoSwapContext, {CurrentTokenInfo} from './types';
 
 const initTokenInfo: CurrentTokenInfo = {
   tokenList: [],
-  fromToken: '',
-  toToken: '',
-  firstToken: '',
-  secondToken: '',
+  fromToken: undefined,
+  toToken: undefined,
+  firstToken: undefined,
+  secondToken: undefined,
 };
 
 type CurrentTokenInfoAction =
@@ -51,9 +51,9 @@ export default function tokens(
     case ActionType.SetTokenList:
       return {...state, tokenList: action.tokenList};
     case ActionType.SetFromToken:
-      return {...state, firstToken: action.fromToken};
+      return {...state, fromToken: action.fromToken};
     case ActionType.SetToToken:
-      return {...state, secondToken: action.toToken};
+      return {...state, toToken: action.toToken};
     case ActionType.SetFirstToken:
       return {...state, firstToken: action.firstToken};
     case ActionType.SetSecondToken:

@@ -4,10 +4,10 @@ export interface CurrentUser {
 
 export interface CurrentTokenInfo {
   readonly tokenList: Array<Array<string>> | [];
-  readonly fromToken: string;
-  readonly toToken: string;
-  readonly firstToken: string;
-  readonly secondToken: string;
+  readonly fromToken: string | undefined;
+  readonly toToken: string | undefined;
+  readonly firstToken: string | undefined;
+  readonly secondToken: string | undefined;
 }
 
 export default interface CurrentAlgoSwapContext {

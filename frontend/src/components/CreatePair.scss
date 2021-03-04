@@ -1,4 +1,4 @@
-.AddLiquidity {
+.CreatePair {
   position: relative;
   margin: auto;
   width: 100%;
@@ -8,7 +8,7 @@
   padding: 20px 1.5rem 20px 1.5rem;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.16);
 
-  .AddLiquidity-header {
+  .CreatePair-header {
     display: flex;
     align-items: flex-start;
     margin-bottom: 20px;
@@ -16,11 +16,11 @@
     font-weight: 600;
   }
 
-  .AddLiquidity-plus {
+  .CreatePair-plus {
     font-size: 16px;
   }
 
-  .AddLiquidity-add {
+  .CreatePair-add {
     margin-top: 16px;
     background-color: #132d5a;
     color: #ffffff;
@@ -30,10 +30,10 @@
     cursor: pointer;
   }
 
-  .AddLiquidity-bottom {
+  .CreatePair-bottom {
     margin-top: 25px;
 
-    .AddLiquidity-button {
+    .CreatePair-button {
       background-color: #00c3b4;
       color: #ffffff;
       padding: 10px 15px;
@@ -52,26 +52,26 @@
     }
   }
 
-  .AddLiquidity-wallet-modal {
+  .CreatePair-wallet-modal {
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     font-weight: 700;
 
-    .AddLiquidity-wallet-modal-header {
+    .CreatePair-wallet-modal-header {
       display: flex;
       padding: 10px;
       font-size: 18px;
       border-bottom: 1px solid lightgray;
-      .AddLiquidity-wallet-modal-header-image {
+      .CreatePair-wallet-modal-header-image {
         display: flex;
         align-items: center;
         margin-right: 5px;
       }
     }
 
-    .AddLiquidity-wallet-modal-select {
+    .CreatePair-wallet-modal-select {
       background-color: transparent;
       border: 2px solid lightgray;
       margin: 15px;
@@ -79,7 +79,7 @@
       font-size: 18px;
       font-weight: inherit;
 
-      .AddLiquidity-wallet-modal-item {
+      .CreatePair-wallet-modal-item {
         display: flex;
         justify-content: space-between;
         align-items: center;

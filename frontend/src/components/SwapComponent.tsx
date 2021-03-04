@@ -45,21 +45,10 @@ export const SwapComponent: React.FC = () => {
 
   useEffect(() => {
     onFirstRender();
-    setFromAmount('');
-    setToAmount('');
-
-    setFromTabSelected(false);
-    setToTabSelected(false);
   }, []);
 
   const toggleModal = () => {
     setOpenModal(!openModal);
-  };
-
-  const modalStyle = {
-    position: 'relative',
-    'border-radius': '30px',
-    top: '210px',
   };
 
   function setActiveTab(type: string) {
@@ -83,6 +72,12 @@ export const SwapComponent: React.FC = () => {
     }
   }
 
+  const modalStyle = {
+    position: 'relative',
+    'border-radius': '30px',
+    top: '210px',
+  };
+
   return (
     <div className="SwapComponent">
       <div className="SwapComponent-header">Swap</div>
@@ -92,7 +87,7 @@ export const SwapComponent: React.FC = () => {
           amount={fromAmount}
           updateAmount={amount => setFromAmount(amount)}
           tokenList={tokenList}
-          token={fromToken}
+          token={fromToken || ''}
           updateToken={token => dispatch(setFromToken(token))}
           active={fromTabSelected}
           onClick={() => setActiveTab('From')}
@@ -103,7 +98,7 @@ export const SwapComponent: React.FC = () => {
           amount={toAmount}
           updateAmount={amount => setToAmount(amount)}
           tokenList={tokenList}
-          token={toToken}
+          token={toToken || ''}
           updateToken={token => dispatch(setToToken(token))}
           active={toTabSelected}
           onClick={() => setActiveTab('To')}

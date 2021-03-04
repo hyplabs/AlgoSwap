@@ -38,7 +38,7 @@ const TokenAmount: React.FC<Props> = ({
   // console.log(title + ' ' + active + ' ' + openModal);
   const toggleModal = () => {
     setOpenModal(!openModal);
-    updateToken(selectedToken);
+    token !== selectedToken && updateToken(selectedToken);
   };
 
   const modalStyle = {

@@ -2057,7 +2057,7 @@ algo-msgpack-with-bigint@^2.1.0:
   resolved "https://registry.yarnpkg.com/algo-msgpack-with-bigint/-/algo-msgpack-with-bigint-2.1.1.tgz#38bb717220525b3ff42232eefdcd9efb9ad405d6"
   integrity sha512-F1tGh056XczEaEAqu7s+hlZUDWwOBT70Eq0lfMpBP2YguSQVyxRbprLq5rELXKQOyOaixTWYhMeMQMzP0U5FoQ==
 
-algosdk@^1.7.2:
+algosdk@^1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/algosdk/-/algosdk-1.8.1.tgz#fb604831c888dc3870d9e43461a9b6aa18efa865"
   integrity sha512-so7cb8+SodZp8ijNYdFEn02y22Jb2KphXnRhUH4VCcKXErYIJtHqnA9f4uGWdNdDlBdf3pmFvPQ0WCOIiHNZOA==

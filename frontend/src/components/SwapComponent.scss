@@ -42,6 +42,57 @@
     }
   }
 
+  .SwapComponent-swap-modal {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    font-weight: 700;
+
+    .SwapComponent-swap-modal-header {
+      display: flex;
+      padding: 10px;
+      font-size: 18px;
+      border-bottom: 1px solid lightgray;
+    }
+
+    .SwapComponent-swap-modal-txdetails {
+      display: flex;
+      flex-direction: column;
+      font-weight: 400;
+      padding: 10px 10px 0 10px;
+
+      .SwapComponent-swap-modal-txdetail_1 {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .SwapComponent-swap-modal-txdetail_2 {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .SwapComponent-swap-modal-subtitle {
+        font-size: 12px;
+        font-style: italic;
+        padding-top: 10px;
+        color: gray;
+        font-weight: 600;
+        text-align: left;
+      }
+    }
+
+    .SwapComponent-swap-modal-txinfo {
+      background-color: rgb(233, 233, 233);
+      display: flex;
+      flex-direction: column;
+      margin: 10px;
+      width: 100%;
+    }
+  }
+
   .SwapComponent-wallet-modal {
     height: 100%;
     display: flex;

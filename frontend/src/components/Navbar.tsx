@@ -1,12 +1,14 @@
 import React from 'react';
+import {useSelector} from 'react-redux';
+
+import {selectUserAccountAddress} from '../redux/reducers/user';
 import {Link, useLocation} from 'react-router-dom';
 
 import './Navbar.scss';
 
-interface Props {}
-
-export const AlgoSwapNavbar: React.FC<Props> = () => {
+export const AlgoSwapNavbar: React.FC = () => {
   const {pathname} = useLocation();
+  const accountAddr = useSelector(selectUserAccountAddress);
 
   return (
     <nav className="Navbar">
@@ -30,6 +32,9 @@ export const AlgoSwapNavbar: React.FC<Props> = () => {
             <p>Pool</p>
           </Link>
         </div>
+      </div>
+      <div className="Navbar-right">
+        <p>{accountAddr}</p>
       </div>
     </nav>
   );

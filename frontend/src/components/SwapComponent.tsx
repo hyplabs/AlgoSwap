@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 
@@ -7,8 +8,7 @@ import {setAccountAddress, setTokenList, setFromToken, setToToken} from '../redu
 
 import TokenAmount from './TokenAmount';
 
-/* eslint-dsiable */
-// @ts-ignore
+/* eslint-disable */
 import Rodal from 'rodal';
 import 'rodal/lib/rodal.css';
 
@@ -22,6 +22,7 @@ export const SwapComponent: React.FC = () => {
   const [fromTabSelected, setFromTabSelected] = useState<boolean>(false);
   const [toTabSelected, setToTabSelected] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openSwapModal, setOpenSwapModal] = useState<boolean>(false);
 
   // Redux state
   const walletAddr = useSelector(selectUserAccountAddress);
@@ -50,6 +51,38 @@ export const SwapComponent: React.FC = () => {
   const toggleModal = () => {
     setOpenModal(!openModal);
   };
+
+  const toggleSwapModal = () => {
+    setOpenSwapModal(!openSwapModal);
+  };
+
+  async function connectToAlgoSigner() {
+    if (typeof AlgoSigner !== 'undefined') {
+      try {
+        await AlgoSigner.connect();
+        let testnetAccounts = await AlgoSigner.accounts({
+          ledger: 'TestNet',
+        });
+
+        dispatch(setAccountAddress(testnetAccounts[0].address));
+        setOpenModal(!openModal);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
+  const modalStyle = {
+    position: 'relative',
+    borderRadius: '30px',
+    top: '210px',
+  };
+
+  function swap() {
+    // TODO
+    console.log(fromAmount + ' ' + fromToken);
+    console.log(toAmount + ' ' + toToken);
+  }
 
   function setActiveTab(type: string) {
     if (fromTabSelected === false && toTabSelected === false) {
@@ -106,7 +139,9 @@ export const SwapComponent: React.FC = () => {
       </div>
       <div className="SwapComponent-bottom">
         {walletAddr ? (
-          <button className="SwapComponent-button">Swap</button>
+          <button className="SwapComponent-button" onClick={toggleSwapModal}>
+            Swap
+          </button>
         ) : (
           <button className="SwapComponent-button" onClick={toggleModal}>
             Connect to a wallet
@@ -128,12 +163,48 @@ export const SwapComponent: React.FC = () => {
             </div>
             Connect to a wallet
           </div>
-          <button className="SwapComponent-wallet-modal-select">
+          <button className="SwapComponent-wallet-modal-select" onClick={connectToAlgoSigner}>
             <div className="SwapComponent-wallet-modal-item">
               AlgoSigner
               <img className="Wallet-logo-modal" src="/algosigner.png" alt="AlgoSigner" />
             </div>
           </button>
+        </div>
+      </Rodal>
+
+      <Rodal
+        customStyles={modalStyle}
+        visible={openSwapModal}
+        onClose={toggleSwapModal}
+        showCloseButton={true}
+      >
+        <div className="SwapComponent-swap-modal">
+          <div className="SwapComponent-swap-modal-header">Confirm Swap</div>
+          <div className="SwapComponent-swap-modal-txdetails">
+            <div className="SwapComponent-swap-modal-txdetail_1">
+              <span>
+                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />1
+              </span>
+              <span>ETH</span>
+            </div>
+            <p className="SwapComponent-arrow">↓</p>
+            <div className="SwapComponent-swap-modal-txdetail_2">
+              <span>
+                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />1
+              </span>
+              <span>ALGO</span>
+            </div>
+            <div className="SwapComponent-swap-modal-subtitle">
+              Output is estimated. You will receive at least <strong>0.5 ALGO</strong> or the
+              transaction will revert.
+            </div>
+          </div>
+          <div className="SwapComponent-swap-modal-txinfo">
+            <div className="SwapComponent-swap-modal-txinfo-item">
+              <span>Price: </span>
+              <span>1 ALGO/ETH</span>
+            </div>
+          </div>
         </div>
       </Rodal>
     </div>

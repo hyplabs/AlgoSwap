@@ -2,16 +2,16 @@
 import * as constants from './constants';
 import algosdk from 'algosdk';
 
-export default async function swapToken1ForToken2(
+export default async function swapToken2ForToken1(
   from: string,
   escrowAddr: string,
-  token1Amount: number,
-  token1Index: number,
-  minToken2Received: number
+  token2Amount: number,
+  token2Index: number,
+  minToken1Received: number
 ) {
   try {
     // TODO: encode these and send with txns
-    const args = ['s1', minToken2Received];
+    const args = ['s2', minToken1Received];
 
     const txParams = await AlgoSigner.algod({
       ledger: constants.LEDGER_NAME,
@@ -25,7 +25,7 @@ export default async function swapToken1ForToken2(
       suggestedParams: txParams,
       appIndex: constants.VALIDATOR_APP_ID,
       appOnComplete: 0, // 0 == NoOp
-      appArgs: '', // TODO: figure this out
+      appArgs: '',
       appAccounts: [escrowAddr],
     };
 
@@ -40,14 +40,14 @@ export default async function swapToken1ForToken2(
       appAccounts: [escrowAddr],
     };
 
-    // Send Token1 to Escrow
+    // Send Token2 to Escrow
     let txn3 = {
       type: 'axfer',
       from: from,
       to: escrowAddr,
-      amount: token1Amount,
+      amount: token2Amount,
       suggestedParams: txParams,
-      assetIndex: token1Index,
+      assetIndex: token2Index,
     };
 
     let txnGroup = await algosdk.assignGroupID([txn1, txn2, txn3]);

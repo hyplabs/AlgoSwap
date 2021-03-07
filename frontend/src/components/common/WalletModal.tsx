@@ -53,15 +53,15 @@ const WalletModal: React.FC<Props> = ({openWalletModal, toggleWalletModal}) => {
       height={200}
       showCloseButton={true}
     >
-      <div className="SwapComponent-wallet-modal">
-        <div className="SwapComponent-wallet-modal-header">
-          <div className="SwapComponent-wallet-modal-header-image">
+      <div className="Wallet-modal">
+        <div className="Wallet-modal-header">
+          <div className="Wallet-modal-header-image">
             <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />
           </div>
           Connect to a wallet
         </div>
-        <button className="SwapComponent-wallet-modal-select" onClick={connectToAlgoSigner}>
-          <div className="SwapComponent-wallet-modal-item">
+        <button className="Wallet-modal-select" onClick={connectToAlgoSigner}>
+          <div className="Wallet-modal-item">
             AlgoSigner
             <img className="Wallet-logo-modal" src="/algosigner.png" alt="AlgoSigner" />
           </div>

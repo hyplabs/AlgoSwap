@@ -6,7 +6,7 @@ import {selectSlippageTolerance} from '../../redux/reducers/transaction';
 import {selectFromToken, selectToToken, selectTokenList} from '../../redux/reducers/tokens';
 import {setTokenList, setFromToken, setToToken} from '../../redux/actions';
 
-import TokenAmount from '../TokenAmount';
+import TokenAmount from '../TokenAmount/TokenAmount';
 import SwapModal from './SwapModal';
 import SettingsModal from '../common/SettingsModal';
 import WalletModal from '../common/WalletModal';

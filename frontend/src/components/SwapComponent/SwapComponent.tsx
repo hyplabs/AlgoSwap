@@ -38,7 +38,6 @@ const SwapComponent: React.FC = () => {
         ['USD', '3'],
       ])
     );
-    dispatch(setAccountAddress(''));
   };
 
   useEffect(() => {

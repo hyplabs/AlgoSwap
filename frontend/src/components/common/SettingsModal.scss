@@ -1,0 +1,39 @@
+.Settings-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  font-size: 1rem;
+
+  .Settings-modal-header {
+    display: flex;
+    padding: 10px;
+    font-size: 18px;
+    border-bottom: 1px solid lightgray;
+    font-weight: 700;
+  }
+
+  .Settings-modal-slippage {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px;
+
+    .Settings-modal-slippage-content {
+      .Settings-modal-slippage-input {
+        border: transparent;
+        outline: none;
+        font-size: 16px;
+        text-align: right;
+      }
+    }
+  }
+
+  .Settings-modal-info {
+    border-radius: 12px;
+    border: 2px solid #a30786;
+    margin-top: 15px;
+    padding: 10px;
+    text-align: left;
+  }
+}

@@ -2,6 +2,10 @@ export interface CurrentUser {
   readonly accountAddress: string | null;
 }
 
+export interface CurrentTransaction {
+  readonly slippageTolerance: number;
+}
+
 export interface CurrentTokenInfo {
   readonly tokenList: Array<Array<string>> | [];
   readonly fromToken: string | undefined;
@@ -12,5 +16,6 @@ export interface CurrentTokenInfo {
 
 export default interface CurrentAlgoSwapContext {
   user: CurrentUser;
+  transaction: CurrentTransaction;
   tokens: CurrentTokenInfo;
 }

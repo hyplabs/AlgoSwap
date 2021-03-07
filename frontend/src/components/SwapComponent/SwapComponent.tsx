@@ -2,11 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 
 import {selectUserAccountAddress} from '../../redux/reducers/user';
+import {selectSlippageTolerance} from '../../redux/reducers/transaction';
 import {selectFromToken, selectToToken, selectTokenList} from '../../redux/reducers/tokens';
-import {setAccountAddress, setTokenList, setFromToken, setToToken} from '../../redux/actions';
+import {setTokenList, setFromToken, setToToken} from '../../redux/actions';
 
 import TokenAmount from '../TokenAmount';
 import SwapModal from './SwapModal';
+import SettingsModal from '../common/SettingsModal';
 import WalletModal from '../common/WalletModal';
 
 import './SwapComponent.scss';
@@ -18,11 +20,15 @@ const SwapComponent: React.FC = () => {
 
   const [fromTabSelected, setFromTabSelected] = useState<boolean>(false);
   const [toTabSelected, setToTabSelected] = useState<boolean>(false);
+
+  // Modals
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false);
+  const [openSettingsModal, setOpenSettingsModal] = useState<boolean>(false);
   const [openSwapModal, setOpenSwapModal] = useState<boolean>(false);
 
   // Redux state
   const walletAddr = useSelector(selectUserAccountAddress);
+  const slippageTolerance = useSelector(selectSlippageTolerance);
   const tokenList = useSelector(selectTokenList);
   const fromToken = useSelector(selectFromToken);
   const toToken = useSelector(selectToToken);
@@ -46,6 +52,10 @@ const SwapComponent: React.FC = () => {
 
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal);
+  };
+
+  const toggleSettingsModal = () => {
+    setOpenSettingsModal(!openSettingsModal);
   };
 
   const toggleSwapModal = () => {
@@ -93,7 +103,14 @@ const SwapComponent: React.FC = () => {
 
   return (
     <div className="SwapComponent">
-      <div className="SwapComponent-header">Swap</div>
+      <div className="SwapComponent-header">
+        <span>Swap</span>
+        <span>
+          <button className="Settings-button" onClick={toggleSettingsModal}>
+            <img className="Settings-logo" src="/settings.png" alt="Settings" />
+          </button>
+        </span>
+      </div>
       <div className="SwapComponent-content">
         <TokenAmount
           title="From"
@@ -117,6 +134,10 @@ const SwapComponent: React.FC = () => {
           onClick={() => setActiveTab('To')}
         />
       </div>
+      <div className="SwapComponent-info">
+        <span>Slippage Tolerance:</span>
+        <span>{slippageTolerance.toFixed(2)}%</span>
+      </div>
       <div className="SwapComponent-bottom">
         {walletAddr ? (
           <button
@@ -137,8 +158,11 @@ const SwapComponent: React.FC = () => {
         )}
       </div>
       <WalletModal openWalletModal={openWalletModal} toggleWalletModal={toggleWalletModal} />
-
-      {fromToken !== undefined && toToken !== undefined && (
+      <SettingsModal
+        openSettingsModal={openSettingsModal}
+        toggleSettingsModal={toggleSettingsModal}
+      />
+      {fromToken && toToken && (
         <SwapModal
           fromAmount={fromAmount}
           toAmount={toAmount}

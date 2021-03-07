@@ -6,6 +6,8 @@ enum ActionType {
   SetToToken = 'SET_TO_TOKEN',
   SetFirstToken = 'SET_FIRST_TOKEN',
   SetSecondToken = 'SET_SECOND_TOKEN',
+
+  SetSlippageTolerance = 'SET_SLIPPAGE_TOLERANCE',
 }
 
 export default ActionType;

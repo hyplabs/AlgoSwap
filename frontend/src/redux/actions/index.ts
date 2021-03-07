@@ -2,6 +2,11 @@ import ActionType from './types';
 
 export type CurrentAccountAddress = {type: ActionType.SetAccountAddress; accountAddress: string};
 
+export type CurrentSlippageTolerance = {
+  type: ActionType.SetSlippageTolerance;
+  slippageTolerance: number;
+};
+
 export type CurrentTokenList = {type: ActionType.SetTokenList; tokenList: Array<Array<string>>};
 export type CurrentFromToken = {type: ActionType.SetFromToken; fromToken: string};
 export type CurrentToToken = {type: ActionType.SetToToken; toToken: string};
@@ -12,6 +17,13 @@ export function setAccountAddress(accountAddress: string): CurrentAccountAddress
   return {
     accountAddress,
     type: ActionType.SetAccountAddress,
+  };
+}
+
+export function setSlippageTolerance(slippageTolerance: number): CurrentSlippageTolerance {
+  return {
+    slippageTolerance,
+    type: ActionType.SetSlippageTolerance,
   };
 }
 

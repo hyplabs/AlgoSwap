@@ -10,7 +10,8 @@
 
   .SwapComponent-header {
     display: flex;
-    align-items: flex-start;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
     font-size: 20px;
     font-weight: 600;
@@ -18,6 +19,16 @@
 
   .SwapComponent-arrow {
     font-size: 16px;
+  }
+
+  .SwapComponent-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 600;
+    color: gray;
+    margin-top: 25px;
+    padding: 0px 20px;
   }
 
   .SwapComponent-bottom {
@@ -44,6 +55,16 @@
     .SwapComponent-button-disabled {
       background-color: lightgray !important;
       border: 1px solid lightgray !important;
+    }
+  }
+
+  .Settings-button {
+    background-color: transparent;
+    border: transparent;
+    outline: none;
+
+    .Settings-logo {
+      height: 25px;
     }
   }
 }

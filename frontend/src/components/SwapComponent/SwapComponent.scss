@@ -89,59 +89,6 @@
     }
   }
 
-  .SwapComponent-wallet-modal-select {
-    background-color: transparent;
-    border: 2px solid lightgray;
-    margin: 15px;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: 500;
-
-    .SwapComponent-wallet-modal-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px;
-    }
-
-    &:hover {
-      border: 2px solid #a30786;
-    }
-  }
-
-  .SwapComponent-swap-modal-txdetails {
-    display: flex;
-    flex-direction: column;
-    margin-top: 15px;
-
-    .SwapComponent-swap-modal-txdetail {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      font-size: 24px;
-      font-weight: 700;
-      padding: 0px 20px;
-    }
-
-    .SwapComponent-swap-modal-subtitle {
-      font-size: 12px;
-      font-style: italic;
-      color: gray;
-      font-weight: 700;
-      margin-top: 15px;
-      padding: 15px;
-    }
-
-    .SwapComponent-swap-modal-txinfo {
-      display: flex;
-      justify-content: space-between;
-      font-size: 20px !important;
-      padding: 20px;
-      margin-top: 10px;
-      border: 2px solid lightgray;
-    }
-  }
-
   .Wallet-logo-modal {
     height: 45px;
   }

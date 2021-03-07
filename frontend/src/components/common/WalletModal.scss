@@ -1,0 +1,39 @@
+.SwapComponent-wallet-modal {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  .SwapComponent-wallet-modal-header {
+    display: flex;
+    padding: 10px;
+    font-size: 18px;
+    border-bottom: 1px solid lightgray;
+    font-weight: 700;
+    .SwapComponent-wallet-modal-header-image {
+      display: flex;
+      align-items: center;
+      margin-right: 5px;
+    }
+  }
+
+  .SwapComponent-wallet-modal-select {
+    background-color: transparent;
+    border: 2px solid lightgray;
+    margin: 15px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 500;
+
+    .SwapComponent-wallet-modal-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+    }
+
+    &:hover {
+      border: 2px solid #a30786;
+    }
+  }
+}

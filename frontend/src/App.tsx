@@ -1,6 +1,6 @@
 import React from 'react';
 import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
-import AlgoSwapNavbar from './components/Navbar';
+import NavigationBar from './components/NavigationBar';
 import {Provider} from 'react-redux';
 import {createStore} from 'redux';
 
@@ -23,7 +23,7 @@ function App() {
             WARNING: THIS CODE HAS NOT BEEN AUDITED AND SHOULD NOT BE USED ON THE ALGORAND MAINNET -
             USE AT YOUR OWN RISK!
           </div>
-          <AlgoSwapNavbar />
+          <NavigationBar />
           <div className="App-container">
             <Switch>
               <Route exact path="/">

@@ -40,96 +40,105 @@
         background-color: #00ab9e;
       }
     }
+
+    .SwapComponent-button-disabled {
+      background-color: lightgray !important;
+      border: 1px solid lightgray !important;
+    }
   }
 
-  .SwapComponent-swap-modal {
+  .SwapComponent-modal {
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    font-weight: 700;
 
-    .SwapComponent-swap-modal-header {
+    .SwapComponent-modal-header {
       display: flex;
       padding: 10px;
       font-size: 18px;
       border-bottom: 1px solid lightgray;
-    }
-
-    .SwapComponent-swap-modal-txdetails {
-      display: flex;
-      flex-direction: column;
-      font-weight: 400;
-      padding: 10px 10px 0 10px;
-
-      .SwapComponent-swap-modal-txdetail_1 {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-      }
-
-      .SwapComponent-swap-modal-txdetail_2 {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-      }
-
-      .SwapComponent-swap-modal-subtitle {
-        font-size: 12px;
-        font-style: italic;
-        padding-top: 10px;
-        color: gray;
-        font-weight: 600;
-        text-align: left;
-      }
-    }
-
-    .SwapComponent-swap-modal-txinfo {
-      background-color: rgb(233, 233, 233);
-      display: flex;
-      flex-direction: column;
-      margin: 10px;
-      width: 100%;
-    }
-  }
-
-  .SwapComponent-wallet-modal {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    font-weight: 700;
-
-    .SwapComponent-wallet-modal-header {
-      display: flex;
-      padding: 10px;
-      font-size: 18px;
-      border-bottom: 1px solid lightgray;
-      .SwapComponent-wallet-modal-header-image {
+      font-weight: 700;
+      .SwapComponent-modal-header-image {
         display: flex;
         align-items: center;
         margin-right: 5px;
       }
     }
 
-    .SwapComponent-wallet-modal-select {
-      background-color: transparent;
+    .SwapComponent-modal-bottom {
+      margin-top: 25px;
+
+      .SwapComponent-modal-button {
+        background-color: #00c3b4;
+        color: #ffffff;
+        padding: 10px 15px;
+        width: 100%;
+        height: 100%;
+        font-size: 18px;
+        border: 1px solid #00c3b4;
+        border-radius: 12px;
+        text-transform: uppercase;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #00ab9e;
+        }
+      }
+    }
+  }
+
+  .SwapComponent-wallet-modal-select {
+    background-color: transparent;
+    border: 2px solid lightgray;
+    margin: 15px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 500;
+
+    .SwapComponent-wallet-modal-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+    }
+
+    &:hover {
+      border: 2px solid #a30786;
+    }
+  }
+
+  .SwapComponent-swap-modal-txdetails {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+
+    .SwapComponent-swap-modal-txdetail {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      font-size: 24px;
+      font-weight: 700;
+      padding: 0px 20px;
+    }
+
+    .SwapComponent-swap-modal-subtitle {
+      font-size: 12px;
+      font-style: italic;
+      color: gray;
+      font-weight: 700;
+      margin-top: 15px;
+      padding: 15px;
+    }
+
+    .SwapComponent-swap-modal-txinfo {
+      display: flex;
+      justify-content: space-between;
+      font-size: 20px !important;
+      padding: 20px;
+      margin-top: 10px;
       border: 2px solid lightgray;
-      margin: 15px;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: inherit;
-
-      .SwapComponent-wallet-modal-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-      }
-
-      &:hover {
-        border: 2px solid #a30786;
-      }
     }
   }
 

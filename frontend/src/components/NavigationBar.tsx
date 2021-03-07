@@ -4,9 +4,9 @@ import {useSelector} from 'react-redux';
 import {selectUserAccountAddress} from '../redux/reducers/user';
 import {Link, useLocation} from 'react-router-dom';
 
-import './Navbar.scss';
+import './NavigationBar.scss';
 
-export const AlgoSwapNavbar: React.FC = () => {
+const NavigationBar: React.FC = () => {
   const {pathname} = useLocation();
   const accountAddr = useSelector(selectUserAccountAddress);
 
@@ -39,3 +39,5 @@ export const AlgoSwapNavbar: React.FC = () => {
     </nav>
   );
 };
+
+export default NavigationBar;

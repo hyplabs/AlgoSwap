@@ -14,10 +14,10 @@ import 'rodal/lib/rodal.css';
 
 import './SwapComponent.scss';
 
-export const SwapComponent: React.FC = () => {
+const SwapComponent: React.FC = () => {
   // Local state
-  const [fromAmount, setFromAmount] = useState<string>('');
-  const [toAmount, setToAmount] = useState<string>('');
+  const [fromAmount, setFromAmount] = useState<float>('');
+  const [toAmount, setToAmount] = useState<float>('');
 
   const [fromTabSelected, setFromTabSelected] = useState<boolean>(false);
   const [toTabSelected, setToTabSelected] = useState<boolean>(false);
@@ -48,12 +48,51 @@ export const SwapComponent: React.FC = () => {
     onFirstRender();
   }, []);
 
-  const toggleModal = () => {
+  const toggleWalletModal = () => {
     setOpenModal(!openModal);
   };
 
   const toggleSwapModal = () => {
     setOpenSwapModal(!openSwapModal);
+  };
+
+  const bothTokensNotSet = () => {
+    if (fromToken === undefined || toToken === undefined) {
+      return true;
+    }
+    /*
+    TODO:
+    If one of the input panels are given the value, the other
+    one should be automatically calculated using the conversion rate.
+
+    For now, the swap button is clickable only when both inputs
+    are filled manually
+    */
+    if (fromAmount === '' || toAmount === '') {
+      return true;
+    }
+    return false;
+  };
+
+  const setActiveTab = (type: string) => {
+    if (fromTabSelected === false && toTabSelected === false) {
+      if (type === 'From') {
+        setFromTabSelected(true);
+      }
+      if (type === 'To') {
+        setToTabSelected(true);
+      }
+    } else if (fromTabSelected === true) {
+      if (type === 'To') {
+        setFromTabSelected(false);
+        setToTabSelected(true);
+      }
+    } else {
+      if (type === 'From') {
+        setFromTabSelected(true);
+        setToTabSelected(false);
+      }
+    }
   };
 
   async function connectToAlgoSigner() {
@@ -84,33 +123,6 @@ export const SwapComponent: React.FC = () => {
     console.log(toAmount + ' ' + toToken);
   }
 
-  function setActiveTab(type: string) {
-    if (fromTabSelected === false && toTabSelected === false) {
-      if (type === 'From') {
-        setFromTabSelected(true);
-      }
-      if (type === 'To') {
-        setToTabSelected(true);
-      }
-    } else if (fromTabSelected === true) {
-      if (type === 'To') {
-        setFromTabSelected(false);
-        setToTabSelected(true);
-      }
-    } else {
-      if (type === 'From') {
-        setFromTabSelected(true);
-        setToTabSelected(false);
-      }
-    }
-  }
-
-  const modalStyle = {
-    position: 'relative',
-    'border-radius': '30px',
-    top: '210px',
-  };
-
   return (
     <div className="SwapComponent">
       <div className="SwapComponent-header">Swap</div>
@@ -139,11 +151,19 @@ export const SwapComponent: React.FC = () => {
       </div>
       <div className="SwapComponent-bottom">
         {walletAddr ? (
-          <button className="SwapComponent-button" onClick={toggleSwapModal}>
+          <button
+            className={
+              bothTokensNotSet()
+                ? ['SwapComponent-button-disabled', 'SwapComponent-button'].join(' ')
+                : 'SwapComponent-button'
+            }
+            onClick={toggleSwapModal}
+            disabled={bothTokensNotSet()}
+          >
             Swap
           </button>
         ) : (
-          <button className="SwapComponent-button" onClick={toggleModal}>
+          <button className="SwapComponent-button" onClick={toggleWalletModal}>
             Connect to a wallet
           </button>
         )}
@@ -152,13 +172,13 @@ export const SwapComponent: React.FC = () => {
         width={420}
         customStyles={modalStyle}
         visible={openModal}
-        onClose={toggleModal}
+        onClose={toggleWalletModal}
         height={200}
         showCloseButton={true}
       >
-        <div className="SwapComponent-wallet-modal">
-          <div className="SwapComponent-wallet-modal-header">
-            <div className="SwapComponent-wallet-modal-header-image">
+        <div className="SwapComponent-modal">
+          <div className="SwapComponent-modal-header">
+            <div className="SwapComponent-modal-header-image">
               <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />
             </div>
             Connect to a wallet
@@ -173,40 +193,56 @@ export const SwapComponent: React.FC = () => {
       </Rodal>
 
       <Rodal
+        width={420}
         customStyles={modalStyle}
         visible={openSwapModal}
         onClose={toggleSwapModal}
+        height={400}
         showCloseButton={true}
       >
-        <div className="SwapComponent-swap-modal">
-          <div className="SwapComponent-swap-modal-header">Confirm Swap</div>
+        <div className="SwapComponent-modal">
+          <div className="SwapComponent-modal-header">
+            <div className="SwapComponent-modal-header-image">
+              <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />
+            </div>
+            Confirm Swap
+          </div>
           <div className="SwapComponent-swap-modal-txdetails">
-            <div className="SwapComponent-swap-modal-txdetail_1">
+            <div className="SwapComponent-swap-modal-txdetail">
               <span>
-                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />1
+                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />
+                {fromAmount}
               </span>
-              <span>ETH</span>
+              <span>{fromToken}</span>
             </div>
             <p className="SwapComponent-arrow">↓</p>
-            <div className="SwapComponent-swap-modal-txdetail_2">
+            <div className="SwapComponent-swap-modal-txdetail">
               <span>
-                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />1
+                <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />
+                {toAmount}
               </span>
-              <span>ALGO</span>
+              <span>{toToken}</span>
             </div>
             <div className="SwapComponent-swap-modal-subtitle">
-              Output is estimated. You will receive at least <strong>0.5 ALGO</strong> or the
-              transaction will revert.
+              Output is estimated. You will receive at least {toAmount} {toToken} or the transaction
+              will revert.
+            </div>
+            <div className="SwapComponent-swap-modal-txinfo">
+              <span>Price:</span>
+              <span>
+                {parseFloat(toAmount) / parseFloat(fromAmount)} {toToken}/{fromToken}
+              </span>
             </div>
           </div>
-          <div className="SwapComponent-swap-modal-txinfo">
-            <div className="SwapComponent-swap-modal-txinfo-item">
-              <span>Price: </span>
-              <span>1 ALGO/ETH</span>
-            </div>
+          <div className="SwapComponent-modal-bottom">
+            <button className="SwapComponent-modal-button" onClick={toggleSwapModal}>
+              Swap tokens
+            </button>
           </div>
         </div>
       </Rodal>
     </div>
   );
 };
+
+export default SwapComponent;

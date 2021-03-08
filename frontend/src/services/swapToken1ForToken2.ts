@@ -10,8 +10,10 @@ export default async function swapToken1ForToken2(
   minToken2Received: number
 ) {
   try {
-    // TODO: encode these and send with txns
-    const args = ['s1', minToken2Received];
+    const encodedAppArgs = [
+      Buffer.from('s1').toString('base64'),
+      Buffer.from(minToken2Received).toString('base64'),
+    ];
 
     const txParams = await AlgoSigner.algod({
       ledger: constants.LEDGER_NAME,
@@ -22,22 +24,30 @@ export default async function swapToken1ForToken2(
     let txn1 = {
       type: 'appl',
       from: from,
-      suggestedParams: txParams,
       appIndex: constants.VALIDATOR_APP_ID,
       appOnComplete: 0, // 0 == NoOp
-      appArgs: '', // TODO: figure this out
+      appArgs: encodedAppArgs,
       appAccounts: [escrowAddr],
+      fee: txParams['fee'],
+      firstRound: txParams['last-round'],
+      lastRound: txParams['last-round'] + 1000,
+      genesisID: txParams['genesis-id'],
+      genesisHash: txParams['genesis-hash'],
     };
 
     // Call to manager
     let txn2 = {
       type: 'appl',
       from: from,
-      suggestedParams: txParams,
       appIndex: constants.MANAGER_APP_ID,
       appOnComplete: 0, // 0 == NoOp
-      appArgs: '', // TODO: figure this out
+      appArgs: encodedAppArgs,
       appAccounts: [escrowAddr],
+      fee: txParams['fee'],
+      firstRound: txParams['last-round'],
+      lastRound: txParams['last-round'] + 1000,
+      genesisID: txParams['genesis-id'],
+      genesisHash: txParams['genesis-hash'],
     };
 
     // Send Token1 to Escrow
@@ -46,8 +56,12 @@ export default async function swapToken1ForToken2(
       from: from,
       to: escrowAddr,
       amount: token1Amount,
-      suggestedParams: txParams,
       assetIndex: token1Index,
+      fee: txParams['fee'],
+      firstRound: txParams['last-round'],
+      lastRound: txParams['last-round'] + 1000,
+      genesisID: txParams['genesis-id'],
+      genesisHash: txParams['genesis-hash'],
     };
 
     let txnGroup = await algosdk.assignGroupID([txn1, txn2, txn3]);

@@ -11,8 +11,11 @@ export default async function withdrawLiquidity(
   minToken2Received: number
 ) {
   try {
-    // TODO: encode these and send with txns
-    const args = ['w', minToken1Received, minToken2Received];
+    const encodedAppArgs = [
+      Buffer.from('w').toString('base64'),
+      Buffer.from(minToken1Received).toString('base64'),
+      Buffer.from(minToken2Received).toString('base64'),
+    ];
 
     const txParams = await AlgoSigner.algod({
       ledger: constants.LEDGER_NAME,
@@ -23,22 +26,30 @@ export default async function withdrawLiquidity(
     let txn1 = {
       type: 'appl',
       from: from,
-      suggestedParams: txParams,
       appIndex: constants.VALIDATOR_APP_ID,
       appOnComplete: 0, // 0 == NoOp
-      appArgs: '',
+      appArgs: encodedAppArgs,
       appAccounts: [escrowAddr],
+      fee: txParams['fee'],
+      firstRound: txParams['last-round'],
+      lastRound: txParams['last-round'] + 1000,
+      genesisID: txParams['genesis-id'],
+      genesisHash: txParams['genesis-hash'],
     };
 
     // Call to manager
     let txn2 = {
       type: 'appl',
       from: from,
-      suggestedParams: txParams,
       appIndex: constants.MANAGER_APP_ID,
       appOnComplete: 0, // 0 == NoOp
-      appArgs: '',
+      appArgs: encodedAppArgs,
       appAccounts: [escrowAddr],
+      fee: txParams['fee'],
+      firstRound: txParams['last-round'],
+      lastRound: txParams['last-round'] + 1000,
+      genesisID: txParams['genesis-id'],
+      genesisHash: txParams['genesis-hash'],
     };
 
     // Send liquidity token to Escrow
@@ -47,8 +58,12 @@ export default async function withdrawLiquidity(
       from: from,
       to: escrowAddr,
       amount: liquidityTokenAmount,
-      suggestedParams: txParams,
       assetIndex: liquidityTokenIndex,
+      fee: txParams['fee'],
+      firstRound: txParams['last-round'],
+      lastRound: txParams['last-round'] + 1000,
+      genesisID: txParams['genesis-id'],
+      genesisHash: txParams['genesis-hash'],
     };
 
     let txnGroup = await algosdk.assignGroupID([txn1, txn2, txn3]);

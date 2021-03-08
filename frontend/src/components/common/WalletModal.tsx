@@ -14,6 +14,7 @@ import Rodal from 'rodal';
 import 'rodal/lib/rodal.css';
 
 import './WalletModal.scss';
+import {calculateUnused} from '../../services/helpers';
 
 interface Props {
   openWalletModal: boolean;
@@ -38,6 +39,21 @@ const WalletModal: React.FC<Props> = ({openWalletModal, toggleWalletModal}) => {
         });
         dispatch(setAccountAddress(testnetAccounts[0].address));
         toggleWalletModal();
+        await calculateUnused(
+          testnetAccounts[0].address,
+          'SDJ5WZSZXRQK6YQUXDTKUXWGWX23DNQM62TCB2Z2WDAISGPUQZG6LB6TJM',
+          'U1'
+        );
+        await calculateUnused(
+          testnetAccounts[0].address,
+          'SDJ5WZSZXRQK6YQUXDTKUXWGWX23DNQM62TCB2Z2WDAISGPUQZG6LB6TJM',
+          'U2'
+        );
+        await calculateUnused(
+          testnetAccounts[0].address,
+          'SDJ5WZSZXRQK6YQUXDTKUXWGWX23DNQM62TCB2Z2WDAISGPUQZG6LB6TJM',
+          'UL'
+        );
       } catch (e) {
         console.error(e);
       }

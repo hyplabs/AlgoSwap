@@ -1,0 +1,70 @@
+.CreatePair {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 30px;
+  border: 2px solid lightgray;
+  padding: 20px 1.5rem 20px 1.5rem;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.16);
+
+  .CreatePair-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .CreatePair-plus {
+    font-size: 16px;
+  }
+
+  .CreatePair-add {
+    margin-top: 16px;
+    background-color: #132d5a;
+    color: #ffffff;
+    padding: 8px 16px;
+    border: 1px solid #132d5a;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .CreatePair-bottom {
+    margin-top: 25px;
+
+    .CreatePair-button {
+      background-color: #a30786;
+      color: #ffffff;
+      padding: 10px 15px;
+      width: 100%;
+      height: 100%;
+      font-size: 18px;
+      border: 1px solid #a30786;
+      border-radius: 12px;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #940678;
+      }
+    }
+
+    .CreatePair-button-disabled {
+      background-color: lightgray !important;
+      border: 1px solid lightgray !important;
+    }
+  }
+
+  .Settings-button {
+    background-color: transparent;
+    border: transparent;
+    outline: none;
+
+    .Settings-logo {
+      height: 25px;
+    }
+  }
+}

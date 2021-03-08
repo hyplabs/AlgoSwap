@@ -1,13 +1,14 @@
 import React from 'react';
-import {connect} from 'react-redux';
+import {useSelector} from 'react-redux';
+
+import {selectUserAccountAddress} from '../redux/reducers/user';
 import {Link, useLocation} from 'react-router-dom';
 
-import './Navbar.scss';
+import './NavigationBar.scss';
 
-interface Props {}
-
-const AlgoSwapNavbar: React.FC<Props> = (props: any) => {
+const NavigationBar: React.FC = () => {
   const {pathname} = useLocation();
+  const accountAddr = useSelector(selectUserAccountAddress);
 
   return (
     <nav className="Navbar">
@@ -33,16 +34,10 @@ const AlgoSwapNavbar: React.FC<Props> = (props: any) => {
         </div>
       </div>
       <div className="Navbar-right">
-        <p>{props.user.accountAddress}</p>
+        <p>{accountAddr}</p>
       </div>
     </nav>
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {
-    user: state.user,
-  };
-};
-
-export default connect(mapStateToProps, undefined)(AlgoSwapNavbar);
+export default NavigationBar;

@@ -1,5 +1,5 @@
 import React from 'react';
-import  { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 import './LiquidityList.css';
 
@@ -13,9 +13,7 @@ export default class LiquidityList extends React.PureComponent<Props, State> {
 
   renderLiquidities = () => {
     return this.state.liquidities.map(liquidity => (
-      <div className="LiquidityList-liquidity">
-        {liquidity}
-      </div>
+      <div className="LiquidityList-liquidity">{liquidity}</div>
     ));
   };
 
@@ -30,7 +28,7 @@ export default class LiquidityList extends React.PureComponent<Props, State> {
                 Create a pair
               </button>
             </Link>
-            <Link to="/create">
+            <Link to="/add">
               <button type="button" className="LiquidityList-add-liquidity">
                 Add liquidity
               </button>
@@ -38,11 +36,11 @@ export default class LiquidityList extends React.PureComponent<Props, State> {
           </div>
         </div>
         <div className="LiquidityList-content">
-          {
-            this.state.liquidities.length > 0 ? this.renderLiquidities() : (
-              <p className="LiquidityList-nullstate">No liquidity found.</p>
-            )
-          }
+          {this.state.liquidities.length > 0 ? (
+            this.renderLiquidities()
+          ) : (
+            <p className="LiquidityList-nullstate">No liquidity found.</p>
+          )}
         </div>
       </div>
     );

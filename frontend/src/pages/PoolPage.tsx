@@ -1,7 +1,7 @@
 import React from 'react';
 
 import LiquidityList from '../components/LiquidityList';
-import './PoolPage.css'
+import './PoolPage.scss';
 
 const PoolPage: React.FC = () => {
   return (

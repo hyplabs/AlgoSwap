@@ -1,0 +1,80 @@
+.CreatePair-modal {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  .CreatePair-modal-header {
+    display: flex;
+    padding: 10px;
+    font-size: 18px;
+    border-bottom: 1px solid lightgray;
+    font-weight: 700;
+    .CreatePair-modal-header-image {
+      display: flex;
+      align-items: center;
+      margin-right: 5px;
+    }
+  }
+
+  .CreatePair-modal-supply-summary {
+    display: flex;
+    flex-direction: column;
+
+    .CreatePair-modal-supply-summary-info {
+      text-align: left;
+      font-size: 20px;
+      padding: 5px;
+    }
+  }
+
+  .CreatePair-modal-subtitle {
+    font-size: 12px;
+    font-style: italic;
+    color: gray;
+    font-weight: 700;
+    margin-top: 15px;
+    padding: 15px;
+  }
+
+  .CreatePair-modal-supply-details {
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+    padding: 20px;
+    margin-top: 10px;
+    border-radius: 12px;
+    border: 2px solid #a30786;
+    .CreatePair-modal-supply-details-info {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+    }
+
+    .CreatePair-modal-bottom {
+      margin-top: 25px;
+    }
+  }
+
+  .CreatePair-modal-bottom {
+    margin-top: 25px;
+
+    .CreatePair-modal-button {
+      background-color: #a30786;
+      color: #ffffff;
+      padding: 10px 15px;
+      width: 100%;
+      height: 100%;
+      font-size: 18px;
+      border: 1px solid #a30786;
+      border-radius: 12px;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #940678;
+      }
+    }
+  }
+}

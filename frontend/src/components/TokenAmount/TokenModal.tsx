@@ -52,7 +52,6 @@ const TokenModal: React.FC<Props> = ({
         <div className="TokenAmount-token-modal-list">
           {tokenList &&
             tokenList.map(token => {
-              debugger;
               if (token[0] === selectedToken) {
                 return (
                   <div

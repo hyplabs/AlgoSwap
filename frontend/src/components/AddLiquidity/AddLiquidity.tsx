@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 
-import {selectUserAccountAddress} from '../redux/reducers/user';
-import {selectTokenList} from '../redux/reducers/tokens';
-import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '../redux/actions';
+import {selectUserAccountAddress} from '../../redux/reducers/user';
+import {selectTokenList} from '../../redux/reducers/tokens';
+import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '../../redux/actions';
 
-import TokenAmount from './TokenAmount/TokenAmount';
+import TokenAmount from '../TokenAmount/TokenAmount';
 
 /* eslint-dsiable */
 // @ts-ignore

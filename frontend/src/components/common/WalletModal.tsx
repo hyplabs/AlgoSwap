@@ -13,8 +13,8 @@ import {setAccountAddress} from '../../redux/actions';
 import Rodal from 'rodal';
 import 'rodal/lib/rodal.css';
 
+import {connectToAlgoSigner} from '../../utils/connectToAlgoSigner';
 import './WalletModal.scss';
-import {calculateUnused} from '../../services/helpers';
 
 interface Props {
   openWalletModal: boolean;
@@ -30,34 +30,10 @@ const WalletModal: React.FC<Props> = ({openWalletModal, toggleWalletModal}) => {
     top: '210px',
   };
 
-  async function connectToAlgoSigner() {
-    if (typeof AlgoSigner !== 'undefined') {
-      try {
-        await AlgoSigner.connect();
-        let testnetAccounts = await AlgoSigner.accounts({
-          ledger: 'TestNet',
-        });
-        dispatch(setAccountAddress(testnetAccounts[0].address));
-        toggleWalletModal();
-        await calculateUnused(
-          testnetAccounts[0].address,
-          'SDJ5WZSZXRQK6YQUXDTKUXWGWX23DNQM62TCB2Z2WDAISGPUQZG6LB6TJM',
-          'U1'
-        );
-        await calculateUnused(
-          testnetAccounts[0].address,
-          'SDJ5WZSZXRQK6YQUXDTKUXWGWX23DNQM62TCB2Z2WDAISGPUQZG6LB6TJM',
-          'U2'
-        );
-        await calculateUnused(
-          testnetAccounts[0].address,
-          'SDJ5WZSZXRQK6YQUXDTKUXWGWX23DNQM62TCB2Z2WDAISGPUQZG6LB6TJM',
-          'UL'
-        );
-      } catch (e) {
-        console.error(e);
-      }
-    }
+  async function connectToAlgoSignerWallet() {
+    const accountAddress = await connectToAlgoSigner();
+    dispatch(setAccountAddress(accountAddress));
+    toggleWalletModal();
   }
 
   return (
@@ -76,7 +52,7 @@ const WalletModal: React.FC<Props> = ({openWalletModal, toggleWalletModal}) => {
           </div>
           Connect to a wallet
         </div>
-        <button className="Wallet-modal-select" onClick={connectToAlgoSigner}>
+        <button className="Wallet-modal-select" onClick={connectToAlgoSignerWallet}>
           <div className="Wallet-modal-item">
             AlgoSigner
             <img className="Wallet-logo-modal" src="/algosigner.png" alt="AlgoSigner" />

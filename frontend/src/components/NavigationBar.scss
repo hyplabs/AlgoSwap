@@ -30,6 +30,20 @@
 
   .Navbar-right {
     padding-right: 10px;
+
+    .Navbar-connect-button {
+      background-color: #a30786;
+      border: 1px solid #a30786;
+      border-radius: 12px;
+      padding: 10px 15px;
+      color: #ffffff;
+      text-transform: uppercase;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #940678;
+      }
+    }
   }
 }
 .App-logo-nav {

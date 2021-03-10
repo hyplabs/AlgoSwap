@@ -1,14 +1,22 @@
 import React from 'react';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
 import {selectUserAccountAddress} from '../redux/reducers/user';
+import {setAccountAddress} from '../redux/actions';
 import {Link, useLocation} from 'react-router-dom';
 
+import {connectToAlgoSigner} from '../utils/connectToAlgoSigner';
 import './NavigationBar.scss';
 
 const NavigationBar: React.FC = () => {
   const {pathname} = useLocation();
   const accountAddr = useSelector(selectUserAccountAddress);
+  const dispatch = useDispatch();
+
+  async function connectToAlgoSignerWallet() {
+    const accountAddress = await connectToAlgoSigner();
+    dispatch(setAccountAddress(accountAddress));
+  }
 
   return (
     <nav className="Navbar">
@@ -34,7 +42,13 @@ const NavigationBar: React.FC = () => {
         </div>
       </div>
       <div className="Navbar-right">
-        <p>{accountAddr}</p>
+        {accountAddr ? (
+          <span>{accountAddr}</span>
+        ) : (
+          <button className="Navbar-connect-button" onClick={connectToAlgoSignerWallet}>
+            Connect to a wallet
+          </button>
+        )}
       </div>
     </nav>
   );

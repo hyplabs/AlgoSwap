@@ -7,10 +7,8 @@ import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '..
 
 import TokenAmount from '../TokenAmount/TokenAmount';
 
-/* eslint-dsiable */
-// @ts-ignore
-import Rodal from 'rodal';
-import 'rodal/lib/rodal.css';
+import SettingsModal from '../common/SettingsModal';
+import WalletModal from '../common/WalletModal';
 
 import './AddLiquidity.scss';
 
@@ -27,7 +25,10 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
 
   const [firstTabSelected, setFirstTabSelected] = useState<boolean>(false);
   const [secondTabSelected, setSecondTabSelected] = useState<boolean>(false);
-  const [openModal, setOpenModal] = useState<boolean>(false);
+
+  // Modals
+  const [openWalletModal, setOpenWalletModal] = useState<boolean>(false);
+  const [openSettingsModal, setOpenSettingsModal] = useState<boolean>(false);
 
   // Redux state
   const walletAddr = useSelector(selectUserAccountAddress);
@@ -47,12 +48,38 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
     dispatch(setAccountAddress(''));
   };
 
+  const toggleWalletModal = () => {
+    setOpenWalletModal(!openWalletModal);
+  };
+
+  const toggleSettingsModal = () => {
+    setOpenSettingsModal(!openSettingsModal);
+  };
+
+  const bothTokensNotSet = () => {
+    if (firstToken === '' || secondToken === '') {
+      return true;
+    }
+    /*
+    TODO:
+    If one of the input panels are given the value, the other
+    one should be automatically calculated using the conversion rate.
+
+    For now, the swap button is clickable only when both inputs
+    are filled manually
+    */
+    if (firstAmount === '' || secondAmount === '') {
+      return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
     onFirstRender();
   }, []);
 
   const toggleModal = () => {
-    setOpenModal(!openModal);
+    setOpenWalletModal(!openWalletModal);
   };
 
   function setActiveTab(type: string) {
@@ -84,7 +111,14 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
 
   return (
     <div className="AddLiquidity">
-      <div className="AddLiquidity-header">Add Liquidity</div>
+      <div className="AddLiquidity-header">
+        <span>Add Liquidity</span>
+        <span>
+          <button className="Settings-button" onClick={toggleSettingsModal}>
+            <img className="Settings-logo" src="/settings.png" alt="Settings" />
+          </button>
+        </span>
+      </div>
       <div className="AddLiquidity-content">
         <TokenAmount
           title="Amount"
@@ -122,36 +156,27 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
       </div>
       <div className="AddLiquidity-bottom">
         {walletAddr ? (
-          <button className="AddLiquidity-button">Add Liquidity</button>
+          <button
+            className={
+              bothTokensNotSet()
+                ? ['AddLiquidity-button-disabled', 'AddLiquidity-button'].join(' ')
+                : 'AddLiquidity-button'
+            }
+            disabled={bothTokensNotSet()}
+          >
+            Add Liquidity
+          </button>
         ) : (
           <button className="AddLiquidity-button" onClick={toggleModal}>
             Connect to a wallet
           </button>
         )}
       </div>
-      <Rodal
-        width={420}
-        customStyles={modalStyle}
-        visible={openModal}
-        onClose={toggleModal}
-        height={200}
-        showCloseButton={true}
-      >
-        <div className="AddLiquidity-wallet-modal">
-          <div className="AddLiquidity-wallet-modal-header">
-            <div className="AddLiquidity-wallet-modal-header-image">
-              <img className="App-logo-modal" src="/logo.png" alt="AlgoSwap" />
-            </div>
-            Connect to a wallet
-          </div>
-          <button className="AddLiquidity-wallet-modal-select">
-            <div className="AddLiquidity-wallet-modal-item">
-              AlgoSigner
-              <img className="Wallet-logo-modal" src="/algosigner.png" alt="AlgoSigner" />
-            </div>
-          </button>
-        </div>
-      </Rodal>
+      <WalletModal openWalletModal={openWalletModal} toggleWalletModal={toggleWalletModal} />
+      <SettingsModal
+        openSettingsModal={openSettingsModal}
+        toggleSettingsModal={toggleSettingsModal}
+      />
     </div>
   );
 };

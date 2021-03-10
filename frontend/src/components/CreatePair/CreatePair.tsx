@@ -1,16 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 
-import {selectUserAccountAddress} from '../redux/reducers/user';
-import {selectTokenList} from '../redux/reducers/tokens';
-import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '../redux/actions';
+import {selectUserAccountAddress} from '../../redux/reducers/user';
+import {selectTokenList} from '../../redux/reducers/tokens';
+import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '../../redux/actions';
 
-import TokenAmount from './TokenAmount/TokenAmount';
+import TokenAmount from '../TokenAmount/TokenAmount';
+
+import SettingsModal from '../common/SettingsModal';
+import WalletModal from '../common/WalletModal';
+import CreatePairModal from './CreatePairModal';
 
 import './CreatePair.scss';
-import SettingsModal from './common/SettingsModal';
-import WalletModal from './common/WalletModal';
-import CreatePairModal from './CreatePairModal';
 
 interface Props {
   firstToken: string;

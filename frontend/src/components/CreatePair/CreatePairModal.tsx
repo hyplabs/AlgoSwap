@@ -7,7 +7,7 @@
 import React from 'react';
 import {useSelector} from 'react-redux';
 
-import {selectSlippageTolerance} from '../redux/reducers/transaction';
+import {selectSlippageTolerance} from '../../redux/reducers/transaction';
 
 /* eslint-disable */
 import Rodal from 'rodal';

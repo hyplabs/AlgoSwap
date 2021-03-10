@@ -14,8 +14,8 @@ const NavigationBar: React.FC = () => {
   const dispatch = useDispatch();
 
   async function connectToAlgoSignerWallet() {
-    const accountAddress = await connectToAlgoSigner();
-    dispatch(setAccountAddress(accountAddress));
+    const fetchedAddress = await connectToAlgoSigner();
+    dispatch(setAccountAddress(fetchedAddress));
   }
 
   return (
@@ -31,7 +31,7 @@ const NavigationBar: React.FC = () => {
         </div>
         <div
           className={
-            pathname === '/pool' || pathname === '/create'
+            pathname === '/pool' || pathname === '/create' || pathname === '/add'
               ? 'Navbar-container-active'
               : 'Navbar-container'
           }

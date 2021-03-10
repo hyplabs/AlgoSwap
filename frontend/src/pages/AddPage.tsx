@@ -5,7 +5,7 @@ import {useHistory, useParams} from 'react-router-dom';
 import {selectFirstToken, selectSecondToken} from '../redux/reducers/tokens';
 import {setFirstToken, setSecondToken} from '../redux/actions';
 
-import AddLiquidity from '../components/AddLiquidity';
+import AddLiquidity from '../components/AddLiquidity/AddLiquidity';
 
 const AddPage: React.FC = () => {
   const history = useHistory();

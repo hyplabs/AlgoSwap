@@ -5,7 +5,7 @@ import {useHistory, useParams} from 'react-router-dom';
 import {selectFirstToken, selectSecondToken} from '../redux/reducers/tokens';
 import {setFirstToken, setSecondToken} from '../redux/actions';
 
-import CreatePair from '../components/CreatePair';
+import CreatePair from '../components/CreatePair/CreatePair';
 
 const CreatePage: React.FC = () => {
   const history = useHistory();

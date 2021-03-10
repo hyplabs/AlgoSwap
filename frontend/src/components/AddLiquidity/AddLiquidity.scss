@@ -10,7 +10,8 @@
 
   .AddLiquidity-header {
     display: flex;
-    align-items: flex-start;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
     font-size: 20px;
     font-weight: 600;
@@ -49,6 +50,11 @@
       &:hover {
         background-color: #940678;
       }
+    }
+
+    .AddLiquidity-button-disabled {
+      background-color: lightgray !important;
+      border: 1px solid lightgray !important;
     }
   }
 
@@ -92,7 +98,13 @@
     }
   }
 
-  .Wallet-logo-modal {
-    height: 45px;
+  .Settings-button {
+    background-color: transparent;
+    border: transparent;
+    outline: none;
+
+    .Settings-logo {
+      height: 25px;
+    }
   }
 }

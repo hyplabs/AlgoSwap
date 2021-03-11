@@ -45,7 +45,6 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
         ['USD', '3'],
       ])
     );
-    dispatch(setAccountAddress(''));
   };
 
   const toggleWalletModal = () => {
@@ -102,12 +101,6 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
       }
     }
   }
-
-  const modalStyle = {
-    position: 'relative',
-    'border-radius': '30px',
-    top: '210px',
-  };
 
   return (
     <div className="AddLiquidity">

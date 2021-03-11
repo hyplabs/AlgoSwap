@@ -47,7 +47,6 @@ const CreatePair: React.FC<Props> = ({firstToken, secondToken, updateTokens}) =>
         ['USD', '3'],
       ])
     );
-    dispatch(setAccountAddress(''));
   };
 
   useEffect(() => {

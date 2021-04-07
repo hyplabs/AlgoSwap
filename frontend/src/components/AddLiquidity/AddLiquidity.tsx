@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
+import {useHistory} from 'react-router-dom';
 
 import {selectUserAccountAddress} from '../../redux/reducers/user';
 import {selectTokenList} from '../../redux/reducers/tokens';
@@ -19,6 +20,7 @@ interface Props {
 }
 
 const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) => {
+  const history = useHistory();
   // Local state
   const [firstAmount, setFirstAmount] = useState<string>('');
   const [secondAmount, setSecondAmount] = useState<string>('');
@@ -105,7 +107,12 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
   return (
     <div className="AddLiquidity">
       <div className="AddLiquidity-header">
-        <span>Add Liquidity</span>
+        <div className="AddLiquidity-header-title-section">
+          <button className="AddLiquidity-header-back-button" onClick={() => history.goBack()}>
+            ←
+          </button>
+          <span className="AddLiquidity-header-title">Add Liquidity</span>
+        </div>
         <span>
           <button className="Settings-button" onClick={toggleSettingsModal}>
             <img className="Settings-logo" src="/settings.png" alt="Settings" />

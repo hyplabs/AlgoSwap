@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
+import {useHistory} from 'react-router-dom';
 
 import {selectUserAccountAddress} from '../../redux/reducers/user';
 import {selectTokenList} from '../../redux/reducers/tokens';
@@ -20,6 +21,7 @@ interface Props {
 }
 
 const CreatePair: React.FC<Props> = ({firstToken, secondToken, updateTokens}) => {
+  const history = useHistory();
   // Local state
   const [firstAmount, setFirstAmount] = useState<string>('');
   const [secondAmount, setSecondAmount] = useState<string>('');
@@ -107,7 +109,12 @@ const CreatePair: React.FC<Props> = ({firstToken, secondToken, updateTokens}) =>
   return (
     <div className="CreatePair">
       <div className="CreatePair-header">
-        <span>Create a Pair</span>
+        <div className="CreatePair-header-title-section">
+          <button className="CreatePair-header-back-button" onClick={() => history.goBack()}>
+            ←
+          </button>
+          <span>Create a Pair</span>
+        </div>
         <span>
           <button className="Settings-button" onClick={toggleSettingsModal}>
             <img className="Settings-logo" src="/settings.png" alt="Settings" />

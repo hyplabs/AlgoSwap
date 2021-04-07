@@ -15,6 +15,16 @@
     margin-bottom: 20px;
     font-size: 20px;
     font-weight: 600;
+
+    .CreatePair-header-title-section {
+      display: inherit;
+      .CreatePair-header-back-button {
+        border: none;
+        background-color: transparent;
+        outline: none;
+        margin-right: 10px;
+      }
+    }
   }
 
   .CreatePair-plus {

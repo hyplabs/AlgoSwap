@@ -11,6 +11,7 @@ import Rodal from 'rodal';
 import 'rodal/lib/rodal.css';
 
 import './SwapModal.scss';
+import swapToken1ForToken2 from "../../services/swapToken1ForToken2";
 
 interface Props {
   fromAmount: string;
@@ -35,6 +36,15 @@ const SwapModal: React.FC<Props> = ({
     borderRadius: '30px',
     top: '210px',
   };
+
+  const tokenSwap = () => {
+    console.log("onClick");
+    swapToken1ForToken2("WB3WP73CEBEXRCZWQY2OE2FY6KVHTXSLG5NRNZVXTP4AWSSAFGO6N3PD7U", "R3CB4EH5HBPWU5DT7QUFSXFNP44QFAUZYCVKCQIPIPTGPTCMHQC2JIOAVA", 10000000, 14973863, 8088850).then(() => {
+      console.log("Sent txns");
+    }).catch(e => {
+      console.error(e);
+    })
+  }
 
   return (
     <Rodal
@@ -80,7 +90,7 @@ const SwapModal: React.FC<Props> = ({
           </div>
         </div>
         <div className="SwapComponent-swap-modal-bottom">
-          <button className="SwapComponent-swap-modal-button" onClick={toggleSwapModal}>
+          <button className="SwapComponent-swap-modal-button" onClick={tokenSwap}>
             Swap tokens
           </button>
         </div>

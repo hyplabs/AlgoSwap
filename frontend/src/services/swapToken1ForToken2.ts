@@ -12,13 +12,16 @@ export default async function swapToken1ForToken2(
   try {
     const encodedAppArgs = [
       Buffer.from('s1').toString('base64'),
-      Buffer.from(minToken2Received).toString('base64'),
+      Buffer.from(minToken2Received.toString()).toString('base64'),
     ];
 
     const txParams = await AlgoSigner.algod({
       ledger: constants.LEDGER_NAME,
       path: '/v2/transactions/params',
     });
+
+    console.log(txParams);
+
 
     // Call to validator
     let txn1 = {
@@ -27,8 +30,8 @@ export default async function swapToken1ForToken2(
       appIndex: constants.VALIDATOR_APP_ID,
       appOnComplete: 0, // 0 == NoOp
       appArgs: encodedAppArgs,
-      appAccounts: [escrowAddr],
-      fee: txParams['fee'],
+      // appAccounts: [escrowAddr],
+      fee: txParams['min-fee'],
       firstRound: txParams['last-round'],
       lastRound: txParams['last-round'] + 1000,
       genesisID: txParams['genesis-id'],
@@ -42,8 +45,8 @@ export default async function swapToken1ForToken2(
       appIndex: constants.MANAGER_APP_ID,
       appOnComplete: 0, // 0 == NoOp
       appArgs: encodedAppArgs,
-      appAccounts: [escrowAddr],
-      fee: txParams['fee'],
+      // appAccounts: [escrowAddr],
+      fee: txParams['min-fee'],
       firstRound: txParams['last-round'],
       lastRound: txParams['last-round'] + 1000,
       genesisID: txParams['genesis-id'],
@@ -57,14 +60,18 @@ export default async function swapToken1ForToken2(
       to: escrowAddr,
       amount: token1Amount,
       assetIndex: token1Index,
-      fee: txParams['fee'],
+      fee: txParams['min-fee'],
       firstRound: txParams['last-round'],
       lastRound: txParams['last-round'] + 1000,
       genesisID: txParams['genesis-id'],
       genesisHash: txParams['genesis-hash'],
     };
 
+    console.log([txn1, txn2, txn3])
+
     let txnGroup = await algosdk.assignGroupID([txn1, txn2, txn3]);
+
+    console.log(txnGroup);
 
     // Modify the group fields in orginal transactions to be base64 encoded strings
     txn1.group = txnGroup[0].group.toString('base64');

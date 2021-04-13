@@ -11,6 +11,8 @@ import SwapModal from './SwapModal';
 import SettingsModal from '../common/SettingsModal';
 import WalletModal from '../common/WalletModal';
 
+import {allPairDetails} from "../../constants";
+
 import './SwapComponent.scss';
 
 const SwapComponent: React.FC = () => {

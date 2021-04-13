@@ -43,7 +43,16 @@ const NavigationBar: React.FC = () => {
       </div>
       <div className="Navbar-right">
         {accountAddr ? (
-          <span>{accountAddr}</span>
+          <div className="Navbar-user-context">
+            <div className="Navbar-account-net">
+              {/* TO-DO: Need to set whether it is TestNet or MainNet via redux*/}
+              TestNet
+            </div>
+            <div className="Navbar-account-addr">
+              <img className="AlgoSigner-logo-nav" src="/algosigner.png" alt="AlgoSigner" />
+              {accountAddr.slice(0, 10)}...{accountAddr.slice(-5)}
+            </div>
+          </div>
         ) : (
           <button className="Navbar-connect-button" onClick={connectToAlgoSignerWallet}>
             Connect to a wallet

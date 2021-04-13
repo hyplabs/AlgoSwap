@@ -16,7 +16,7 @@
     .Navbar-container-active,
     .Navbar-container:hover {
       display: inherit;
-      font-weight: 600;
+      text-shadow: 0px 0px 1px black;
       border-bottom: 2px solid #a30786;
     }
 
@@ -31,12 +31,36 @@
   .Navbar-right {
     padding-right: 10px;
 
+    .Navbar-user-context {
+      display: flex;
+      align-items: center;
+      .Navbar-account-net {
+        background-color: #a30786;
+        border: 1px solid #a30786;
+        padding: 8px 15px;
+        border-radius: 12px;
+        color: #ffffff;
+        font-weight: 600;
+        margin-right: 10px;
+      }
+
+      .Navbar-account-addr {
+        display: flex;
+        align-items: center;
+        border: 2px solid #a30786;
+        padding: 5px 15px;
+        border-radius: 12px;
+        font-weight: 600;
+      }
+    }
+
     .Navbar-connect-button {
       background-color: #a30786;
       border: 1px solid #a30786;
       border-radius: 12px;
       padding: 10px 15px;
       color: #ffffff;
+      font-weight: 600;
       text-transform: uppercase;
       cursor: pointer;
 
@@ -46,6 +70,13 @@
     }
   }
 }
+
+.AlgoSigner-logo-nav {
+  display: block;
+  margin-right: 4px;
+  height: 25px;
+}
+
 .App-logo-nav {
   padding-left: 10px;
   margin-right: 8px;

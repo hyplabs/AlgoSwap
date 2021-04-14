@@ -1,6 +1,7 @@
 import ActionType from './types';
 
 export type CurrentAccountAddress = {type: ActionType.SetAccountAddress; accountAddress: string};
+export type CurrentAccountNet = {type: ActionType.SetAccountNet; accountNet: string};
 
 export type CurrentSlippageTolerance = {
   type: ActionType.SetSlippageTolerance;
@@ -17,6 +18,13 @@ export function setAccountAddress(accountAddress: string): CurrentAccountAddress
   return {
     accountAddress,
     type: ActionType.SetAccountAddress,
+  };
+}
+
+export function setAccountNet(accountNet: string): CurrentAccountNet {
+  return {
+    accountNet,
+    type: ActionType.SetAccountNet,
   };
 }
 

@@ -1,5 +1,6 @@
 export interface CurrentUser {
   readonly accountAddress: string | null;
+  readonly accountNet: string | null;
 }
 
 export interface CurrentTransaction {

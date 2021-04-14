@@ -7,7 +7,8 @@
 import React from 'react';
 import {useDispatch} from 'react-redux';
 
-import {setAccountAddress} from '../../redux/actions';
+import {setAccountAddress, setAccountNet} from '../../redux/actions';
+import {LEDGER_NAME} from '../../services/constants';
 
 /* eslint-disable */
 import Rodal from 'rodal';
@@ -33,6 +34,8 @@ const WalletModal: React.FC<Props> = ({openWalletModal, toggleWalletModal}) => {
   async function connectToAlgoSignerWallet() {
     const accountAddress = await connectToAlgoSigner();
     dispatch(setAccountAddress(accountAddress));
+    dispatch(setAccountNet(LEDGER_NAME));
+
     toggleWalletModal();
   }
 

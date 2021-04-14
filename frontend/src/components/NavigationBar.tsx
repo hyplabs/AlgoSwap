@@ -1,9 +1,11 @@
 import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {selectUserAccountAddress} from '../redux/reducers/user';
-import {setAccountAddress} from '../redux/actions';
+import {selectUserAccountAddress, selectUserAccountNet} from '../redux/reducers/user';
+import {setAccountAddress, setAccountNet} from '../redux/actions';
 import {Link, useLocation} from 'react-router-dom';
+
+import {LEDGER_NAME} from '../services/constants';
 
 import {connectToAlgoSigner} from '../utils/connectToAlgoSigner';
 import './NavigationBar.scss';
@@ -11,11 +13,13 @@ import './NavigationBar.scss';
 const NavigationBar: React.FC = () => {
   const {pathname} = useLocation();
   const accountAddr = useSelector(selectUserAccountAddress);
+  const accountNet = useSelector(selectUserAccountNet);
   const dispatch = useDispatch();
 
   async function connectToAlgoSignerWallet() {
     const fetchedAddress = await connectToAlgoSigner();
     dispatch(setAccountAddress(fetchedAddress));
+    dispatch(setAccountNet(LEDGER_NAME));
   }
 
   return (
@@ -44,10 +48,7 @@ const NavigationBar: React.FC = () => {
       <div className="Navbar-right">
         {accountAddr ? (
           <div className="Navbar-user-context">
-            <div className="Navbar-account-net">
-              {/* TO-DO: Need to set whether it is TestNet or MainNet via redux*/}
-              TestNet
-            </div>
+            <div className="Navbar-account-net">{accountNet}</div>
             <div className="Navbar-account-addr">
               <img className="AlgoSigner-logo-nav" src="/algosigner.png" alt="AlgoSigner" />
               {accountAddr.slice(0, 10)}...{accountAddr.slice(-5)}

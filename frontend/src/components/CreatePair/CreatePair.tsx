@@ -4,7 +4,7 @@ import {useHistory} from 'react-router-dom';
 
 import {selectUserAccountAddress} from '../../redux/reducers/user';
 import {selectTokenList} from '../../redux/reducers/tokens';
-import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '../../redux/actions';
+import {setTokenList, setFirstToken, setSecondToken} from '../../redux/actions';
 
 import TokenAmount from '../TokenAmount/TokenAmount';
 
@@ -110,16 +110,14 @@ const CreatePair: React.FC<Props> = ({firstToken, secondToken, updateTokens}) =>
     <div className="CreatePair">
       <div className="CreatePair-header">
         <div className="CreatePair-header-title-section">
-          <button className="CreatePair-header-back-button" onClick={() => history.goBack()}>
-            ←
+          <button className="CreatePair-header-button" onClick={() => history.goBack()}>
+            <img className="Back-logo" src="/back.png" alt="Back" />
           </button>
-          <span>Create a Pair</span>
+          <span className="CreatePair-header-title">Create a Pair</span>
         </div>
-        <span>
-          <button className="Settings-button" onClick={toggleSettingsModal}>
-            <img className="Settings-logo" src="/settings.png" alt="Settings" />
-          </button>
-        </span>
+        <button className="CreatePair-header-button" onClick={toggleSettingsModal}>
+          <img className="Settings-logo" src="/settings.png" alt="Settings" />
+        </button>
       </div>
       <div className="CreatePair-content">
         <TokenAmount

@@ -59,12 +59,19 @@
   }
 
   .Settings-button {
+    display: flex;
+    align-items: center;
     background-color: transparent;
     border: transparent;
+    border-radius: 50%;
+    padding: 5px;
     outline: none;
 
     .Settings-logo {
       height: 25px;
+    }
+    &:hover {
+      background-color: rgb(237, 237, 237);
     }
   }
 }

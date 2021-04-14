@@ -17,12 +17,33 @@
     font-weight: 600;
 
     .AddLiquidity-header-title-section {
-      display: inherit;
-      .AddLiquidity-header-back-button {
-        border: none;
-        background-color: transparent;
-        outline: none;
-        margin-right: 10px;
+      display: flex;
+      align-items: center;
+
+      .AddLiquidity-header-title {
+        margin-left: 10px;
+      }
+    }
+
+    .AddLiquidity-header-button {
+      display: flex;
+      align-items: center;
+      background-color: transparent;
+      border: transparent;
+      outline: none;
+      border-radius: 50%;
+      padding: 5px;
+
+      .Back-logo {
+        height: 18px;
+      }
+
+      .Settings-logo {
+        height: 25px;
+      }
+
+      &:hover {
+        background-color: rgb(237, 237, 237);
       }
     }
   }
@@ -65,56 +86,6 @@
     .AddLiquidity-button-disabled {
       background-color: lightgray !important;
       border: 1px solid lightgray !important;
-    }
-  }
-
-  .AddLiquidity-wallet-modal {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    font-weight: 700;
-
-    .AddLiquidity-wallet-modal-header {
-      display: flex;
-      padding: 10px;
-      font-size: 18px;
-      border-bottom: 1px solid lightgray;
-      .AddLiquidity-wallet-modal-header-image {
-        display: flex;
-        align-items: center;
-        margin-right: 5px;
-      }
-    }
-
-    .AddLiquidity-wallet-modal-select {
-      background-color: transparent;
-      border: 2px solid lightgray;
-      margin: 15px;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: inherit;
-
-      .AddLiquidity-wallet-modal-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-      }
-
-      &:hover {
-        border: 2px solid #940678;
-      }
-    }
-  }
-
-  .Settings-button {
-    background-color: transparent;
-    border: transparent;
-    outline: none;
-
-    .Settings-logo {
-      height: 25px;
     }
   }
 }

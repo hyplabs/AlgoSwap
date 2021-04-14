@@ -4,7 +4,7 @@ import {useHistory} from 'react-router-dom';
 
 import {selectUserAccountAddress} from '../../redux/reducers/user';
 import {selectTokenList} from '../../redux/reducers/tokens';
-import {setAccountAddress, setTokenList, setFirstToken, setSecondToken} from '../../redux/actions';
+import {setTokenList, setFirstToken, setSecondToken} from '../../redux/actions';
 
 import TokenAmount from '../TokenAmount/TokenAmount';
 
@@ -108,13 +108,13 @@ const AddLiquidity: React.FC<Props> = ({firstToken, secondToken, updateTokens}) 
     <div className="AddLiquidity">
       <div className="AddLiquidity-header">
         <div className="AddLiquidity-header-title-section">
-          <button className="AddLiquidity-header-back-button" onClick={() => history.goBack()}>
-            ←
+          <button className="AddLiquidity-header-button" onClick={() => history.goBack()}>
+            <img className="Back-logo" src="/back.png" alt="Back" />
           </button>
           <span className="AddLiquidity-header-title">Add Liquidity</span>
         </div>
         <span>
-          <button className="Settings-button" onClick={toggleSettingsModal}>
+          <button className="AddLiquidity-header-button" onClick={toggleSettingsModal}>
             <img className="Settings-logo" src="/settings.png" alt="Settings" />
           </button>
         </span>

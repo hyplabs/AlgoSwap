@@ -17,12 +17,33 @@
     font-weight: 600;
 
     .CreatePair-header-title-section {
-      display: inherit;
-      .CreatePair-header-back-button {
-        border: none;
-        background-color: transparent;
-        outline: none;
-        margin-right: 10px;
+      display: flex;
+      align-items: center;
+
+      .CreatePair-header-title {
+        margin-left: 10px;
+      }
+    }
+
+    .CreatePair-header-button {
+      display: flex;
+      align-items: center;
+      background-color: transparent;
+      border: transparent;
+      outline: none;
+      border-radius: 50%;
+      padding: 5px;
+
+      .Back-logo {
+        height: 18px;
+      }
+
+      .Settings-logo {
+        height: 25px;
+      }
+
+      &:hover {
+        background-color: rgb(237, 237, 237);
       }
     }
   }
@@ -65,16 +86,6 @@
     .CreatePair-button-disabled {
       background-color: lightgray !important;
       border: 1px solid lightgray !important;
-    }
-  }
-
-  .Settings-button {
-    background-color: transparent;
-    border: transparent;
-    outline: none;
-
-    .Settings-logo {
-      height: 25px;
     }
   }
 }

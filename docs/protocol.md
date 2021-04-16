@@ -310,7 +310,7 @@ Therefore, we can now define an add liquidity operation as follows:
 10. Same as steps 6 and 7, but for `LIQUIDITY_TOKEN(ESCROW(TOKEN1, TOKEN2))` rather than Token 1
 11. Frontend clears Manager's local state for the User, then shows User how much of Token 1 and Token 2 they've successfully added to the liquidity pool.
 
-### Withdraw Liquididity for Token 1 and Token 2
+### Withdraw Liquidity for Token 1 and Token 2
 
 We can define a withdraw liquidity operation as follows:
 

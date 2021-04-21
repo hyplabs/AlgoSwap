@@ -1,5 +1,6 @@
 enum ActionType {
   SetAccountAddress = 'SET_ACCOUNT_ADDRESS',
+  SetAccountNet = 'SET_ACCOUNT_NET',
 
   SetTokenList = 'SET_TOKEN_LIST',
   SetFromToken = 'SET_FROM_TOKEN',

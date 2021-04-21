@@ -23,18 +23,18 @@
 .LiquidityList-create-pair {
   margin-right: 8px;
   background-color: transparent;
-  color: #1e52ac;
+  color: #a30786;
   padding: 8px 16px;
-  border: 1px solid #1e52ac;
+  border: 1px solid #a30786;
   border-radius: 8px;
   cursor: pointer;
 }
 
 .LiquidityList-add-liquidity {
-  background-color: #1e52ac;
+  background-color: #a30786;
   color: #ffffff;
   padding: 8px 16px;
-  border: 1px solid #1e52ac;
+  border: 1px solid #a30786;
   border-radius: 8px;
   cursor: pointer;
 }

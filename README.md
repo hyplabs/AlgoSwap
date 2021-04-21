@@ -2,9 +2,12 @@
 
 # WARNING: THIS CODE HAS NOT BEEN AUDITED AND SHOULD NOT BE USED ON THE ALGORAND MAINNET - USE AT YOUR OWN RISK!
 
+![AlgoSwap Logo](/algoswap_logo.png)
+
+
 ## Overview
 
-AlgoSwap is an automated market maker like UniSwap built on the Pure Proof of Stake Algorand Blockchain. It relies on the `xy = k` function to maintain exchange rates for liquidity pairs in the market.
+AlgoSwap is an automated market maker like UniSwap built on the Pure Proof-of-Stake Algorand Blockchain. It relies on the `xy = k` function to maintain exchange rates for liquidity pairs in the market.
 
 ---
 
@@ -34,7 +37,6 @@ AlgoSwap was made possible by a [generous grant from the Algorand Foundation](ht
 - [haardikk21](https://github.com/haardikk21)
 - [luoyang9](https://github.com/luoyang9)
 - [mattreyes](https://github.com/mattreyes)
-- [tiger-hao](https://github.com/tiger-hao)
 - [uberi](https://github.com/uberi)
 - [windforcer](https://github.com/windforcer)
 
